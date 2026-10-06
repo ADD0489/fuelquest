@@ -367,9 +367,13 @@ nav.tabs{background:rgba(7,10,20,.72);backdrop-filter:blur(18px) saturate(1.4);-
 .sheet{background:var(--sheet);border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .modal{background:rgba(3,5,12,.7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .close{background:var(--soft);color:var(--ink)}
-input[type=number],input[type=text],input[type=search],select{background:var(--input);border:1px solid var(--line2);color:var(--ink)}
-select option{background:#151a2e;color:#eef2ff}
-[data-theme=light] select option{background:#fff;color:#0d1226}
+input[type=number],input[type=text],input[type=search],select{background:var(--input);border:1px solid var(--line2);color:var(--ink);color-scheme:dark}
+select option,select optgroup{background:#151a2e;color:#eef2ff}
+select optgroup{color:#b6ff3b;font-weight:800;font-style:normal}
+select option{color:#eef2ff}
+[data-theme=light] input,[data-theme=light] select{color-scheme:light}
+[data-theme=light] select option,[data-theme=light] select optgroup{background:#fff;color:#0d1226}
+[data-theme=light] select optgroup{color:#5b21b6;font-weight:800}
 input:focus,select:focus,button:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
 input[type=range],input[type=radio],input[type=checkbox]{accent-color:var(--grape)}
 /* buttons */
@@ -698,6 +702,17 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
 .rxsteps{margin:6px 0 10px;padding-left:20px;font-size:.92rem}
 .rxsteps li{margin:6px 0}
 .rxsaved .row{flex-wrap:wrap}
+
+/* Squad roster (one person per device) */
+.squadcard .logitem.you{border-color:rgba(182,255,59,.35);background:rgba(182,255,59,.06)}
+.avatar.sm{width:28px;height:28px;font-size:1rem;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,.08)}
+
+/* food search + custom foods */
+.foodtools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
+.foodtools input[type=search]{flex:1;min-width:140px;max-width:320px}
+.approx{font-size:.65rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--orange,#ff9a3d);background:rgba(255,154,61,.12);border:1px solid rgba(255,154,61,.35);border-radius:999px;padding:1px 7px}
+.pchip.custom{border-color:rgba(255,154,61,.45)}
+.customform .formgrid{margin-top:8px}
 </style>
 </head>
 <body>
@@ -729,12 +744,8 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
   <div class="card glowcard" id="welcomeCard" style="text-align:center">
     <div class="eyebrow">Welcome</div>
     <h2>Start your quest</h2>
-    <p class="lead soft" style="max-width:640px;margin:6px auto">Food is fuel. Pick your profile, choose a buddy, and get moving.</p>
-  </div>
-  <div class="card">
-    <h3>👋 Who's using this?</h3>
-    <p class="small muted">Each person makes their own profile, plan and progress. Everything stays on this device.</p>
-    <div class="chips" id="homeWho"></div>
+    <p class="lead soft" style="max-width:640px;margin:6px auto">Food is fuel. Set up once on this device, choose a buddy, and get moving.</p>
+    <button type="button" class="btn sm alt" id="welSkip" style="margin-top:8px">Don't show again</button>
   </div>
   <div id="today"></div>
   <h3 style="margin-top:18px">🧭 Explore</h3>
@@ -887,9 +898,9 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
 <!-- 3. CALCULATOR -->
 <section class="panel" id="calc" role="tabpanel">
   <h2>🔋 Daily Energy Calculator</h2>
-  <p class="lead soft">Add people. Profiles stay on this device only.</p>
+  <p class="lead soft">Your profile on this device. Family on other phones link in on Squad.</p>
   <div class="card">
-    <h3 id="formTitle">➕ Add a person</h3>
+    <h3 id="formTitle">➕ Create my profile</h3>
     <form id="pForm" autocomplete="off">
       <div class="formgrid">
         <label class="f">Name <input type="text" id="pName" required maxlength="20" placeholder="your name"></label>
@@ -919,11 +930,9 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
 <!-- MY PLAN -->
 <section class="panel" id="plan" role="tabpanel">
   <h2>🗺️ My Plan</h2>
-  <p class="lead soft">Goals, movement and meals for whoever is using this.</p>
+  <p class="lead soft">Your goals, movement and meals on this device.</p>
   <div class="card">
-    <div class="spread"><h3 style="margin:0">👋 Who's using this?</h3>
-      <label class="row small" style="font-weight:800;cursor:pointer"><input type="checkbox" id="hideNums"> 🙈 Hide my numbers</label></div>
-    <div class="chips" id="planWho" style="margin-top:10px"></div>
+    <label class="row small" style="font-weight:800;cursor:pointer"><input type="checkbox" id="hideNums"> 🙈 Hide my numbers</label>
   </div>
   <div id="planBody"></div>
   <div class="card">
@@ -993,8 +1002,13 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
       </div>
     </div>
     <div class="card">
+      <div class="foodtools">
+        <input type="search" id="plSearch" placeholder="Search foods…" autocomplete="off">
+        <button type="button" class="btn sm alt" id="plCustomBtn">➕ Custom food</button>
+      </div>
       <div class="chips" id="plCats" style="margin-bottom:10px"></div>
       <div class="palette" id="palette"></div>
+      <div id="plCustomWrap" class="customform" style="display:none;margin-top:12px"></div>
     </div>
   </div>
   <div class="card" id="recipeSuggest"></div>
@@ -1090,9 +1104,10 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
   <h2>💚 Healthy habits</h2>
   <p class="lead">Small things done most days beat perfect plans. Pick one to try together this week.</p>
   <div class="habits" id="habitGrid"></div>
-  <h2 style="margin-top:22px">⚔️ Squad Raid</h2>
-  <p class="lead soft">Team up. Healthy habits deal the damage.</p>
-  <details class="more"><summary><span>How raids work</span></summary><div class="morebody"><p class="small">Honour system: each person adds their effort or pastes a share code from their weekly recap. Boss HP scales with squad size. Claim the reward once the boss is down.</p></div></details>
+  <h2 style="margin-top:22px">⚔️ Squad</h2>
+  <p class="lead soft">Link family on other devices. Raid together. This phone stays yours.</p>
+  <details class="more"><summary><span>How Squad works</span></summary><div class="morebody"><p class="small">FuelQuest is built for one person per device. Link teammates with a share code from their weekly recap, or add their effort by hand. Boss HP scales with squad size. Claim the reward once the boss is down.</p></div></details>
+  <div id="squadRoster"></div>
   <div id="familyBody"></div>
   <h2 style="margin-top:22px">📸 Weekly recap card</h2>
   <p class="lead">Make a card to screenshot or send in the family chat. It never shows weights or calorie totals.</p>
@@ -1165,6 +1180,7 @@ const CORE=[
 ['bacon','Bacon, grilled','2 rashers (~40 g cooked)',130,10,'s','F','🥓',3,'p',0.5,10],
 ['ham','Ham slice','1 slice (~20 g)',25,3.5,'s','F','🍖',2,'p',0.5,1],
 ['kiwi','Kiwifruit (green)','1 fruit (~75 g)',45,0.8,'e','F','🥝',2,'v',11,0.4],
+['frozentropical','Frozen tropical fruit mix','per 100 g',55,0.7,'e','Z','🥭',2,'v',13,0.2],
 ['mandarin','Mandarin','1 fruit (~80 g)',35,0.6,'e','F','🍊',2,'v'],
 ['carrot','Carrot sticks','1 medium carrot',30,0.7,'e','F','🥕',2,'v',7,0.2],
 ['broccoli','Broccoli','1 cup cooked',35,3,'e','F','🥦',3,'v',7,0.4],
@@ -1240,12 +1256,14 @@ const PACKS={
       sausage:['Beef sausage or saveloy'],pie:['Mince & cheese pie (bakery)'],
       fishchips:['Fish & chips','1 battered fish + half a scoop of chips'],
       timtam:['Tim Tam'],toffeepop:['Toffee Pop'],whittakers:["Whittaker's chocolate"],
-      coke:['Coke'],icecream:['Ice cream (e.g. Tip Top)'],milo:['Milo with milk','3 heaped tsp + 200 ml blue milk']
+      coke:['Coke'],icecream:['Ice cream (e.g. Tip Top)'],milo:['Milo with milk','3 heaped tsp + 200 ml blue milk'],
+      frozentropical:['Frozen tropical fruit mix (e.g. mango, pineapple, papaya)']
     },
     add:[
       ['lp','L&P','1 can (330 ml)',150,0,'t','T','🥤',1,'t'],
       ['chocfish','Chocolate fish','1 fish (~20 g)',85,0.8,'t','T','🐡',1,'t'],
       ['pinelumps','Pineapple Lumps','5 lumps (~33 g)',130,1,'t','T','🍍',1,'t'],
+      ['frozenberries','Frozen mixed berries','per 100 g',45,0.8,'e','Z','🫐',2,'v',10,0.3],
     ],
     drinks:{milk:'Anchor Blue milk',milo:'Milo with milk',soft:'L&P'},
     childHealth:'growth charts (WHO charts used by Well Child Tamariki Ora in NZ, or your GP and maternal and child health nurse in Australia)',
@@ -1255,10 +1273,13 @@ const PACKS={
 const GROUPS={P:['🥫','Pantry'],F:['🧊','Fridge'],Z:['❄️','Freezer'],T:['🍭','Treats & drinks']};
 const CATS={p:['Protein','#ff6b6b'],c:['Carbs','#ffb000'],v:['Veg & fruit','#4cc43a'],b:['Baking & pantry','#c4b5fd'],t:['Treats & extras','#ff5fa2'],d:['Drinks','#2fa8ff']};
 let FOODS=[], F={};
+function customFoods(){return store.get('customFoods',[]);}
+function saveCustomFoods(arr){store.set('customFoods',arr);}
 function buildFoods(packId){
   const pk=PACKS[packId]||PACKS.core;
   FOODS=CORE.map(a=>{const r=pk.rename[a[0]]||[];return mk([a[0],r[0]||a[1],r[1]||a[2],...a.slice(3)]);});
   pk.add.forEach(a=>FOODS.push(mk(a)));
+  customFoods().forEach(c=>{const f=Object.assign({},c,{custom:true,approx:!!c.approx});if(!FOODS.find(x=>x.id===f.id))FOODS.push(f);});
   F={};FOODS.forEach(f=>F[f.id]=f);
 }
 function mk(a){const per=!!a[12]||/^per 100/i.test(a[2]||'');return {id:a[0],name:a[1],serve:a[2],kcal:a[3],p:a[4],tag:a[5],g:a[6],e:a[7],full:a[8],cat:a[9],cb:a[10]!=null?a[10]:null,ft:a[11]!=null?a[11]:null,per100:per};}
@@ -1283,30 +1304,30 @@ const STARTERS={
 const RAR=[null,['Common','#8a94b8'],['Uncommon','#2fb35a'],['Rare','#2f8fe0'],['Epic','#9b5cff'],['Legendary','#ff9f1c']];
 const CREATURES=[
  ['splashlet','Hydrix','💧',1,'#7fd3ff','drop','Fast, slippery and always first to the water fountain.','Hit your water goal'],
- ['puddlepup','Torrentail','💧',2,'#4fb6f0','blob','Its tail whips up a current every time you refill your bottle.','Hit your water goal 3 days in a row'],
- ['tidewhirl','Maelstryx','🌊',3,'#2a7fd4','drop','A storm of a creature that feeds on a full week of hydration.','Hit your water goal on 7 days'],
+ ['puddlepup','Torrentail','💧',2,'#4fb6f0','blob','Its tail whips up a current every time you refill your bottle.','Hit your water goal 5 days in a row'],
+ ['tidewhirl','Maelstryx','🌊',3,'#2a7fd4','drop','A storm of a creature that feeds on a full fortnight of hydration.','Hit your water goal on 14 days'],
  ['sproutle','Verdling','🌱',1,'#8ee06b','blob','Grows a new blade for every colourful plate you crush.','Eat 5+ fruit and veg serves in a day'],
- ['peapodle','Thornpod','🫛',2,'#5ccf4a','pod','Armoured seed pod. Three cores, zero weaknesses.','Eat 5+ fruit and veg on 3 days'],
- ['bloomhorn','Bloomfang','🌸',3,'#ff8fc7','horn','Its horn flowers when you try a new vegetable. Do not be fooled; it bites.','Eat 5+ fruit and veg on 5 days'],
+ ['peapodle','Thornpod','🫛',2,'#5ccf4a','pod','Armoured seed pod. Three cores, zero weaknesses.','Eat 5+ fruit and veg on 5 days'],
+ ['bloomhorn','Bloomfang','🌸',3,'#ff8fc7','horn','Its horn flowers when you try a new vegetable. Do not be fooled; it bites.','Eat 5+ fruit and veg on 12 days'],
  ['pebblor','Shardlet','🪨',1,'#b6a99a','square','A small crystal shard that cracks harder after every session.','Log your first strength session'],
- ['boulderoo','Quarrox','🪨',2,'#9b8b7a','square','Built from five sessions of pure effort. Very hard to move.','Log 5 strength sessions'],
- ['granitusk','Granitusk','⛰️',3,'#7a6f66','horn','Patient, massive and unbreakable. Strength takes time and it knows it.','Log 10 strength sessions'],
+ ['boulderoo','Quarrox','🪨',2,'#9b8b7a','square','Built from eight sessions of pure effort. Very hard to move.','Log 8 strength sessions'],
+ ['granitusk','Granitusk','⛰️',3,'#7a6f66','horn','Patient, massive and unbreakable. Strength takes time and it knows it.','Log 20 strength sessions'],
  ['gustling','Gustrike','🌬️',1,'#c9ecff','wisp','A slipstream spirit that tails anyone moving for 30 minutes.','Move for 30+ minutes in a day'],
- ['zephyrix','Zephyrix','🌪️',2,'#9fd8f5','wisp','Leaves a cyclone of leaves behind every lap.','Hit your movement goal on 5 days'],
+ ['zephyrix','Zephyrix','🌪️',2,'#9fd8f5','wisp','Leaves a cyclone of leaves behind every lap.','Hit your movement goal on 10 days'],
  ['galecrest','Galecrest','🦅',3,'#5aa9e6','bird','Rides the high winds. Only shows up for 10,000-step days.','Log 10,000 steps in a day'],
  ['lunalo','Lunarc','🌙',1,'#c7b8ff','blob','A crescent-blade spirit that powers up while you sleep.','Hit your sleep goal'],
- ['dozzle','Somnyx','💤',2,'#a493f0','blob','Guards your bedtime routine like a vault.','Hit your sleep goal on 5 nights'],
- ['nocturnox','Nocturnox','🌌',3,'#5b4bc4','horn','Lord of the night shift. Banishes late screens on sight.','Hit your sleep goal on 10 nights'],
+ ['dozzle','Somnyx','💤',2,'#a493f0','blob','Guards your bedtime routine like a vault.','Hit your sleep goal on 10 nights'],
+ ['nocturnox','Nocturnox','🌌',3,'#5b4bc4','horn','Lord of the night shift. Banishes late screens on sight.','Hit your sleep goal on 21 nights'],
  ['chefling','Searling','🍳',1,'#ffd27a','blob','Sparks fly when you build a recipe. It lives for the sizzle.','Save a plate as a recipe'],
- ['saucewyrm','Saucewyrm','🍲',2,'#ff9a6b','wisp','A kitchen dragon that stirs the pot with its tail.','Save 3 recipes'],
- ['gourmole','Gourmancer','🧑‍🍳',3,'#c98b5a','blob','Masters the perfectly balanced plate. Every time.','Build 3 perfectly balanced plates'],
+ ['saucewyrm','Saucewyrm','🍲',2,'#ff9a6b','wisp','A kitchen dragon that stirs the pot with its tail.','Save 5 recipes'],
+ ['gourmole','Gourmancer','🧑‍🍳',3,'#c98b5a','blob','Masters the perfectly balanced plate. Every time.','Build 5 perfectly balanced plates'],
  ['eggbert','Shellstrike','🥚',1,'#fff2c2','drop','Cracks open with raw protein power.','Hit your protein goal'],
- ['mooscle','Calcitron','🥛',2,'#f2f2f2','square','A dairy-powered tank. Calcium plating, protein core.','Hit your protein goal on 5 days'],
+ ['mooscle','Calcitron','🥛',2,'#f2f2f2','square','A dairy-powered tank. Calcium plating, protein core.','Hit your protein goal on 12 days'],
  ['quizzle','Cognix','❓',1,'#ffe066','star','Feeds on facts. Gets sharper with every answer.','Finish the quiz'],
  ['professorb','Oraclix','🎓',3,'#7b5cff','blob','Knows the energy of every food before you ask.','Score 10/10 in the quiz'],
  ['kindle','Embrix','🔥',1,'#ffb36b','flame','A spark that grows hotter every day you check in.','Check in 3 days in a row'],
- ['blazewing','Blazewing','🔥',3,'#ff7a3d','bird','Its wings burn brighter the longer your streak.','Check in 7 days in a row'],
- ['solarion','Solarion','☀️',5,'#ffc93c','star','Legendary sun titan. Only the most consistent ever see it.','Check in 30 days in a row'],
+ ['blazewing','Blazewing','🔥',3,'#ff7a3d','bird','Its wings burn brighter the longer your streak.','Check in 14 days in a row'],
+ ['solarion','Solarion','☀️',5,'#ffc93c','star','Legendary sun titan. Only the most consistent ever see it.','Check in 45 days in a row'],
  ['switcheroo','Shiftail','🔄',2,'#4ce0c0','blob','A shapeshifter that swaps forms faster than you swap snacks.','Try 5 smart swaps'],
  ['bubbloon','Fizzwisp','🫧',1,'#bfefff','blob','Rides sparkling-water bubbles at high speed.','Hatch from a 2 km egg'],
  ['crumbkin','Crustler','🥐',1,'#e9b872','blob','Flaky armour, sharp claws, always ready for a picnic raid.','Hatch from a 2 km egg'],
@@ -1326,31 +1347,31 @@ const BADGES=[
 ['checkin_3','🎩','Hat-trick','3-day check-in streak',s=>s.bestCheck>=3],
 ['streak_7','🔥','7-Day Streak','Check in 7 days in a row',s=>s.bestCheck>=7],
 ['streak_30','🌋','30-Day Streak','Check in 30 days in a row',s=>s.bestCheck>=30],
-['protein_pro','🥚','Protein Pro','Hit your protein goal on 5 days',s=>s.proteinDays>=5],
-['hydration','💧','Hydration Hero','Hit your water goal on 7 days',s=>s.waterDays>=7],
+['protein_pro','🥚','Protein Pro','Hit your protein goal on 10 days',s=>s.proteinDays>=10],
+['hydration','💧','Hydration Hero','Hit your water goal on 14 days',s=>s.waterDays>=14],
 ['rainbow','🌈','Rainbow Eater','5+ fruit and veg serves in a day',s=>s.fvDays>=1],
-['fv_week','🥦','Five-a-day Week','5+ fruit and veg on 5 days',s=>s.fvDays>=5],
-['sleep','😴','Sleep Champ','Hit your sleep goal on 5 nights',s=>s.sleepDays>=5],
+['fv_week','🥦','Five-a-day Fortnight','5+ fruit and veg on 10 days',s=>s.fvDays>=10],
+['sleep','😴','Sleep Champ','Hit your sleep goal on 10 nights',s=>s.sleepDays>=10],
 ['mover','👟','Get Moving','Hit your movement goal',s=>s.moveDays>=1],
 ['steps10k','🚶','10k Steps Club','Log 10,000 steps in a day',s=>s.steps10k],
 ['weekend','🏖️','Weekend Warrior','Movement goal on a Saturday and the Sunday after',s=>s.weekend],
 ['strength1','🏋️','Strength Starter','Log your first strength session',s=>s.strength>=1],
-['strength10','🦾','Iron Will','Log 10 strength sessions',s=>s.strength>=10],
+['strength10','🦾','Iron Will','Log 15 strength sessions',s=>s.strength>=15],
 ['early','🐦','Early Bird','Check in before 7 am',s=>s.early],
-['swap','🔄','Swap Master','Try 10 smart swaps',s=>s.swaps>=10],
-['recipe','👩‍🍳','Recipe Chef','Save 3 plates as recipes',s=>s.recipes>=3],
-['ninja','🥷','Kitchen Ninja','Build 3 perfectly balanced plates',s=>s.balancedPlates>=3],
-['explorer','🔍','Food Explorer','Open 20 different food cards',s=>s.explored>=20],
+['swap','🔄','Swap Master','Try 20 smart swaps',s=>s.swaps>=20],
+['recipe','👩‍🍳','Recipe Chef','Save 5 plates as recipes',s=>s.recipes>=5],
+['ninja','🥷','Kitchen Ninja','Build 5 perfectly balanced plates',s=>s.balancedPlates>=5],
+['explorer','🔍','Food Explorer','Open 35 different food cards',s=>s.explored>=35],
 ['quizwhiz','🏆','Quiz Whiz','Score 10/10 in the quiz',s=>s.quizBest>=10],
-['balanced','⚖️','Balanced Day','Wrap up a day within 10% of your energy target',s=>s.balanced>=1],
+['balanced','⚖️','Balanced Week','Wrap up 5 days within 10% of your energy target',s=>s.balanced>=5],
 ['task1','📋','First Quest','Complete a Daily Quest',s=>s.tasks>=1],
 ['task3','🎲','Quest Sweep','Finish all 3 Daily Quests in a day',s=>s.allTasks],
-['research','🔬','Mission Complete','Complete a Weekly Mission',s=>s.research>=1],
+['research','🔬','Mission Complete','Complete 2 Weekly Missions',s=>s.research>=2],
 ['team','🤝','Squad Player','Add your effort to a Squad Raid',s=>s.team],
-['raid','⚔️','Raid Victor','Help defeat a raid boss',s=>s.raids>=1],
+['raid','⚔️','Raid Victor','Help defeat 2 raid bosses',s=>s.raids>=2],
 ['tide','🌊','Tide Turner','Come back and check in after a break',s=>s.tide],
 ['hatch','🐣','First Hatch','Hatch your first egg',s=>s.hatched>=1],
-['dex10','📖','Collector','Catch 10 different creatures',s=>s.dex>=10],
+['dex10','📖','Collector','Catch 15 different creatures',s=>s.dex>=15],
 ['level5','🌟','Rising Star','Reach level 5',s=>s.level>=5],
 ['perfect','💎','Perfect Week','Max every part of the weekly Consistency Score (extra activity not needed)',s=>s.perfect],
 ['cons4','🥉','Locked In','4 weeks at Gold or higher',s=>s.cons>=4],
@@ -1361,11 +1382,11 @@ const BADGES=[
 const TASKS=[['💧','Swap one fizzy drink or juice for water','xp'],['🥚','Add protein to breakfast','boost'],['🚶','Take a 15 min walk after dinner','xp'],['🥕','Eat a veg with lunch','encounter'],['🍎','Have a piece of fruit as a snack','xp'],['🧘','Do 5 minutes of stretching','xp'],['🍽️','Eat dinner at the table together','encounter'],['📵','Screens off 30 min before bed','xp'],['🥛','Have a glass of milk or a yoghurt','xp'],['🏃','Do 20 squats and 10 push-ups','xp'],['🥗','Fill half your dinner plate with veg','encounter'],['🍳','Help cook or prep a meal','xp'],['🛏️','Get to bed on time tonight','xp'],['🫘','Try a food you have not had in a while','encounter'],['🚴','Walk, bike or scoot somewhere instead of a ride','xp'],['🧴','Pack a water bottle for the day','xp'],['🍌','Fuel up before sport or training','boost'],['🌈','Eat 3 different coloured fruit or veg','encounter'],['🏀','Play outside or shoot hoops for 20 min','xp'],['😋','Enjoy a treat slowly, with a meal','xp']];
 
 const RESEARCH=[
- {id:'hydro',e:'💧',t:'The Hydration Files',steps:[['Hit your water goal on 2 days',(w,E)=>w.filter(d=>d.water>=E.water).length,2],['Hit your water goal on 4 days',(w,E)=>w.filter(d=>d.water>=E.water).length,4],['Water goal and movement goal on the same day, 2 times',(w,E)=>w.filter(d=>d.water>=E.water&&d.move>=E.move).length,2]]},
- {id:'green',e:'🌱',t:'Operation Green Plate',steps:[['5+ fruit and veg serves on 1 day',(w,E)=>w.filter(d=>fvOf(d)>=5).length,1],['5+ fruit and veg on 3 days',(w,E)=>w.filter(d=>fvOf(d)>=5).length,3],['Log 3 meals that include a veg or fruit',(w,E)=>w.reduce((a,d)=>a+mealsWithVeg(d),0),3]]},
- {id:'move',e:'🌬️',t:'Trail of the Wind',steps:[['Move 30+ min on 2 days',(w,E)=>w.filter(d=>d.move>=30).length,2],['Walk 5 km in total this week',(w,E)=>Math.floor(w.reduce((a,d)=>a+(d.dist||0),0)),5],['Hit your movement goal on 4 days',(w,E)=>w.filter(d=>d.move>=E.move).length,4]]},
- {id:'rest',e:'🌙',t:'Secrets of the Moon',steps:[['Hit your sleep goal on 2 nights',(w,E)=>w.filter(d=>d.sleep>=E.sleep).length,2],['Check in on 4 days',(w,E)=>w.filter(d=>d.checkin).length,4],['Hit your sleep goal on 5 nights',(w,E)=>w.filter(d=>d.sleep>=E.sleep).length,5]]},
- {id:'strong',e:'🪨',t:'The Strength Expedition',steps:[['Do 1 strength session',(w,E)=>w.filter(d=>d.strength).length,1],['Hit your protein goal on 3 days',(w,E)=>w.filter(d=>proteinOf(d)>=E.protein).length,3],['Do 3 strength sessions',(w,E)=>w.filter(d=>d.strength).length,3]]},
+ {id:'hydro',e:'💧',t:'The Hydration Files',steps:[['Hit your water goal on 2 days',(w,E)=>w.filter(d=>d.water>=E.water).length,2],['Hit your water goal on 5 days',(w,E)=>w.filter(d=>d.water>=E.water).length,5],['Water goal and movement goal on the same day, 3 times',(w,E)=>w.filter(d=>d.water>=E.water&&d.move>=E.move).length,3]]},
+ {id:'green',e:'🌱',t:'Operation Green Plate',steps:[['5+ fruit and veg serves on 1 day',(w,E)=>w.filter(d=>fvOf(d)>=5).length,1],['5+ fruit and veg on 4 days',(w,E)=>w.filter(d=>fvOf(d)>=5).length,4],['Log 5 meals that include a veg or fruit',(w,E)=>w.reduce((a,d)=>a+mealsWithVeg(d),0),5]]},
+ {id:'move',e:'🌬️',t:'Trail of the Wind',steps:[['Move 30+ min on 2 days',(w,E)=>w.filter(d=>d.move>=30).length,2],['Walk 8 km in total this week',(w,E)=>Math.floor(w.reduce((a,d)=>a+(d.dist||0),0)),8],['Hit your movement goal on 5 days',(w,E)=>w.filter(d=>d.move>=E.move).length,5]]},
+ {id:'rest',e:'🌙',t:'Secrets of the Moon',steps:[['Hit your sleep goal on 2 nights',(w,E)=>w.filter(d=>d.sleep>=E.sleep).length,2],['Check in on 5 days',(w,E)=>w.filter(d=>d.checkin).length,5],['Hit your sleep goal on 6 nights',(w,E)=>w.filter(d=>d.sleep>=E.sleep).length,6]]},
+ {id:'strong',e:'🪨',t:'The Strength Expedition',steps:[['Do 1 strength session',(w,E)=>w.filter(d=>d.strength).length,1],['Hit your protein goal on 4 days',(w,E)=>w.filter(d=>proteinOf(d)>=E.protein).length,4],['Do 4 strength sessions',(w,E)=>w.filter(d=>d.strength).length,4]]},
 ];
 const RAIDS=[
  {id:'slump',e:'🍬',n:'The Sugar Slump',d:'A sticky boss that feeds on fizzy drinks. Water and smart swaps do damage.',hp:60,unit:'damage',calc:s=>s.water+s.swaps*5,how:'1 per glass of water, 5 per smart swap'},
@@ -1390,7 +1411,7 @@ function migrate(){
   // v0 -> v1: first release, nothing to move. Future: if(v<2){...}
   try{localStorage.setItem('fq.schema',String(SCHEMA));}catch(e){}
 }
-const DEF_SETTINGS={sound:true,pack:'nzau',energy:'both',mass:'kg',len:'cm',hide:false,theme:'dark',walkSens:'med',helpRegion:'nz'};
+const DEF_SETTINGS={sound:true,pack:'nzau',energy:'both',mass:'kg',len:'cm',hide:false,theme:'dark',walkSens:'med',helpRegion:'nz',quietRewards:true,hideWelcome:false};
 let S=Object.assign({},DEF_SETTINGS);
 function loadSettings(){S=Object.assign({},DEF_SETTINGS,store.get('settings',{}));}
 function saveSettings(){store.set('settings',S);}
@@ -1480,7 +1501,7 @@ function bumpStreak(name){
   if(s.last===t)return {same:true};let restarted=false,used=0;
   if(s.last){const gap=diffDays(s.last,t)-1;
     if(gap<=0)s.count++;
-    else if(gap<=(g.items.shield||0)){g.items.shield-=gap;used=gap;s.count++;toast('🛡️ Streak Shield saved your '+name+' streak!');}
+    else if(gap<=(g.items.shield||0)){g.items.shield-=gap;used=gap;s.count++;toast('🛡️ Streak Shield saved your '+name+' streak!',true);}
     else{s.count=1;restarted=true;}}
   else s.count=1;
   s.last=t;s.best=Math.max(s.best,s.count);saveG();return {restarted,used,count:s.count};
@@ -1508,11 +1529,11 @@ function statsOf(g,E){
   moveSet.forEach(k=>{if(kdate(k).getDay()===6&&moveSet.has(addDays(k,1)))s.weekend=true;});
   return s;
 }
-const CREATURE_RULES={splashlet:s=>s.waterDays>=1,puddlepup:(s,g,E)=>runOf(g,d=>d.water>=E.water)>=3,tidewhirl:s=>s.waterDays>=7,sproutle:s=>s.fvDays>=1,peapodle:s=>s.fvDays>=3,bloomhorn:s=>s.fvDays>=5,
-  pebblor:s=>s.strength>=1,boulderoo:s=>s.strength>=5,granitusk:s=>s.strength>=10,gustling:s=>s.move30>=1,zephyrix:s=>s.moveDays>=5,galecrest:s=>s.steps10k,
-  lunalo:s=>s.sleepDays>=1,dozzle:s=>s.sleepDays>=5,nocturnox:s=>s.sleepDays>=10,chefling:s=>s.recipes>=1,saucewyrm:s=>s.recipes>=3,gourmole:s=>s.balancedPlates>=3,
-  eggbert:s=>s.proteinDays>=1,mooscle:s=>s.proteinDays>=5,quizzle:s=>s.quizDone,professorb:s=>s.quizBest>=10,kindle:s=>s.bestCheck>=3,blazewing:s=>s.bestCheck>=7,solarion:s=>s.bestCheck>=30,
-  switcheroo:s=>s.swaps>=5,vigoroo:s=>s.raids>=1};
+const CREATURE_RULES={splashlet:s=>s.waterDays>=1,puddlepup:(s,g,E)=>runOf(g,d=>d.water>=E.water)>=5,tidewhirl:s=>s.waterDays>=14,sproutle:s=>s.fvDays>=1,peapodle:s=>s.fvDays>=5,bloomhorn:s=>s.fvDays>=12,
+  pebblor:s=>s.strength>=1,boulderoo:s=>s.strength>=8,granitusk:s=>s.strength>=20,gustling:s=>s.move30>=1,zephyrix:s=>s.moveDays>=10,galecrest:s=>s.steps10k,
+  lunalo:s=>s.sleepDays>=1,dozzle:s=>s.sleepDays>=10,nocturnox:s=>s.sleepDays>=21,chefling:s=>s.recipes>=1,saucewyrm:s=>s.recipes>=5,gourmole:s=>s.balancedPlates>=5,
+  eggbert:s=>s.proteinDays>=1,mooscle:s=>s.proteinDays>=12,quizzle:s=>s.quizDone,professorb:s=>s.quizBest>=10,kindle:s=>s.bestCheck>=3,blazewing:s=>s.bestCheck>=14,solarion:s=>s.bestCheck>=45,
+  switcheroo:s=>s.swaps>=12,vigoroo:s=>s.raids>=2};
 function runOf(g,fn){let best=0,cur=0,prev=null;Object.keys(g.days).sort().forEach(k=>{const ok=fn(g.days[k]);if(ok){cur=(prev&&diffDays(prev,k)===1&&cur>0)?cur+1:1;best=Math.max(best,cur);}else cur=0;prev=k;});return best;}
 
 function checkProgress(){
@@ -1520,7 +1541,7 @@ function checkProgress(){
   BADGES.forEach(b=>{if(!g.badges[b[0]]&&b[4](s)){g.badges[b[0]]=dkey();queue({type:'badge',b});}});
   for(const id in CREATURE_RULES){if(!g.dex[id]&&!g.pending.includes(id)&&CREATURE_RULES[id](s,g,E)){g.pending.push(id);queue({type:'encounter',id});}}
   // buddy evolution
-  if(g.buddy){const st=s.level>=10&&s.bestCheck>=7?3:(s.level>=5&&s.bestCheck>=3?2:1);if(st>(g.stage||1)){const from=g.stage||1;g.stage=st;queue({type:'evolve',from,to:st});}}
+  if(g.buddy){const st=s.level>=14&&s.bestCheck>=14?3:(s.level>=7&&s.bestCheck>=5?2:1);if(st>(g.stage||1)){const from=g.stage||1;g.stage=st;queue({type:'evolve',from,to:st});}}
   saveG();
 }
 /* evaluate today's goals -> XP (never for eating less) */
@@ -1553,7 +1574,7 @@ function pickHatch(tier){
   if(g.items.charm>0){g.items.charm--;const minR=Math.min(...pool.map(x=>CR[x[0]].r));const better=pool.filter(x=>CR[x[0]].r>minR);if(better.length)pool=better;}
   const tot=pool.reduce((a,x)=>a+x[1],0);let r=Math.random()*tot;for(const x of pool){r-=x[1];if(r<=0)return x[0];}return pool[0][0];
 }
-function giveEgg(tier,why){const g=G();if(g.eggs.length>=6){toast('🥚 Egg bag full (6). Walk to hatch some!');return;}g.eggs.push({tier,prog:0,got:dkey()});saveG();toast('🥚 New '+tier+' km egg! '+(why||''));sound('badge');}
+function giveEgg(tier,why){const g=G();if(g.eggs.length>=6){toast('🥚 Egg bag full (6). Walk to hatch some!',true);return;}g.eggs.push({tier,prog:0,got:dkey()});saveG();/* egg noted on Today */sound('badge');}
 function catchCreature(id,how){const g=G();const isNew=!g.dex[id];g.dex[id]=g.dex[id]||{caught:dkey(),how:how||'',n:0};g.dex[id].n++;g.pending=g.pending.filter(x=>x!==id);saveG();addXP(isNew?25:10,isNew?'New creature: '+CR[id].name:'Another '+CR[id].name+'!');checkProgress();return isNew;}
 const WILD=['bubbloon','crumbkin','glimmoth','splashlet','sproutle','gustling','lunalo','eggbert','chefling','quizzle'];
 function wildEncounter(minR){const g=G();const pool=WILD.filter(id=>!minR||CR[id].r>=minR);const id=pool[Math.floor(Math.random()*pool.length)];queue({type:'encounter',id,wild:true});}
@@ -1562,7 +1583,7 @@ function tasksFor(pid,k){const r=rng(hash(pid+'|'+k));const idx=[];while(idx.len
 function doTask(i){
   const g=G(),p=curProfile();const d=today(g);if(d.tasks.includes(i))return;d.tasks.push(i);g.tasksTotal=(g.tasksTotal||0)+1;sound('tick');
   const t=TASKS[i];
-  if(t[2]==='boost'){g.items.boost=(g.items.boost||0)+1;toast('⚡ Got an XP Boost item!');}
+  if(t[2]==='boost'){g.items.boost=(g.items.boost||0)+1;/* quiet */}
   if(t[2]==='encounter'){wildEncounter();}
   award('task','Field Task done');
   const mine=tasksFor(p.id,dkey());if(mine.every(x=>d.tasks.includes(x))){g.allTasks=true;award('alltasks','All Field Tasks!');giveEgg(2,'(all tasks done)');}
@@ -1610,7 +1631,7 @@ function confetti(n){n=Math.min(70,Math.round((n||60)*0.4));const c=document.cre
   const P=Array.from({length:n},()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*9,vy:-Math.random()*10-4,s:Math.random()*4+3,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*6,vr:(Math.random()-.5)*.3}));
   const t0=performance.now();(function f(t){ctx.clearRect(0,0,W,H);P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.globalAlpha=Math.max(0,1-(t-t0)/1800);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/6,p.s,p.s/3);ctx.restore();});if(t-t0<1800)requestAnimationFrame(f);else c.remove();})(t0);}
 let toastT=null;
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+function toast(m,force){if(!force&&(S.quietRewards!==false))return;const t=$('#toast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
 
 /* =========================================================
    Original creature art (SVG composites)
@@ -1625,7 +1646,13 @@ function crArt(c,size,sil){return creatureSVG({col:c.col,shape:c.shape,size,sil,
 const Q=[];let modalOpen=false;
 function openModal(html,onClose){$('#sheet').innerHTML='<button class="close" aria-label="Close">✕</button>'+html;$('#modal').classList.add('open');modalOpen=true;$('#modal')._onClose=onClose||null;$('#sheet .close').onclick=closeModal;}
 function closeModal(){$('#modal').classList.remove('open');modalOpen=false;const f=$('#modal')._onClose;$('#modal')._onClose=null;if(f)f();setTimeout(nextQ,250);refreshGameViews();}
-function queue(item){Q.push(item);if(!modalOpen)setTimeout(nextQ,350);}
+function queue(item){
+  if(S.quietRewards!==false&&(item.type==='badge'||item.type==='level')){
+    if(item.type==='badge')toast('🏅 '+item.b[2],true);
+    else toast('⬆️ Lv '+item.lv.n+' '+item.lv.name,true);
+    sound(item.type==='level'?'level':'badge');
+    return;}
+  Q.push(item);if(!modalOpen)setTimeout(nextQ,350);}
 function nextQ(){if(modalOpen||!Q.length)return;const it=Q.shift();
   if(it.type==='level'){sound('level');confetti(180);openModal('<div class="levelup"><div class="burst"><div class="rays"></div>'+tierIcon(it.lv,110)+'</div><div class="eyebrow">Level up</div><h2>'+esc(it.lv.name)+'</h2><p class="lead">You hit <b>Lv '+it.lv.n+'</b>. Keep stacking.</p><button class="btn" onclick="this.closest(\'.sheet\').querySelector(\'.close\').click()">Continue</button></div>');}
   else if(it.type==='badge'){sound('badge');confetti(80);openModal('<div class="levelup"><div class="burst small"><div class="rays"></div><div class="huge">'+it.b[1]+'</div></div><div class="eyebrow">Badge unlocked</div><h2>'+esc(it.b[2])+'</h2><p class="lead">'+esc(it.b[3])+'</p><button class="btn" onclick="this.closest(\'.sheet\').querySelector(\'.close\').click()">Continue</button></div>');}
@@ -1721,21 +1748,21 @@ function renderSame200(){$('#s2pick').innerHTML=FOODS.filter(f=>f.kcal>0).map(f=
 let editId=null;
 function initCalc(){
   $('#pForm').onsubmit=e=>{e.preventDefault();const ht=readHeight('p');const wt=toKg(+$('#pWt').value);const age=+$('#pAge').value;
-    if(!$('#pName').value.trim()||!age||age<3||age>100){toast('Please add a name and an age from 3 to 100');return;}
-    if(ht<90||ht>230){toast('Height looks off; check the units');return;}if(wt<15||wt>250){toast('Weight looks off; check the units');return;}
+    if(!$('#pName').value.trim()||!age||age<3||age>100){toast('Please add a name and an age from 3 to 100',true);return;}
+    if(ht<90||ht>230){toast('Height looks off; check the units',true);return;}if(wt<15||wt>250){toast('Weight looks off; check the units',true);return;}
     const arr=profiles();const p={id:editId||('p'+Date.now().toString(36)),name:$('#pName').value.trim().slice(0,20),icon:$('#pIcon').value,age,sex:$('#pSex').value,ht:r1(ht),wt:r1(wt),act:+$('#pAct').value};
     const i=arr.findIndex(x=>x.id===p.id);if(i>=0)arr[i]=p;else arr.push(p);saveProfiles(arr);
     if(!curId()||i<0)store.set('current',p.id);_gid=null;
-    toast(i>=0?'Profile updated':'Welcome, '+p.name+'! Pick a buddy on the Today tab');resetForm();renderProfiles();sound('tick');};
+    toast(i>=0?'Profile updated':'Welcome, '+p.name+'! Pick a buddy on Today',true);resetForm();renderProfiles();sound('tick');};
   $('#pCancel').onclick=resetForm;
   $('#profiles').onclick=e=>{const b=e.target.closest('button[data-act]');if(!b)return;const id=b.dataset.id;const p=profiles().find(x=>x.id===id);
     if(b.dataset.act==='edit'){editId=id;$('#pName').value=p.name;$('#pIcon').value=p.icon;$('#pAge').value=p.age;$('#pSex').value=p.sex;writeHeight('p',p.ht);$('#pWt').value=fromKg(p.wt);$('#pAct').value=p.act;$('#formTitle').textContent='✏️ Edit '+p.name;$('#pCancel').style.display='';$('#pForm').scrollIntoView({behavior:'smooth'});}
     if(b.dataset.act==='del'){if(confirm('Delete '+p.name+' and their progress on this device?')){saveProfiles(profiles().filter(x=>x.id!==id));store.del('plan.'+id);store.del('game.'+id);if(curId()===id)store.set('current',(profiles()[0]||{}).id||null);_gid=null;renderProfiles();}}
     if(b.dataset.act==='use'){store.set('current',id);_gid=null;showTab('home');}};
 }
-function resetForm(){editId=null;$('#pForm').reset();$('#pAct').value='3';$('#formTitle').textContent='➕ Add a person';$('#pCancel').style.display='none';}
+function resetForm(){editId=null;$('#pForm').reset();$('#pAct').value='3';$('#formTitle').textContent=(profiles().length?'➕ Add another on this device':'➕ Create my profile');$('#pCancel').style.display='none';}
 function renderProfiles(){applyUnitVisibility();const arr=profiles();
-  if(!arr.length){$('#profiles').innerHTML='<div class="card empty">👆 No profiles yet. Add the first person above; everyone can have their own.</div>';return;}
+  if(!arr.length){$('#profiles').innerHTML='<div class="card empty">👆 No profile yet. Create yours above. This device is for you; family links in on Squad.</div>';return;}
   $('#profiles').innerHTML='<div class="grid2">'+arr.map(p=>{const r=energy(p);const maxT=4500;const fill=clamp(r.maint/maxT*100,5,100);
     const LS=leanState(p);const showMark=r.adult&&LS.on;const mark=showMark?'<div class="mark" style="bottom:'+(LS.target/maxT*100)+'%"><span>lean</span></div>':'';
     const split=[['Breakfast',.25,'#ff7a1a'],['Lunch',.3,'#38bdf8'],['Dinner',.3,'#8b5cff'],['Snacks',.15,'#19c9b0']].map(m=>'<div style="background:'+m[2]+'">'+m[0]+'<b class="num">'+eVal(r.maint*m[1])+'</b>'+eUnit()+'</div>').join('');
@@ -1766,7 +1793,7 @@ function renderWeight(){const age=+$('#wAge').value,ht=readHeight('w'),wt=$('#wW
 /* =========================================================
    5. Build-a-plate
    ========================================================= */
-let plate=[],plCat='all';
+let plate=[],plCat='all',plQ='';
 const MEALS={b:['Breakfast',.25,'🌅'],l:['Lunch',.30,'🥪'],d:['Dinner',.30,'🍝'],s:['Snacks',.15,'🍎']};
 function plProfile(){const v=$('#plPerson').value;return profiles().find(p=>p.id===v)||null;}
 function plDaily(){const p=plProfile();if(!p)return 2080;const r=energy(p);if($('#plGoal').value==='l'&&leanOn(p))return targetOf(p);return r.maint;}
@@ -1775,10 +1802,13 @@ function initPlate(){
   $('#plMeal').onchange=renderPlate;$('#plGoal').onchange=renderPlate;
   $('#plClear').onclick=()=>{plate=[];renderPlate();};
   $('#plCats').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;plCat=b.dataset.c;renderPalette();};
+  const ps=$('#plSearch');if(ps){ps.oninput=()=>{plQ=(ps.value||'').toLowerCase().trim();renderPalette();};}
+  const pcb=$('#plCustomBtn');if(pcb)pcb.onclick=()=>toggleCustomFoodForm();
+
   $('#plateItems').onclick=e=>{const b=e.target.closest('.pi');if(!b)return;plate.splice(+b.dataset.i,1);renderPlate();sound('tick');};
-  $('#plLog').onclick=()=>{const g=G();if(!g){toast('Pick who is using this on the Today tab first');return;}const items=plateItems();if(!items.length){toast('Add some food first');return;}
+  $('#plLog').onclick=()=>{const g=G();if(!g){toast('Create your profile first (Energy Calc)',true);return;}const items=plateItems();if(!items.length){toast('Add some food first',true);return;}
     const d=today(g);const m=$('#plMeal').value;items.forEach(it=>d.foods.push({f:it.id,q:it.q,m}));mealXP(d,m);saveG();evaluate();toast('Logged to today\'s '+MEALS[m][0].toLowerCase());};
-  $('#plSave').onclick=()=>{const g=G();if(!g){toast('Pick who is using this on the Today tab first');return;}const items=plateItems();if(items.length<2){toast('Add at least 2 foods to save a recipe');return;}
+  $('#plSave').onclick=()=>{const g=G();if(!g){toast('Create your profile first (Energy Calc)',true);return;}const items=plateItems();if(items.length<2){toast('Add at least 2 foods to save a recipe',true);return;}
     const name=(prompt('Name your recipe:',MEALS[$('#plMeal').value][0]+' combo '+((g.recipes||[]).length+1))||'').trim().slice(0,40);if(!name)return;
     g.recipes.push({name,items:items.map(it=>({id:it.id,q:it.q})),meal:$('#plMeal').value,serves:1,custom:true});if(plateBalanced())g.balancedPlates=(g.balancedPlates||0)+1;saveG();award('recipe','New recipe saved');checkProgress();renderRecipes();};
   $('#recipeList').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;const g=G();const i=+b.dataset.r;const r=g.recipes[i];if(b.dataset.act==='edit'){editSavedRecipe(i);return;}
@@ -1796,15 +1826,17 @@ function initPlate(){
   renderSuggested();
 }
 function mealXP(d,m){if(!d.mealsXP.includes(m)){d.mealsXP.push(m);award('meal',MEALS[m][0]+' logged');}}
-function addPlate(id,q){q=q==null?1:+q;plate=plate.map(x=>typeof x==='string'?{id:x,q:1}:x);if(plateItems().length>=18){toast('Plate is full!');return;}
+function addPlate(id,q){q=q==null?1:+q;plate=plate.map(x=>typeof x==='string'?{id:x,q:1}:x);if(plateItems().length>=18){toast('Plate is full!',true);return;}
   const ex=plate.findIndex(x=>x.id===id);if(ex>=0)plate[ex].q=r1((plate[ex].q||1)+q);else plate.push({id,q});renderPlate();sound('tick');}
 function renderPalette(){
   $('#plCats').innerHTML=[['all','All']].concat(Object.entries(CATS).map(([k,v])=>[k,v[0]])).map(([k,l])=>'<button class="chip'+(plCat===k?' on':'')+'" data-c="'+k+'">'+l+'</button>').join('');
-  const list=FOODS.filter(f=>plCat==='all'||f.cat===plCat);
-  $('#palette').innerHTML=list.map(f=>{
+  const q=plQ||(($('#plSearch')||{}).value||'').toLowerCase().trim();
+  const list=FOODS.filter(f=>(plCat==='all'||f.cat===plCat)&&(!q||f.name.toLowerCase().includes(q)||(f.serve||'').toLowerCase().includes(q)||(f.id||'').includes(q)));
+  $('#palette').innerHTML=(list.length?list.map(f=>{
     const mac=f.per100?'<span class="pcm num">'+f.kcal+' kcal · P '+r1(f.p)+' · C '+(f.cb!=null?r1(f.cb):'?')+' · F '+(f.ft!=null?r1(f.ft):'?')+' /100</span>':'<span class="pcm muted">'+(f.serve.length>28?f.serve.slice(0,26)+'…':f.serve)+'</span>';
-    return '<div class="pchip'+(f.per100?' per100':'')+'" data-id="'+f.id+'" role="button" tabindex="0" title="'+esc(f.name)+' · '+esc(f.serve)+'"><span class="em">'+f.e+'</span><span class="pnm">'+esc(f.name.length>22?f.name.slice(0,20)+'…':f.name)+'</span>'+mac+'</div>';
-  }).join('');}
+    const approx=f.approx?' <span class="approx">approx</span>':'';
+    return '<div class="pchip'+(f.per100?' per100':'')+(f.custom?' custom':'')+'" data-id="'+f.id+'" role="button" tabindex="0" title="'+esc(f.name)+' · '+esc(f.serve)+'"><span class="em">'+f.e+'</span><span class="pnm">'+esc(f.name.length>22?f.name.slice(0,20)+'…':f.name)+approx+'</span>'+mac+'</div>';
+  }).join(''):'<p class="small muted" style="grid-column:1/-1;padding:12px">No foods match. Try another search, or add a custom food.</p>');}
 function plateBalanced(){const items=plateItems();const c={p:0,c:0,v:0,t:0,b:0};items.forEach(it=>{const k=F[it.id].cat;if(c[k]!=null)c[k]+=it.q;});const m=$('#plMeal').value;const tot=plateKcal(),[lo,hi]=plRange();return c.p>0&&c.v>0&&(m==='s'||c.c+c.b>0)&&c.t<=1.5&&tot>=lo&&tot<=hi;}
 const plateKcal=()=>plateMacro().kcal;
 function savedRecipeMacros(r){const tot={kcal:0,p:0,cb:0,ft:0};(r.items||[]).forEach(it=>{const id=it.id||it,q=it.q!=null?it.q:1;const f=F[id];if(!f)return;tot.kcal+=f.kcal*q;tot.p+=f.p*q;tot.cb+=(f.cb||0)*q;tot.ft+=(f.ft||0)*q;});const s=Math.max(1,r.serves||1);return {tot,per:{kcal:tot.kcal/s,p:tot.p/s,cb:tot.cb/s,ft:tot.ft/s}};}
@@ -1886,6 +1918,57 @@ function renderQ(){const box=$('#quizBox');
    ========================================================= */
 const HABITS=[['🍽️','Eat together','Shared meals, phones away, as often as you can. It is the best part of the day.','#7b5cff'],['🥦','Half the plate fruit and veg','Where possible. Frozen and canned count too!','#4cc43a'],['💧','Water as the main drink','Keep a bottle handy. Fizzy and energy drinks are sometimes drinks.','#2fa8ff'],['😴','Sleep well','8 to 10 hours for teens, 7 to 9 for adults. Screens off before bed helps heaps.','#5b4bc4'],['🏃','Move every day','Walk, bike, play, train, dance. About 60 min a day for under-18s, 30+ for adults.','#00b3a4'],['🙅','No food as reward or punishment','Food is fuel and enjoyment, not a prize or a penalty.','#ff9f1c'],['🍰','All foods fit','Everyday, sometimes and treat foods all have a place. No guilt.','#ff5fa2'],['💪','Focus on how you feel and perform','Energy, strength, mood and sleep matter more than any number.','#ff6b6b'],['🍳','Cook together','Everyone can help: choosing, chopping, stirring, serving.','#c98b5a'],['🗓️','Plan ahead','A quick weekly meal plan and a stocked kitchen make healthy choices easy.','#1d2340']];
 function initHabits(){$('#habitGrid').innerHTML=HABITS.map(h=>'<div class="habit" style="background:'+h[3]+'"><div class="em">'+h[0]+'</div><h3>'+h[1]+'</h3><p>'+h[2]+'</p></div>').join('');}
+
+/* =========================================================
+   Custom foods (local, approximate)
+   ========================================================= */
+const FOOD_EST=[
+  {keys:['tropical','mango','pineapple','papaya','passion'],name:'Frozen tropical fruit mix',e:'🥭',serve:'per 100 g',kcal:55,p:0.7,cb:13,ft:0.2,cat:'v',g:'Z',per100:true},
+  {keys:['berry','berries','mixed berry'],name:'Frozen mixed berries',e:'🫐',serve:'per 100 g',kcal:45,p:0.8,cb:10,ft:0.3,cat:'v',g:'Z',per100:true},
+  {keys:['apple'],name:'Apple',e:'🍎',serve:'1 medium',kcal:95,p:0.5,cb:25,ft:0.3,cat:'v',g:'F'},
+  {keys:['banana'],name:'Banana',e:'🍌',serve:'1 medium',kcal:105,p:1.3,cb:27,ft:0.4,cat:'v',g:'P'},
+  {keys:['yoghurt','yogurt'],name:'Yoghurt',e:'🥛',serve:'150 g pot',kcal:120,p:6,cb:15,ft:3.5,cat:'p',g:'F'},
+  {keys:['chicken'],name:'Chicken (cooked)',e:'🍗',serve:'100 g',kcal:165,p:31,cb:0,ft:3.6,cat:'p',g:'F',per100:true},
+  {keys:['rice'],name:'Cooked rice',e:'🍚',serve:'per 100 g',kcal:130,p:2.7,cb:28,ft:0.3,cat:'c',g:'P',per100:true},
+  {keys:['bread','toast'],name:'Bread',e:'🍞',serve:'1 slice (~35 g)',kcal:90,p:3.5,cb:16,ft:1.2,cat:'c',g:'P'},
+  {keys:['milk'],name:'Milk',e:'🥛',serve:'250 ml',kcal:150,p:8,cb:12,ft:8,cat:'p',g:'F'},
+  {keys:['oil','olive'],name:'Cooking oil',e:'🫒',serve:'1 tbsp (15 ml)',kcal:120,p:0,cb:0,ft:14,cat:'b',g:'P'},
+  {keys:['cheese'],name:'Cheese',e:'🧀',serve:'30 g',kcal:120,p:7,cb:0.5,ft:10,cat:'p',g:'F'},
+  {keys:['egg'],name:'Egg',e:'🥚',serve:'1 large',kcal:75,p:6.5,cb:0.5,ft:5,cat:'p',g:'F'},
+  {keys:['oat'],name:'Oats (dry)',e:'🌾',serve:'per 100 g',kcal:380,p:13,cb:60,ft:7,cat:'c',g:'P',per100:true},
+  {keys:['protein powder','whey'],name:'Protein powder',e:'🥤',serve:'1 scoop (~30 g)',kcal:120,p:24,cb:3,ft:1.5,cat:'p',g:'P'},
+];
+function estimateFood(name){const q=(name||'').toLowerCase();for(const e of FOOD_EST){if(e.keys.some(k=>q.includes(k)))return Object.assign({},e,{approx:true});}
+  return {name:(name||'Custom food').slice(0,40),e:'🍽️',serve:'per 100 g',kcal:100,p:3,cb:12,ft:2,cat:'t',g:'P',per100:true,approx:true};}
+function toggleCustomFoodForm(prefill){const wrap=$('#plCustomWrap');if(!wrap)return;
+  if(wrap.style.display!=='none'&&!prefill){wrap.style.display='none';wrap.innerHTML='';return;}
+  const e=prefill||{name:'',e:'🍽️',serve:'per 100 g',kcal:'',p:'',cb:'',ft:'',cat:'v',g:'Z'};
+  wrap.style.display='';
+  wrap.innerHTML='<div class="card" style="margin:0;border-style:dashed"><div class="eyebrow">Custom food · stored on this device</div><h3 style="margin:2px 0">Add your own</h3><p class="small muted">Estimates are approximate. Prefer a label when you have one.</p>'+
+   '<div class="formgrid" style="grid-template-columns:1fr 1fr"><label class="f wide">Name <input type="text" id="cfName" maxlength="40" value="'+esc(e.name||'')+'" placeholder="e.g. frozen tropical fruit mix"></label>'+
+   '<label class="f">Emoji <input type="text" id="cfE" maxlength="4" value="'+esc(e.e||'🍽️')+'"></label>'+
+   '<label class="f">Serve <input type="text" id="cfServe" maxlength="40" value="'+esc(e.serve||'per 100 g')+'"></label>'+
+   '<label class="f">kcal <input type="number" id="cfKcal" min="0" max="900" step="1" value="'+(e.kcal!=null&&e.kcal!==''?e.kcal:'')+'"></label>'+
+   '<label class="f">Protein g <input type="number" id="cfP" min="0" max="100" step="0.1" value="'+(e.p!=null&&e.p!==''?e.p:'')+'"></label>'+
+   '<label class="f">Carbs g <input type="number" id="cfCb" min="0" max="100" step="0.1" value="'+(e.cb!=null&&e.cb!==''?e.cb:'')+'"></label>'+
+   '<label class="f">Fat g <input type="number" id="cfFt" min="0" max="100" step="0.1" value="'+(e.ft!=null&&e.ft!==''?e.ft:'')+'"></label>'+
+   '<label class="f">Category <select id="cfCat">'+Object.entries(CATS).map(([k,v])=>'<option value="'+k+'"'+(e.cat===k?' selected':'')+'>'+v[0]+'</option>').join('')+'</select></label>'+
+   '<label class="f">Group <select id="cfG">'+Object.entries(GROUPS).map(([k,v])=>'<option value="'+k+'"'+(e.g===k?' selected':'')+'>'+v[0]+' '+v[1]+'</option>').join('')+'</select></label></div>'+
+   '<div class="row" style="margin-top:10px;flex-wrap:wrap"><button type="button" class="btn sm" id="cfEst">Estimate from name</button><button type="button" class="btn sm teal" id="cfSave">Save food</button><button type="button" class="btn sm alt" id="cfCancel">Cancel</button></div>'+
+   '<p class="small muted" id="cfHint" style="margin-top:8px">Tip: type a name then Estimate. Built-in NZ/AU foods (like frozen tropical fruit mix) already appear in search.</p></div>';
+  $('#cfEst').onclick=()=>{const est=estimateFood($('#cfName').value);$('#cfName').value=est.name;$('#cfE').value=est.e;$('#cfServe').value=est.serve;$('#cfKcal').value=est.kcal;$('#cfP').value=est.p;$('#cfCb').value=est.cb;$('#cfFt').value=est.ft;$('#cfCat').value=est.cat;$('#cfG').value=est.g;$('#cfHint').textContent='Approximate estimate applied. Adjust if your label differs.';};
+  $('#cfCancel').onclick=()=>{wrap.style.display='none';wrap.innerHTML='';};
+  $('#cfSave').onclick=()=>{
+    const name=($('#cfName').value||'').trim().slice(0,40);if(!name){toast('Add a name first',true);return;}
+    const kcal=+$('#cfKcal').value,p=+$('#cfP').value,cb=+$('#cfCb').value,ft=+$('#cfFt').value;
+    if(!(kcal>=0)||$('#cfKcal').value===''){toast('Add energy (kcal)',true);return;}
+    const serve=($('#cfServe').value||'per 100 g').trim().slice(0,40);
+    const id='c_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,18)+'_'+Date.now().toString(36).slice(-4);
+    const f={id,name,serve,kcal,p:p||0,tag:'e',g:$('#cfG').value||'P',e:($('#cfE').value||'🍽️').slice(0,4),full:2,cat:$('#cfCat').value||'t',cb:cb||0,ft:ft||0,per100:/per 100/i.test(serve),custom:true,approx:true};
+    const arr=customFoods();arr.push(f);saveCustomFoods(arr);buildFoods(S.pack);wrap.style.display='none';wrap.innerHTML='';
+    plQ=name.toLowerCase();if($('#plSearch'))$('#plSearch').value=name;renderPalette();toast('Added '+name+' (approx)',true);sound('tick');};
+}
+
 
 /* =========================================================
    FuelQuest v2 visuals: icons, tier emblems, creature art,
@@ -2010,18 +2093,20 @@ function barPair(a,b,la,lb){const m=Math.max(a,b);return '<div class="bp"><div><
 function moodOf(d,E){const h=[proteinOf(d)>=E.protein,d.water>=E.water,d.move>=E.move].filter(Boolean).length;return h>=3?'happy':h>=1||d.checkin?'ok':'sleepy';}
 function buddyLine(g,d,E){if(!d.checkin)return 'Check in to start today\'s run.';const need=[];if(proteinOf(d)<E.protein)need.push('protein');if(d.water<E.water)need.push('water');if(d.move<E.move)need.push('movement');
   if(!need.length)return 'Locked in. Fuelled, hydrated, moving. Unstoppable.';return 'Power at '+Math.round((3-need.length)/3*100)+'%. Need: '+need.join(' + ')+'.';}
-function renderToday(){whoChips($('#homeWho'));const el=$('#today');const p0=curProfile();$('#welcomeCard').style.display=(p0&&G()&&G().buddy)?'none':'';const p=needProfile(el);if(!p)return;const g=G();
+function renderToday(){const el=$('#today');const p0=curProfile();const showWel=!(S.hideWelcome)&&!(p0&&G()&&G().buddy);$('#welcomeCard').style.display=showWel?'':'none';
+  const skip=$('#welSkip');if(skip&&!skip._bound){skip._bound=1;skip.onclick=()=>{S.hideWelcome=true;saveSettings();$('#welcomeCard').style.display='none';};}
+  const p=needProfile(el);if(!p)return;const g=G();
   if(!g.buddy){el.innerHTML='<div class="card" style="text-align:center"><div class="eyebrow">Choose your starter</div><h2>Pick your buddy, '+esc(p.name)+'</h2><p class="lead">Your buddy reacts to your habits and evolves twice as you level up and hold streaks.</p><div class="grid3">'+Object.entries(STARTERS).map(([id,st])=>'<button class="card starter" data-buddy="'+id+'">'+creatureSVG({starter:true,stage:1,col:st.col[0],col2:st.col[1],shape:st.shape,decor:{sprig:'leaf',dewby:'wave',embit:'fire'}[id],mood:'happy',size:150,label:st.names[0]})+'<h3>'+st.names[0]+'</h3><p class="small muted">'+{sprig:'Nature type. Powered by fruit and veg.',dewby:'Water type. Powered by hydration.',embit:'Fire type. Powered by movement.'}[id]+'<br>Evolves into '+st.names[1]+', then '+st.names[2]+'.</p></button>').join('')+'</div></div>';
-    el.querySelectorAll('[data-buddy]').forEach(b=>b.onclick=()=>{g.buddy=b.dataset.buddy;g.stage=1;saveG();confetti();sound('level');toast(STARTERS[g.buddy].names[0]+' joined your squad');renderToday();});return;}
+    el.querySelectorAll('[data-buddy]').forEach(b=>b.onclick=()=>{g.buddy=b.dataset.buddy;g.stage=1;saveG();confetti();sound('level');toast(STARTERS[g.buddy].names[0]+' joined your squad',true);renderToday();});return;}
   const E=energy(p),d=today(g),lv=levelOf(g.xp),st=STARTERS[g.buddy];const mood=moodOf(d,E);const cs=streakNow('checkin',g),hs=streakNow('habit',g);
-  const pct=lv.to?(g.xp-lv.from)/(lv.to-lv.from)*100:100;const nextEvo=(g.stage||1)===1?'Evolves at Lv 5 + 3-day streak':(g.stage===2?'Evolves at Lv 10 + 7-day streak':'Final form');
+  const pct=lv.to?(g.xp-lv.from)/(lv.to-lv.from)*100:100;const nextEvo=(g.stage||1)===1?'Evolves at Lv 7 + 5-day streak':(g.stage===2?'Evolves at Lv 14 + 14-day streak':'Final form');
   const tasks=tasksFor(p.id,dkey());const R=researchFor(p.id);checkResearch();const rs=g.research.claimed||[];const w=weekDays(g);
   el.innerHTML='<div class="card hero-card"><div class="buddygrid"><div class="buddyart mood-'+mood+' el-'+g.buddy+'"'+skinStyle(g)+'>'+buddyArt(g,210,mood)+'</div><div>'+
    '<div class="eyebrow">Buddy · stage '+(g.stage||1)+'/3</div><h2 style="margin:2px 0">'+esc(st.names[(g.stage||1)-1])+'</h2>'+(g.equip&&g.equip.title?'<div class="titlechip">'+esc(g.equip.title)+'</div>':'')+'<div class="small muted">'+nextEvo+'</div><div class="bubble">'+esc(buddyLine(g,d,E))+'</div>'+
    '<div class="lvrow">'+tierIcon(lv,42)+'<div style="flex:1"><div class="spread"><b>'+esc(lv.name)+' <span class="muted small">Lv '+lv.n+'</span></b><span class="small muted num">'+nf(g.xp)+(lv.to?' / '+nf(lv.to):'')+' XP</span></div><div class="xpbar"><span style="width:'+pct+'%"></span></div></div></div>'+(g.boostDay===dkey()?'<div class="small" style="font-weight:800;color:var(--orange);margin-top:4px">'+ic('zap',14)+' XP Boost active (2×)</div>':'')+
    '<div class="statrow"><div class="sbox'+(cs?' hot':'')+'">'+ic('flame',20)+'<b>'+cs+'</b><small>Streak</small></div><div class="sbox'+(hs?' hot2':'')+'">'+ic('repeat',20)+'<b>'+hs+'</b><small>Habit streak</small></div><div class="sbox">'+ic('shield',20)+'<b>'+(g.items.shield||0)+'</b><small>Shields</small></div></div>'+
    '<div style="margin-top:12px">'+(d.checkin?'<div class="msgbox ok">'+ic('check',16)+' Checked in'+(d.checkinAt?' at '+d.checkinAt:'')+'</div>':'<button class="btn checkin" id="checkinBtn">'+ic('zap',18)+' Check in · +10 XP</button>')+'</div></div></div></div>'+
-   consistencyCard(p,g)+leanBanner(p)+
+   consistencyCard(p,g)+leanBanner(p)+recapBanner(p,g)+
    '<div class="grid2"><div class="card"><div class="spread"><h3 style="margin:0">Activity rings</h3><button class="btn sm alt" onclick="document.querySelector(\'.tab[data-tab=log]\').click()">Log</button></div>'+concentric(d,E)+'</div><div class="card">'+stepsCard(d)+'</div></div>'+
    '<div class="card">'+targetCard(p,'today')+'</div>'+
    '<div class="grid2"><div class="card"><h3>Daily Quests</h3>'+specialQuestsHTML(p,g,d)+tasks.map(i=>{const t=TASKS[i];const done=d.tasks.includes(i);return '<button class="mission'+(done?' done':'')+'" data-task="'+i+'"><span class="box">'+(done?ic('check',16):'')+'</span><span class="mt">'+esc(t[1])+'</span><span class="rw2">'+({xp:'+15 XP',boost:'Boost',encounter:'Encounter'})[t[2]]+'</span></button>';}).join('')+more('Quest tips','<p class="small muted" style="margin:0">3 new every day. Tap when done (honour system). Clear all 3 for a bonus 2 km egg.</p>')+'</div>'+
@@ -2030,7 +2115,10 @@ function renderToday(){whoChips($('#homeWho'));const el=$('#today');const p0=cur
    more('Fuel charts (7 days)','<div class="chart">'+zoneChart(g,p)+'</div><hr class="soft"><div class="chart">'+chartHTML(g,p)+'</div><p class="small muted">Estimates only. For growing bodies, more in than out is normal.</p>');
   const cb=$('#checkinBtn');if(cb)cb.onclick=()=>{checkIn();confetti();renderToday();};
   el.querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{doTask(+b.dataset.task);renderToday();});
-  bindBag(el,renderToday);bindSteps(el,renderToday);bindSpecial(el,p,renderToday);applyAccent();maybeRecap(p,g);}
+  bindBag(el,renderToday);bindSteps(el,renderToday);bindSpecial(el,p,renderToday);applyAccent();
+  const rb=$('#recapOpen'),rl=$('#recapLater');
+  if(rb)rb.onclick=()=>{const wk=pendingRecap(p,g);if(wk)openRecap(p,wk);};
+  if(rl)rl.onclick=()=>{const wk=pendingRecap(p,g);if(wk){recapShown[p.id+wk]=1;$('#recapBanner')?.remove();}};}
 
 /* ---------- quick steps + Walk Mode ---------- */
 function stepsCard(d){return '<h3>Steps</h3><div class="stepsbig"><b class="num">'+nf(d.steps||0)+'</b><span class="muted small">today · ≈ '+fDist((d.steps||0)*0.00075)+(d.walkSteps?' · '+nf(d.walkSteps)+' via Walk Mode':'')+'</span></div>'+
@@ -2038,9 +2126,9 @@ function stepsCard(d){return '<h3>Steps</h3><div class="stepsbig"><b class="num"
   '<div class="seg" role="radiogroup" aria-label="How to use the number"><label><input type="radio" name="qsMode" value="set" checked> Set today\'s total</label><label><input type="radio" name="qsMode" value="add"> Add to today</label></div>'+
   '<div class="row"><button class="btn sm" id="qsGo">Save steps</button><button class="btn sm teal" id="walkBtn">'+ic('footprints',16)+' Walk Mode</button></div>'+
   more('Tips for adding steps','<p class="small muted" style="margin:0">Copying your Health app\'s daily number? Use <b>Set today\'s total</b>; it already includes Walk Mode steps. Background sync needs a native app (future).</p>');}
-function setSteps(n,mode){const g=G();const d=today(g);d.steps=clamp(Math.round(mode==='add'?(d.steps||0)+n:n),0,100000);saveG();evaluate();sound('tick');toast('Steps today: '+nf(d.steps));}
+function setSteps(n,mode){const g=G();const d=today(g);d.steps=clamp(Math.round(mode==='add'?(d.steps||0)+n:n),0,100000);saveG();evaluate();sound('tick');/* quiet step update */;}
 function bindSteps(el,re){el.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{setSteps(+b.dataset.st,'add');re();});
-  const go=el.querySelector('#qsGo');if(go)go.onclick=()=>{const v=+el.querySelector('#qsIn').value;if(!(v>=0)||el.querySelector('#qsIn').value===''){toast('Type a number first');return;}setSteps(v,(el.querySelector('input[name=qsMode]:checked')||{}).value||'set');re();};
+  const go=el.querySelector('#qsGo');if(go)go.onclick=()=>{const v=+el.querySelector('#qsIn').value;if(!(v>=0)||el.querySelector('#qsIn').value===''){toast('Type a number first',true);return;}setSteps(v,(el.querySelector('input[name=qsMode]:checked')||{}).value||'set');re();};
   const wb=el.querySelector('#walkBtn');if(wb)wb.onclick=()=>openWalk(re);}
 /* Pedometer: low-pass filter + gravity baseline + peak detection with hysteresis and a minimum step gap */
 const SENS={low:1.9,med:1.3,high:0.85};
@@ -2053,7 +2141,7 @@ Pedometer.prototype.feed=function(x,y,z,t){const m=Math.sqrt(x*x+y*y+z*z);if(thi
   if(this.armed&&this.p1>this.th&&this.p1>=s&&this.p1>this.p2&&t-this.last>=this.gap){this.steps++;this.last=t;this.armed=false;}
   this.p2=this.p1;this.p1=s;return this.steps;};
 let WALK=null;
-function openWalk(onDone){const p=curProfile();if(!p){toast('Pick who is using this first');return;}
+function openWalk(onDone){const p=curProfile();if(!p){toast('Create your profile first (Energy Calc)',true);return;}
   openModal('<div class="walk"><div class="eyebrow">Walk Mode</div><h2 style="margin:2px 0 6px">Live step counter</h2><p class="small muted">Counts only while FuelQuest is open and your screen is on. Hold your phone or keep it in a front pocket. Steps are added to today when you stop, and they hatch eggs.</p>'+
     '<div class="walkring"><svg viewBox="0 0 200 200"><defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b6ff3b"/><stop offset="1" stop-color="#19f5d3"/></linearGradient></defs><circle cx="100" cy="100" r="86" class="trk"/><circle id="wProg" cx="100" cy="100" r="86" class="prg" stroke="url(#wg)" stroke-dasharray="540.4" stroke-dashoffset="540.4"/></svg><div class="wcenter"><b id="wSteps" class="num">0</b><small>steps</small></div></div>'+
     '<div class="row" style="justify-content:center;gap:10px"><div class="stat" style="text-align:center"><small>Distance</small><b id="wDist">'+fDist(0)+'</b></div><div class="stat" style="text-align:center"><small>Time</small><b id="wTime">0:00</b></div></div>'+
@@ -2075,7 +2163,7 @@ async function walkStart(){const st=$('#wStatus');
 function walkPaint(){if(!WALK||!$('#wSteps'))return;const n=WALK.ped.steps;$('#wSteps').textContent=nf(n);$('#wDist').textContent=fDist(n*0.00075);const sec=Math.floor((performance.now()-WALK.t0)/1000);$('#wTime').textContent=Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0');
   const C=540.4;$('#wProg').setAttribute('stroke-dashoffset',(C*(1-(n%1000)/1000)).toFixed(1));}
 function walkStop(save){if(!WALK)return;const n=WALK.ped.steps;window.removeEventListener('devicemotion',WALK.h);document.removeEventListener('visibilitychange',WALK.vis);clearInterval(WALK.timer);if(WALK.lock){try{WALK.lock.release();}catch(e){}}WALK=null;
-  if(n>0){const g=G();const d=today(g);d.steps=clamp((d.steps||0)+n,0,100000);d.walkSteps=(d.walkSteps||0)+n;saveG();evaluate();toast('Walk saved: +'+nf(n)+' steps');sound('badge');}
+  if(n>0){const g=G();const d=today(g);d.steps=clamp((d.steps||0)+n,0,100000);d.walkSteps=(d.walkSteps||0)+n;saveG();evaluate();toast('Walk saved: +'+nf(n)+' steps',true);sound('badge');}
   if(save&&modalOpen)closeModal();}
 
 /* ---------- theme ---------- */
@@ -2116,9 +2204,9 @@ function startLean(p,days){const pl=leanCfg(planOf(p.id));const r=energy(p);if(!
 function stopLean(p){const pl=leanCfg(planOf(p.id));pl.gentle=false;pl.lean.start=null;savePlan(p.id,pl);}
 function logWeigh(p,kg,k){k=k||dkey();const s=leanState(p,k);if(!s.on)return false;const pl=s.pl;pl.weighins[k]=Math.round(kg*10)/10;savePlan(p.id,pl);
   if(k===dkey()&&s.schedule.includes(kdate(k).getDay())&&curProfile()&&curProfile().id===p.id)award('weighin','Weigh-in done (consistency)');return true;}
-function openWeighIn(p){const s=leanState(p);if(!s.on){toast('Weigh-ins are only part of Lean Mode');return;}
+function openWeighIn(p){const s=leanState(p);if(!s.on){toast('Weigh-ins are only part of Lean Mode',true);return;}
   openModal('<div class="eyebrow">Lean Mode · weigh-in</div><h2>Morning weigh-in</h2><p class="small muted">Best in the morning, after the bathroom, before eating. Daily numbers bounce around with water, food and sleep, so FuelQuest only shows a smoothed 7-day average.</p><label class="f">Weight ('+(S.mass==='lb'?'lb':'kg')+') <input type="number" id="wiIn" step="0.1" min="20" max="900" inputmode="decimal"></label><div class="row" style="margin-top:12px"><button class="btn" id="wiGo">Save weigh-in</button></div><p class="small muted" style="margin-top:10px">XP is for showing up, never for the number.</p>');
-  $('#wiGo').onclick=()=>{const v=+$('#wiIn').value;if(!(v>0)){toast('Type a number first');return;}logWeigh(p,toKg(v));closeModal();};}
+  $('#wiGo').onclick=()=>{const v=+$('#wiIn').value;if(!(v>0)){toast('Type a number first',true);return;}logWeigh(p,toKg(v));closeModal();};}
 /* wellbeing */
 const WBQ=[['e','Energy','How is your energy most days?',['Charged','Okay','Running on empty']],['m','Mood','How has your mood been?',['Good','Up and down','Low']],['s','Sleep','How is your sleep?',['Solid','Patchy','Poor']],['per','Periods','Are your periods regular? (optional)',['Yes','Not regular or stopped','Skip']],['f','Food thoughts','"Food is on my mind too much"',['Rarely','Sometimes','Often']]];
 function wbDue(p,ref){ref=ref||dkey();const s=leanState(p,ref);if(!s.on)return false;const w=s.pl.wb;const last=w.length?w[w.length-1].d:null;return last?diffDays(last,ref)>=14:true;}
@@ -2139,14 +2227,14 @@ function helpHTML(){const reg=HELP[S.helpRegion]?S.helpRegion:'other';const h=HE
 function openWellbeing(p,onDone){const r=energy(p);const showPer=p.sex==='f'&&r.age>=12;const qs=WBQ.filter(q=>q[0]!=='per'||showPer);const a={};
   openModal('<div class="wbcheck"><div class="eyebrow">Wellbeing check · 5 quick taps</div><h2>How are you really doing?</h2><p class="small muted">No right answers. This is just for you, and it helps FuelQuest keep your plan kind.</p>'+qs.map(q=>'<div class="wbq"><b>'+q[1]+'</b><span class="small muted">'+q[2]+'</span><div class="wbopts">'+q[3].map((o,i)=>'<button class="wbo" data-q="'+q[0]+'" data-v="'+i+'">'+esc(o)+'</button>').join('')+'</div></div>').join('')+'<button class="btn" id="wbGo" style="margin-top:12px;width:100%">Done</button></div>',onDone);
   $$('#sheet .wbo').forEach(b=>b.onclick=()=>{const q=b.dataset.q;a[q]=+b.dataset.v;$$('#sheet .wbo[data-q="'+q+'"]').forEach(x=>x.classList.toggle('on',x===b));});
-  $('#wbGo').onclick=()=>{if(['e','m','s','f'].some(k=>a[k]==null)){toast('Tap an answer for each question (periods is optional)');return;}if(a.per===2)delete a.per;const res=wbSubmit(p,a);
+  $('#wbGo').onclick=()=>{if(['e','m','s','f'].some(k=>a[k]==null)){toast('Tap an answer for each question (periods is optional)',true);return;}if(a.per===2)delete a.per;const res=wbSubmit(p,a);
     $('#sheet').querySelector('.wbcheck').innerHTML=res.concern?'<div class="eyebrow">Thanks for being honest</div><h2>Let\'s ease off</h2><p>It sounds like things have been tough lately. That matters more than any target. '+(res.paused?'FuelQuest has switched you to <b>maintenance</b> and paused Lean Mode. Weigh-ins drop to once a week.':'')+'</p><p>Please talk to someone you trust, like a parent, carer, school counsellor or your GP. You do not have to sort this out alone.</p>'+helpHTML():'<div class="eyebrow">Check complete</div><h2>Thanks for checking in</h2><p>Sounds like you are in a good place. Keep looking after your sleep, food and mood. Next check in 2 weeks.</p>'+(leanCfg(planOf(p.id)).lean.resumeOK?'<p class="msgbox ok">You can switch Lean Mode back on from My Plan whenever you are ready. A quick chat with a trusted adult first is a good idea.</p>':'');};}
 /* Forge: strength quest line (Lean Mode) + PBs for everyone */
 const PB_EX=[['pushups','Push-ups','reps'],['squats','Bodyweight squats','reps'],['plank','Plank','sec'],['pullups','Pull-ups or chin-ups','reps'],['wallsit','Wall sit','sec'],['lunges','Lunges (each leg)','reps']];
 const FORGE_RANKS=[[0,'Iron'],[2,'Steel'],[5,'Titanium'],[9,'Obsidian'],[14,'Adamant']];
 function pbBest(g,ex){const a=(g.pbs||{})[ex]||[];return a.length?a.reduce((m,x)=>x[1]>m[1]?x:m,a[0]):null;}
 function logPB(ex,val,k){const g=G();g.pbs=g.pbs||{};const b=pbBest(g,ex);(g.pbs[ex]=g.pbs[ex]||[]).push([k||dkey(),val]);saveG();const isPB=!b||val>b[1];const name=PB_EX.find(x=>x[0]===ex)[1];
-  if(isPB){award('pb','New PB: '+name);sound('badge');}else toast('Logged. Your PB is still '+b[1]);evaluate();return isPB;}
+  if(isPB){award('pb','New PB: '+name);sound('badge');}else toast('Logged. Your PB is still '+b[1],true);evaluate();return isPB;}
 function forgeWeek(g,wk){let ses=0,pbs=0;for(let i=0;i<7;i++){const k=addDays(wk,i),d=g.days[k];if(d&&d.strength)ses++;}Object.values(g.pbs||{}).forEach(a=>a.forEach(x=>{if(x[0]>=wk&&x[0]<=addDays(wk,6))pbs++;}));return {ses,pbs};}
 function forgeRank(g){const n=(g.forge&&g.forge.weeks)||0;let r=FORGE_RANKS[0];FORGE_RANKS.forEach(x=>{if(n>=x[0])r=x;});return {name:r[1],weeks:n,next:FORGE_RANKS.find(x=>x[0]>n)};}
 function forgeTick(p){const g=G();if(!leanOn(p))return;const wk=weekKey();g.forge=g.forge||{claimed:{},weeks:0};const c=g.forge.claimed[wk]=g.forge.claimed[wk]||[0,0,0];const f=forgeWeek(g,wk);
@@ -2195,7 +2283,7 @@ function cosOf(g){g.cos=Object.assign({skins:[],themes:[],titles:[]},g.cos||{});
 function seasonClaim(p){const g=G();if(!g)return;const se=seasonOf(p,g);g.season=g.season||{};const st=g.season[se.month]=g.season[se.month]||{claimed:0};const cos=cosOf(g);let xp=0;const got=[];
   for(let t=st.claimed+1;t<=se.tier;t++){const r=SEASON_TRACK[t-1];if(r[0]==='xp')xp+=r[1];else if(r[0]==='item'){g.items[r[1]]=Math.min(9,(g.items[r[1]]||0)+1);got.push(ITEMS[r[1]][1]);}
     else{const key={skin:'skins',theme:'themes',title:'titles'}[r[0]];if(!cos[key].includes(r[1]))cos[key].push(r[1]);got.push(rewardName(r));}}
-  if(se.tier>st.claimed){st.claimed=se.tier;saveG();if(xp)addXP(xp,'Season tier rewards',true);toast('Season '+se.name+': tier '+se.tier+' unlocked'+(got.length?' · '+got.join(', '):''));}}
+  if(se.tier>st.claimed){st.claimed=se.tier;saveG();if(xp)addXP(xp,'Season tier rewards',true);toast('Season '+se.name+': tier '+se.tier+' unlocked'+(got.length?' · '+got.join(', '):''),true);}}
 function rewardName(r){return r[0]==='skin'?'Buddy skin: '+SKINS[r[1]][0]:r[0]==='theme'?'Profile theme: '+THEMES[r[1]][0]:r[0]==='title'?'Title: '+r[1]:r[0]==='item'?ITEMS[r[1]][1]:'+'+r[1]+' XP';}
 function rewardIcon(r){return ic({skin:'spark',theme:'sun',title:'award',item:'bag',xp:'zap'}[r[0]],16);}
 function applyAccent(){const g=curProfile()&&G();const t=g&&g.equip&&g.equip.theme&&THEMES[g.equip.theme];const st=document.documentElement.style;if(t){st.setProperty('--grape',t[1]);st.setProperty('--teal',t[2]);document.documentElement.setAttribute('data-accent',g.equip.theme);}else{st.removeProperty('--grape');st.removeProperty('--teal');document.documentElement.removeAttribute('data-accent');}}
@@ -2236,10 +2324,10 @@ function leanSetupHTML(p){const s=leanState(p),r=s.r;if(r.age<16)return '<div cl
    (r.adult?'':'<p class="msgbox info small" style="margin-top:10px">You are 16 or 17 and still growing. Talk it through with a parent or carer, and ideally your GP or a dietitian, before switching this on.</p>')+
    '<label class="row" style="margin-top:10px;font-weight:700;cursor:pointer"><input type="checkbox" id="leanAck"> I understand the weigh-ins, the floor and the wellbeing checks</label><button class="btn" id="leanStart" style="margin-top:10px">Start Lean Mode</button></div>';}
 function bindLeanSetup(el,p,re){const days=()=>[...el.querySelectorAll('#leanDays .chip.on')].map(b=>+b.dataset.dow);
-  el.querySelectorAll('#leanDays .chip').forEach(b=>b.onclick=()=>{const on=b.classList.contains('on');if(!on&&days().length>=3){toast('Pick exactly 3 mornings');return;}b.classList.toggle('on');sound('tick');if(leanOn(p)&&days().length===3){const pl=leanCfg(planOf(p.id));pl.lean.days=days().sort();savePlan(p.id,pl);toast('Weigh-in days saved');}});
-  const st=el.querySelector('#leanStart');if(st)st.onclick=()=>{if(!el.querySelector('#leanAck').checked){toast('Tick the box to confirm first');return;}if(days().length!==3){toast('Pick exactly 3 weigh-in mornings');return;}startLean(p,days());sound('level');toast('Lean Mode on. Forge quests unlocked.');re();};
-  const off=el.querySelector('#leanOff');if(off)off.onclick=()=>{stopLean(p);toast('Lean Mode off. Target back to maintenance.');re();};
-  const rs=el.querySelector('#leanResume');if(rs)rs.onclick=()=>{resumeLean(p);toast('Lean Mode back on');re();};}
+  el.querySelectorAll('#leanDays .chip').forEach(b=>b.onclick=()=>{const on=b.classList.contains('on');if(!on&&days().length>=3){toast('Pick exactly 3 mornings',true);return;}b.classList.toggle('on');sound('tick');if(leanOn(p)&&days().length===3){const pl=leanCfg(planOf(p.id));pl.lean.days=days().sort();savePlan(p.id,pl);toast('Weigh-in days saved',true);}});
+  const st=el.querySelector('#leanStart');if(st)st.onclick=()=>{if(!el.querySelector('#leanAck').checked){toast('Tick the box to confirm first',true);return;}if(days().length!==3){toast('Pick exactly 3 weigh-in mornings',true);return;}startLean(p,days());sound('level');toast('Lean Mode on. Forge quests unlocked.',true);re();};
+  const off=el.querySelector('#leanOff');if(off)off.onclick=()=>{stopLean(p);toast('Lean Mode off. Target back to maintenance.',true);re();};
+  const rs=el.querySelector('#leanResume');if(rs)rs.onclick=()=>{resumeLean(p);toast('Lean Mode back on',true);re();};}
 /* ---------- weekly recap ---------- */
 let recapShown={};
 function lastRecapWeek(p){const g=G();const wk0=weekKey();const now=new Date();if(now.getDay()===0&&now.getHours()>=18)return wk0;return addDays(wk0,-7);}
@@ -2256,7 +2344,10 @@ function lootHTML(o){const T=o.tier?TIERS.find(t=>t[1]===o.tier):null;const col=
   if(o.cp)items.push([ic('spark',20),'+'+o.cp+' season points','']);if(o.enc){const c=CR[o.enc];items.push([ic('dex',20),RAR[c.r][0]+' encounter','guaranteed']);}
   return '<div class="loot" style="--tc:'+col+'">'+(o.tier?'<div class="burst small"><div class="rays"></div>'+chestSVG(col,true)+'</div>':'')+'<div class="lootgrid">'+items.map((x,i)=>'<div class="lootc" style="animation-delay:'+(i*120)+'ms">'+x[0]+'<b>'+x[1]+'</b><small>'+x[2]+'</small></div>').join('')+'</div>'+
    '<p class="small" style="margin-top:8px">'+(o.combo?'Combo: <b>'+o.combo+' week'+(o.combo>1?'s':'')+' at Gold+</b>. ':'')+(o.shieldUsed?'A combo shield kept your streak alive. ':'')+(o.perfect?'<b>Perfect Week!</b> ':'')+'</p></div>';}
-function maybeRecap(p,g){const wk=pendingRecap(p,g);if(!wk||recapShown[p.id+wk]||modalOpen)return;recapShown[p.id+wk]=1;setTimeout(()=>{if(!modalOpen)openRecap(p,wk);},600);}
+function maybeRecap(p,g){/* no auto popup; Today shows an inline banner via recapBanner() */}
+function recapBanner(p,g){const wk=pendingRecap(p,g);if(!wk)return '';
+  return '<div class="card" id="recapBanner" style="border-color:rgba(182,255,59,.35)"><div class="spread"><div><div class="eyebrow">Weekly recap ready</div><b>Open your consistency chest when you like</b></div><div class="row"><button class="btn sm" id="recapOpen">Open</button><button class="btn sm alt" id="recapLater">Later</button></div></div></div>';}
+
 
 /* ---------- Progress screen ---------- */
 function weightChart(pl,showRaw){const T=trendOf(pl).filter(x=>diffDays(x.k,dkey())<=56);if(T.length<2)return '<p class="small muted">Your trend line appears after a couple of weigh-ins.</p>';
@@ -2286,7 +2377,7 @@ function renderProgress(){const el=$('#progressBody');const p=needProfile(el);if
    (s.on?'<div class="card forge"><div class="eyebrow">'+ic('dumbbell',14)+' Forge quest line · rank '+fr.name+'</div><h3>This week in the Forge</h3>'+[['2 strength sessions',fw.ses,2],['3 strength sessions',fw.ses,3],['Log a PB attempt',fw.pbs,1]].map(x=>'<div style="margin:8px 0"><div class="barlabel"><span>'+x[0]+'</span><span>'+Math.min(x[1],x[2])+'/'+x[2]+'</span></div><div class="bar"><span style="width:'+Math.min(1,x[1]/x[2])*100+'%;background:linear-gradient(90deg,#ff7a1a,#ffd23f)"></span></div></div>').join('')+'<p class="small muted">'+fr.weeks+' Forge weeks'+(fr.next?' · '+(fr.next[0]-fr.weeks)+' more to '+fr.next[1]:'')+'. More than 3 sessions earns nothing extra: rest days build strength too.</p></div>':'')+
    '<div class="card"><h3>💚 Wellbeing</h3>'+(wbs.length?'<div class="wbbars">'+wbs.map(w=>'<div class="wbb'+(w.concern?' c':'')+'" style="height:'+(w.score/8*100)+'%" title="'+w.d+'"></div>').join('')+'</div>':'<p class="small muted">No check-ins yet.</p>')+'<button class="btn sm alt" id="wbNow" style="margin-top:8px">Do a wellbeing check</button>'+more('Support resources',helpHTML())+'</div>'+
    (s.on?'<details class="card private"'+(pl.showTrend?' open':'')+'><summary><span class="eyebrow">'+ic('shield',14)+' Private · weight trend</span><span class="small muted">Lean Mode only</span></summary><label class="row small" style="margin:8px 0;cursor:pointer"><input type="checkbox" id="rawTog"'+(pl.showRaw?' checked':'')+'> Show daily dots (faint)</label><div class="chart">'+weightChart(pl,!!pl.showRaw)+'</div><button class="btn sm alt" id="wiNow">Add a weigh-in</button></details>':'<p class="small muted" style="text-align:center">Weight is never shown or needed here outside Lean Mode.</p>');
-  $('#pbGo').onclick=()=>{const v=+$('#pbVal').value;if(!(v>0)){toast('Type a result first');return;}logPB($('#pbEx').value,v);renderProgress();};
+  $('#pbGo').onclick=()=>{const v=+$('#pbVal').value;if(!(v>0)){toast('Type a result first',true);return;}logPB($('#pbEx').value,v);renderProgress();};
   $('#wbNow').onclick=()=>openWellbeing(p,renderProgress);
   el.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>{g.equip[b.dataset.eq]=b.dataset.v||null;saveG();applyAccent();sound('tick');renderProgress();});
   const rt=$('#rawTog');if(rt)rt.onchange=()=>{const q=leanCfg(planOf(p.id));q.showRaw=rt.checked;q.showTrend=true;savePlan(p.id,q);renderProgress();};
@@ -2387,19 +2478,19 @@ function openRecipe(id){const r=RECIPES.find(x=>x.id===id);if(!r)return;const M=
    '<h3>Steps</h3><ol class="rxsteps">'+r.steps.map(t=>'<li>'+esc(t)+'</li>').join('')+'</ol>'+
    (r.tip?'<p class="msgbox info small">'+ic('spark',14)+' '+esc(r.tip)+'</p>':'')+
    '<div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn" id="rxPlate">'+ic('plate',16)+' Add to plate</button><button class="btn teal" id="rxLog">'+ic('log',16)+' Log 1 serve</button><button class="btn alt" id="rxSave">'+ic('bag',16)+' Save to my recipes</button></div></div>');
-  $('#rxPlate').onclick=()=>{loadRecipeToPlate(r);closeModal();showTab('plate');toast(r.name+' loaded on the plate ('+r.serves+' serves)');};
+  $('#rxPlate').onclick=()=>{loadRecipeToPlate(r);closeModal();showTab('plate');/* quiet */;};
   $('#rxLog').onclick=()=>{logRecipeServe(r,1);closeModal();};
   $('#rxSave').onclick=()=>{saveRecipeCopy(r);};}
 function loadRecipeToPlate(r){plate=r.items.filter(([id])=>F[id]).map(([id,q])=>{const f=F[id];return {id,q:f.per100?q/100:q};});
   const m=$('#plMeal');if(m)m.value=r.meal||'d';renderPlate();renderPalette();}
-function logRecipeServe(r,serves){const g=G();if(!g){toast('Pick who is using this on the Today tab first');return;}
+function logRecipeServe(r,serves){const g=G();if(!g){toast('Create your profile first (Energy Calc)',true);return;}
   const d=today(g);const m=r.meal||'d';const frac=(serves||1)/Math.max(1,r.serves);
   r.items.forEach(([id,q])=>{if(!F[id])return;const qq=F[id].per100?(q/100)*frac:q*frac;if(qq>0)d.foods.push({f:id,q:qq,m,rx:r.id});});
-  mealXP(d,m);saveG();evaluate();toast('Logged 1 serve of '+r.name+' (+'+fE(recipeMacros(r).per.kcal,1)+')');sound('xp');}
-function saveRecipeCopy(r){const g=G();if(!g){toast('Pick who is using this on the Today tab first');return;}
+  mealXP(d,m);saveG();evaluate();/* quiet */;sound('xp');}
+function saveRecipeCopy(r){const g=G();if(!g){toast('Create your profile first (Energy Calc)',true);return;}
   g.recipes=g.recipes||[];const items=r.items.filter(([id])=>F[id]).map(([id,q])=>({id,q:F[id].per100?q/100:q}));
   g.recipes.push({name:r.name,items,meal:r.meal,serves:r.serves,steps:r.steps.slice(),from:r.id,custom:true});
-  saveG();award('recipe','Recipe saved');checkProgress();renderRecipes();toast('Saved "'+r.name+'" to My recipes');sound('badge');}
+  saveG();award('recipe','Recipe saved');checkProgress();renderRecipes();toast('Saved to My recipes',true);sound('badge');}
 function editSavedRecipe(i){const g=G();const r=g.recipes[i];if(!r)return;
   openModal('<div class="rxdetail"><div class="eyebrow">Edit recipe</div><h2 style="margin:0 0 8px">'+esc(r.name)+'</h2>'+
    '<label class="f">Name <input type="text" id="edName" value="'+esc(r.name)+'" maxlength="40"></label>'+
@@ -2408,23 +2499,22 @@ function editSavedRecipe(i){const g=G();const r=g.recipes[i];if(!r)return;
    '<p class="small muted" style="margin-top:10px">Ingredients (load onto the plate to change quantities, then re-save).</p>'+
    '<ul class="rxlist">'+(r.items||[]).map(it=>{const id=it.id||it;const q=it.q!=null?it.q:1;const f=F[id];return '<li>'+(f?f.e+' ':'')+esc(f?f.name:id)+' · <span class="num">'+(f&&f.per100?r1(q*100)+' g':r1(q)+' serve')+'</span></li>';}).join('')+'</ul>'+
    '<div class="row" style="margin-top:12px"><button class="btn" id="edSave">Save changes</button><button class="btn alt" id="edLoad">Load on plate</button><button class="btn coral" id="edDel">Delete</button></div></div>');
-  $('#edSave').onclick=()=>{r.name=($('#edName').value||r.name).trim().slice(0,40);r.meal=$('#edMeal').value;r.serves=clamp(+$('#edServes').value||1,1,20);saveG();closeModal();renderRecipes();toast('Recipe updated');};
-  $('#edLoad').onclick=()=>{plate=(r.items||[]).map(it=>({id:it.id||it,q:it.q!=null?it.q:1})).filter(x=>F[x.id]);$('#plMeal').value=r.meal||'d';closeModal();renderPlate();toast('Loaded on plate');};
-  $('#edDel').onclick=()=>{g.recipes.splice(i,1);saveG();closeModal();renderRecipes();toast('Recipe deleted');};}
+  $('#edSave').onclick=()=>{r.name=($('#edName').value||r.name).trim().slice(0,40);r.meal=$('#edMeal').value;r.serves=clamp(+$('#edServes').value||1,1,20);saveG();closeModal();renderRecipes();/* quiet */;};
+  $('#edLoad').onclick=()=>{plate=(r.items||[]).map(it=>({id:it.id||it,q:it.q!=null?it.q:1})).filter(x=>F[x.id]);$('#plMeal').value=r.meal||'d';closeModal();renderPlate();/* quiet */;};
+  $('#edDel').onclick=()=>{g.recipes.splice(i,1);saveG();closeModal();renderRecipes();toast('Recipe deleted',true);};}
 
 /* Normalise plate items: accept legacy string ids */
 function plateItems(){return plate.map(x=>typeof x==='string'?{id:x,q:1}:x).filter(x=>F[x.id]);}
 function plateMacro(){const tot={kcal:0,p:0,cb:0,ft:0};plateItems().forEach(it=>{const f=F[it.id];tot.kcal+=f.kcal*it.q;tot.p+=f.p*it.q;tot.cb+=(f.cb||0)*it.q;tot.ft+=(f.ft||0)*it.q;});return tot;}
 
 /* =========================================================
-   Profile switcher ("Who's using this?")
+   Single-device profile (one person per phone by default)
    ========================================================= */
-function whoChips(el){const arr=profiles();const c=curId();
-  el.innerHTML=arr.map(p=>'<button class="chip'+(p.id===c?' on':'')+'" data-pid="'+p.id+'">'+p.icon+' '+esc(p.name)+'</button>').join('')+'<button class="chip" data-new="1">➕ New profile</button>';
-  el.onclick=e=>{const b=e.target.closest('.chip');if(!b)return;if(b.dataset.new){showTab('calc');$('#pName').focus();return;}store.set('current',b.dataset.pid);_gid=null;sound('tick');refreshGameViews();};}
+function ensureMe(){const arr=profiles();if(!arr.length)return null;let id=curId();if(!id||!arr.find(p=>p.id===id)){id=arr[0].id;store.set('current',id);_gid=null;}return arr.find(p=>p.id===id)||null;}
+function whoChips(el){if(!el)return;/* archived: multi-profile chips no longer shown on Today / My Plan */}
 function needProfile(el){const arr=profiles();
-  if(!arr.length){el.innerHTML='<div class="card empty"><div class="huge">👋</div><h3>Create your profile to start your quest</h3><p>Each person gets their own buddy, plan, streaks and creatures.</p><button class="btn" onclick="document.querySelector(\'.tab[data-tab=calc]\').click()">➕ Create a profile</button></div>';return null;}
-  const p=curProfile();if(!p){el.innerHTML='<div class="card empty"><h3>👆 Tap your name above to continue</h3></div>';return null;}return p;}
+  if(!arr.length){el.innerHTML='<div class="card empty"><div class="eyebrow">First run</div><h3>Set up your profile</h3><p>This device is yours. Create one profile, pick a buddy, and start. Family on other phones join you on the Squad tab.</p><button class="btn" onclick="document.querySelector(\'.tab[data-tab=calc]\').click()">'+ic('plus',16)+' Create my profile</button></div>';return null;}
+  return ensureMe();}
 
 /* =========================================================
    Rings + chart helpers
@@ -2436,7 +2526,7 @@ function eggsHTML(g){const u=S.len==='ftin';return '<h3>🥚 Eggs</h3><p class="
 function bagHTML(g){return '<h3>🎒 Inventory</h3>'+Object.entries(ITEMS).map(([k,v])=>{const n=g.items[k]||0;let btn='';if(k==='boost'&&n>0&&g.boostDay!==dkey())btn='<button class="btn sm" data-item="boost">Use</button>';if(k==='incense'&&n>0)btn='<button class="btn sm" data-item="incense">Ring</button>';
   return '<div class="logitem"><span><span class="itemic">'+ic({shield:'shield',boost:'zap',charm:'spark',incense:'target'}[k],18)+'</span> <b>'+v[1]+'</b> ×'+n+'<br><span class="small muted">'+v[2]+'</span></span>'+btn+'</div>';}).join('');}
 function bindBag(el,re){el.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{const g=G();const k=b.dataset.item;if((g.items[k]||0)<1)return;g.items[k]--;
-  if(k==='boost'){g.boostDay=dkey();toast('⚡ XP Boost on: 2× XP for the rest of today!');sound('badge');}
+  if(k==='boost'){g.boostDay=dkey();toast('⚡ XP Boost on for today',true);sound('badge');}
   if(k==='incense'){wildEncounter();}saveG();re();});}
 
 /* =========================================================
@@ -2451,7 +2541,7 @@ function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return
   const tk=kcalOf(d),tgt=targetOf(p);
   el.innerHTML='<div class="card chart"><h3>📈 Fuel zone</h3>'+zoneChart(g,p)+'</div><div class="card"><div class="spread"><h3 style="margin:0">🍽️ Food</h3><span class="small muted">'+kdate(dkey()).toLocaleDateString('en',{weekday:'long',day:'numeric',month:'short'})+'</span></div>'+
    '<div class="chips" style="margin:10px 0">'+Object.entries(MEALS).map(([k,v])=>'<button class="chip'+(logMeal===k?' on':'')+'" data-meal="'+k+'">'+v[2]+' '+v[0]+'</button>').join('')+'</div>'+
-   '<div class="row"><select id="logFood" style="flex:1;min-width:200px">'+opts+'</select><span class="counter"><button class="btn sm alt" data-q="-1">−</button><b id="logQ">1</b><button class="btn sm alt" data-q="1">+</button></span><button class="btn" id="logAdd">Add</button></div>'+
+   '<div class="foodtools"><input type="search" id="logSearch" placeholder="Search foods…" autocomplete="off" style="flex:1;min-width:140px"><select id="logFood" style="flex:1.4;min-width:180px">'+opts+'</select></div><div class="row" style="margin-top:8px"><span class="counter"><button class="btn sm alt" data-q="-1">−</button><b id="logQ">1</b><button class="btn sm alt" data-q="1">+</button></span><button class="btn" id="logAdd">Add</button></div>'+
    byMeal+'<div class="row" style="margin-top:12px;gap:10px"><div class="stat"><small>Energy in today</small><b class="num">'+fE(tk,1)+'</b><small class="num">target ~'+fE(tgt,1)+'</small></div><div class="stat"><small>Protein</small><b class="num">'+Math.round(proteinOf(d))+' g</b><small class="num">goal ~'+E.protein+' g</small></div></div></div>'+
    '<div class="card"><h3>📈 Habits</h3><div class="trackers">'+
     tracker('💧 Water','glasses (250 ml)',d.water+' / '+E.water,'water',d.water/E.water,'#2fa8ff',[[-1,'−'],[1,'+1']])+
@@ -2464,6 +2554,11 @@ function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return
    '<div class="card"><h3>Smart swaps</h3>'+more('About swaps','<p class="small muted" style="margin:0">Tap one you tried today for XP (up to 2 a day). Swaps are about adding good stuff, not cutting back.</p>')+SWAPS.map((s,i)=>'<div class="swaprow"><span>'+s[0]+' '+esc(s[2])+' ➜ '+s[1]+' <b>'+esc(s[3])+'</b></span><button class="btn sm alt" data-swap="'+i+'">I did it!</button></div>').join('')+'<p class="small muted">Swaps tried: '+(g.swaps||0)+' total, '+(d.swaps||0)+' today.</p></div>'+
    '<div class="card"><h3>🌙 Wrap up my day</h3><p class="small muted">At the end of the day, tap to see how your fuel went. A balanced day (within 10% of your target) earns XP. Low-fuel days never earn rewards.</p><button class="btn" id="wrapBtn">🌙 Wrap up today</button><div id="wrapMsg"></div></div>';
   el.querySelector('#logFood').value=el._lastFood||'eggs';let q=1;
+  const rebuildLogFoods=()=>{const qq=($('#logSearch').value||'').toLowerCase().trim();const cur=$('#logFood').value;
+    const opts2=Object.entries(GROUPS).map(([gk,gv])=>{const items=FOODS.filter(f=>f.g===gk&&(!qq||f.name.toLowerCase().includes(qq)||(f.serve||'').toLowerCase().includes(qq)));if(!items.length)return '';return '<optgroup label="'+gv[1]+'">'+items.map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+(f.approx?' ~':'')+' ('+eVal(f.kcal)+' '+eUnit()+')</option>').join('')+'</optgroup>';}).join('');
+    $('#logFood').innerHTML=opts2||'<option value="">No matches</option>';if(cur&&F[cur])$('#logFood').value=cur;};
+  const ls=$('#logSearch');if(ls)ls.oninput=rebuildLogFoods;
+
   el.querySelectorAll('[data-meal]').forEach(b=>b.onclick=()=>{logMeal=b.dataset.meal;renderLog();});
   el.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{q=clamp(q+(+b.dataset.q)*0.5,0.5,10);$('#logQ').textContent=fmtQ(q);});
   $('#logAdd').onclick=()=>{const f=$('#logFood').value;el._lastFood=f;d.foods.push({f,q,m:logMeal});mealXP(d,logMeal);sound('tick');saveG();evaluate();renderLog();};
@@ -2471,7 +2566,7 @@ function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return
   el.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const k=b.dataset.tr,v=+b.dataset.v;if(k==='water')d.water=clamp(d.water+v,0,30);if(k==='fv')d.fvExtra=clamp((d.fvExtra||0)+v,-fvOf(d)+(d.fvExtra||0),20);if(k==='move')d.move=clamp(d.move+v,0,600);if(k==='sleep')d.sleep=clamp(d.sleep+v,0,16);sound('tick');saveG();evaluate();renderLog();});
   bindSteps(el,renderLog);
   $('#strTog').onclick=()=>{d.strength=!d.strength;saveG();evaluate();renderLog();};
-  el.querySelectorAll('[data-swap]').forEach(b=>b.onclick=()=>{if((d.swaps||0)>=5){toast('Swap legend! That is plenty for today.');return;}d.swaps=(d.swaps||0)+1;g.swaps=(g.swaps||0)+1;award('swap','Smart swap');saveG();checkProgress();renderLog();});
+  el.querySelectorAll('[data-swap]').forEach(b=>b.onclick=()=>{if((d.swaps||0)>=5){toast('Swap legend! That is plenty for today.',true);return;}d.swaps=(d.swaps||0)+1;g.swaps=(g.swaps||0)+1;award('swap','Smart swap');saveG();checkProgress();renderLog();});
   $('#wrapBtn').onclick=()=>{const r=wrapUp();$('#wrapMsg').innerHTML='<div class="msgbox" style="background:'+r.cls+'">'+esc(r.msg)+'</div>';};
 }
 function tracker(t,sub,val,key,pct,col,btns){return '<div class="tracker"><h4>'+t+'</h4><div class="small muted">'+sub+'</div><div class="spread" style="margin:6px 0"><b class="num">'+val+'</b></div><div class="bar"><span style="width:'+clamp(pct*100,0,100)+'%;background:'+col+'"></span></div><div class="counter" style="margin-top:8px">'+btns.map(b=>'<button class="btn sm alt" data-tr="'+key+'" data-v="'+b[0]+'">'+b[1]+'</button>').join('')+'</div></div>';}
@@ -2505,7 +2600,7 @@ const TPL={b:[[['weetbix',1.5],['banana',1],['yog',.5]],[['eggs',1],['vogels',2]
 const KITCHEN={'🥫 Pantry':['Oats or wheat biscuit cereal','Wholemeal or grainy bread','Rice and pasta','Canned tuna or salmon','Baked beans or chickpeas','Peanut butter','Crackers','Canned tomatoes'],'🧊 Fridge':['Milk','Yoghurt','Cheese','Eggs','Fruit (in the fruit bowl too)','Salad veg','Carrots','Leftovers for lunches'],'❄️ Freezer':['Frozen mixed veg','Frozen peas','Frozen berries','Chicken','Mince','Fish fillets']};
 const TAKE=[['🍟','Fish & chips','~750 kcal for 1 battered fish + a shared portion of chips','Share the chips, try grilled fish, and add a salad or coleslaw at home.'],['🍔','Burger combo','~1,000 to 1,200 kcal with fries and a soft drink; ~500 to 600 for the burger alone','Water or a sugar-free drink, small fries, and extra salad in the burger.'],['🍕','Pizza','~250 to 300 kcal per large slice','Thin crust, veg toppings, salad on the side; 2 to 3 slices is a good meal.'],['🍣','Sushi','~250 to 400 kcal for 6 to 8 pieces','Great everyday pick. Go easy on fried fillings and mayo; add edamame.'],['🍛','Curry with rice','~700 to 900 kcal','Tomato-based curries, share a naan, half rice and half veg.'],['🥡','Chinese takeaway','~800 to 1,000 kcal for fried rice or a battered dish','Stir-fries with steamed rice, and share a few dishes.'],['🌯','Kebab or wrap','~600 to 800 kcal','Extra salad, less sauce, and skip the side of chips.'],['🍗','Fried chicken','~250 to 350 kcal per piece','Pair 2 pieces with corn or salad instead of extra fries.']];
 function fmtQty(q){return fmtQ(q);}
-function renderPlan(){whoChips($('#planWho'));$('#hideNums').checked=!!S.hide;const el=$('#planBody');const p=needProfile(el);if(!p){renderPlanStatic();return;}
+function renderPlan(){$('#hideNums').checked=!!S.hide;const el=$('#planBody');const p=needProfile(el);if(!p){renderPlanStatic();return;}
   const r=energy(p),pl=planOf(p.id);const tgt=targetOf(p);const LS=leanState(p);
   const goals=GOALS.filter(gl=>gl[0]!=='gentle'||LS.on);const wk=weekKey();const ticks=pl.ticks[wk]||[0,0,0,0,0,0,0];const todayIdx=(new Date().getDay()+6)%7;const lvl=MOVE[pl.level]||MOVE.starter;
   const factor=clamp(tgt/2000,.6,2.2);
@@ -2521,7 +2616,7 @@ function renderPlan(){whoChips($('#planWho'));$('#hideNums').checked=!!S.hide;co
   el.querySelectorAll('[data-lvl]').forEach(b=>b.onclick=()=>{pl.level=b.dataset.lvl;save();});
   el.querySelectorAll('[data-tpl]').forEach(b=>b.onclick=()=>{pl.tpl[b.dataset.tpl]=((pl.tpl[b.dataset.tpl]||0)+1)%3;save();});
   el.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{const i=+b.dataset.day;const t=(pl.ticks[wk]=pl.ticks[wk]||[0,0,0,0,0,0,0]);t[i]=t[i]?0:1;sound('tick');
-    if(t[i]&&i===todayIdx){const g=G(),d=today(g);if(!d.planAdded){d.planAdded=1;const dd=lvl.days[i];d.move+=dd[1];if(dd[2])d.strength=true;saveG();evaluate();toast('🏃 Added '+dd[1]+' min to today\'s log');}}save();});
+    if(t[i]&&i===todayIdx){const g=G(),d=today(g);if(!d.planAdded){d.planAdded=1;const dd=lvl.days[i];d.move+=dd[1];if(dd[2])d.strength=true;saveG();evaluate();/* quiet */;}}save();});
   renderPlanStatic();}
 function renderPlanStatic(){const kit=store.get('kitchen',{});
   $('#kitchenList').innerHTML=Object.entries(KITCHEN).map(([h,items])=>'<div class="mealtpl"><b>'+h+'</b>'+items.map(it=>'<label class="row small" style="margin:5px 0;cursor:pointer;flex-wrap:nowrap"><input type="checkbox" data-kit="'+esc(it)+'"'+(kit[it]?' checked':'')+'> '+esc(it)+'</label>').join('')+'</div>').join('');
@@ -2535,22 +2630,31 @@ function renderPlanStatic(){const kit=store.get('kitchen',{});
 function weekStats(g,E){const w=weekDays(g);const s={water:0,move:0,sleepN:0,fv:0,swaps:0,checkins:0,waterDays:0,moveDays:0,fvDays:0,strength:0,tasks:0};
   w.forEach(d=>{s.water+=d.water;s.move+=d.move;if(d.sleep>=E.sleep)s.sleepN++;s.fv+=fvOf(d);s.swaps+=d.swaps||0;if(d.checkin)s.checkins++;if(d.water>=E.water)s.waterDays++;if(d.move>=E.move)s.moveDays++;if(fvOf(d)>=5)s.fvDays++;if(d.strength)s.strength++;s.tasks+=d.tasks.length;});s.fv=Math.round(s.fv);return s;}
 function famState(){const wk=weekKey();let f=store.get('family',null);if(!f||f.week!==wk){f={week:wk,raid:RAIDS[Math.floor(diffDays('2024-01-01',wk)/7)%RAIDS.length].id,mates:{}};store.set('family',f);}return f;}
-function raidRows(f){const R=RAIDS.find(x=>x.id===f.raid)||RAIDS[0];const rows=profiles().map(p=>{const g=(p.id===_gid&&_g)?_g:gameOf(p.id);return {name:p.name,icon:p.icon,dmg:Math.round(R.calc(weekStats(g,energy(p)))),src:'this device'};});
-  Object.entries(f.mates).forEach(([k,m])=>rows.push({name:m.name,icon:m.icon||'🧑',dmg:Math.round(m.code?R.calc(m.stats):m.dmg||0),src:m.code?'share code':'entered',key:k}));
+function raidRows(f){const R=RAIDS.find(x=>x.id===f.raid)||RAIDS[0];const rows=[];const me=ensureMe();
+  if(me){const g=(me.id===_gid&&_g)?_g:gameOf(me.id);rows.push({name:me.name,icon:me.icon,dmg:Math.round(R.calc(weekStats(g,energy(me)))),src:'you · this device',you:true});}
+  Object.entries(f.mates).forEach(([k,m])=>rows.push({name:m.name,icon:m.icon||'🧑',dmg:Math.round(m.code?R.calc(m.stats):m.dmg||0),src:m.code?'linked · share code':'linked · entered',key:k,linked:true}));
   const hp=R.hp*Math.max(2,rows.length);const tot=rows.reduce((a,r)=>a+r.dmg,0);return {R,rows,hp,tot};}
+function renderSquadRoster(rows){const el=$('#squadRoster');if(!el)return;const me=ensureMe();const linked=rows.filter(r=>r.linked);
+  el.innerHTML='<div class="card squadcard"><div class="eyebrow">'+ic('users',14)+' Your squad</div><h3 style="margin:2px 0">Roster</h3><p class="small muted">You on this device, plus family linked from theirs.</p>'+
+   (me?'<div class="logitem you"><span><span class="avatar sm">'+me.icon+'</span> <b>'+esc(me.name)+'</b> <span class="pill soft">you</span></span><span class="small muted">this device</span></div>':'<p class="small muted">Set up your profile first (Energy Calc).</p>')+
+   (linked.length?linked.map(r=>'<div class="logitem"><span>'+r.icon+' <b>'+esc(r.name)+'</b> <span class="small muted">'+esc(r.src)+'</span></span><span class="row"><b class="num">'+nf(r.dmg)+' dmg</b>'+(r.key?'<button class="xbtn" data-mate="'+esc(r.key)+'" aria-label="Unlink">✕</button>':'')+'</span></div>').join(''):'<p class="small muted" style="margin:8px 0 0">No linked teammates yet. Import a share code below, or add their raid effort by hand.</p>')+
+   '<p class="small muted" style="margin:10px 0 0">Tip: each person keeps FuelQuest on their own phone. Link here for raids and shared quests.</p></div>';}
 function renderFamily(){const el=$('#familyBody');const f=famState();const {R,rows,hp,tot}=raidRows(f);const left=Math.max(0,hp-tot);const won=tot>=hp;const g=G();const wk=f.week;
-  if(g){const me=rows.find(r=>r.src==='this device'&&r.name===(curProfile()||{}).name);if(me&&me.dmg>0&&!g.flags.team){g.flags.team=true;saveG();checkProgress();}}
+  if(g){const me=rows.find(r=>r.you);if(me&&me.dmg>0&&!g.flags.team){g.flags.team=true;saveG();checkProgress();}}
+  renderSquadRoster(rows);
   el.innerHTML='<div class="card raid"><div class="eyebrow">Squad Raid · this week</div><div class="raidhead"><div class="boss'+(won?' beaten':'')+'">'+R.e+'</div><div style="flex:1"><h3 style="margin:0">'+esc(R.n)+(won?' · DEFEATED':'')+'</h3><p class="small" style="margin:2px 0">'+esc(R.d)+'</p><p class="small muted" style="margin:0">Damage: '+esc(R.how)+'. Boss HP scales with team size.</p></div></div>'+
    '<div class="barlabel"><span>❤️ Boss HP</span><span>'+nf(left)+' / '+nf(hp)+'</span></div><div class="bar hp"><span style="width:'+(left/hp*100)+'%;background:linear-gradient(90deg,#ff6b6b,#ff9f1c)"></span></div>'+
    '<div class="row" style="margin-top:8px"><label class="small" style="font-weight:800">This week\'s boss: <select id="raidSel" style="width:auto">'+RAIDS.map(x=>'<option value="'+x.id+'"'+(x.id===f.raid?' selected':'')+'>'+x.e+' '+esc(x.n)+'</option>').join('')+'</select></label></div>'+
-   '<h3 style="margin-top:14px">🤝 Squad</h3>'+(rows.length?rows.map(r=>'<div class="logitem"><span>'+r.icon+' <b>'+esc(r.name)+'</b> <span class="small muted">('+r.src+')</span></span><span class="row"><b>'+nf(r.dmg)+' dmg</b>'+(r.key?'<button class="xbtn" data-mate="'+esc(r.key)+'" aria-label="Remove">✕</button>':'')+'</span></div>').join(''):'<p class="small muted">Add profiles or teammates to start.</p>')+
-   (won?(g&&!g.raidWeeks[wk]?'<button class="btn coral" id="raidClaim" style="margin-top:10px">Claim raid reward</button>':'<div class="msgbox ok">Victory. '+(g&&g.raidWeeks[wk]?'Reward claimed for this profile.':'')+'</div>'):'')+
-   '<div class="grid2" style="margin-top:14px"><div class="mealtpl"><b>Add a teammate\'s effort</b><p class="small muted">For family on another device. Honour system!</p><div class="row"><input type="text" id="mateName" placeholder="Name" maxlength="20" style="flex:1"><input type="number" id="mateDmg" placeholder="damage" min="0" max="5000" style="width:110px"><button class="btn sm" id="mateAdd">Add</button></div></div>'+
-   '<div class="mealtpl"><b>Import a share code</b><p class="small muted">Paste the code from a teammate\'s weekly summary card.</p><div class="row"><input type="text" id="codeIn" placeholder="FQ1...." style="flex:1"><button class="btn sm" id="codeAdd">Import</button></div></div></div></div>';
+   '<h3 style="margin-top:14px">🤝 Raid damage</h3>'+(rows.length?rows.map(r=>'<div class="logitem"><span>'+r.icon+' <b>'+esc(r.name)+'</b> <span class="small muted">('+r.src+')</span></span><span class="row"><b>'+nf(r.dmg)+' dmg</b>'+(r.key?'<button class="xbtn" data-mate="'+esc(r.key)+'" aria-label="Unlink">✕</button>':'')+'</span></div>').join(''):'<p class="small muted">Link a teammate to start dealing damage together.</p>')+
+   (won?(g&&!g.raidWeeks[wk]?'<button class="btn coral" id="raidClaim" style="margin-top:10px">Claim raid reward</button>':'<div class="msgbox ok">Victory. '+(g&&g.raidWeeks[wk]?'Reward claimed.':'')+'</div>'):'')+
+   '<div class="grid2" style="margin-top:14px"><div class="mealtpl"><b>Link a teammate\'s effort</b><p class="small muted">Family on another device. Honour system.</p><div class="row"><input type="text" id="mateName" placeholder="Name" maxlength="20" style="flex:1"><input type="number" id="mateDmg" placeholder="damage" min="0" max="5000" style="width:110px"><button class="btn sm" id="mateAdd">Add</button></div></div>'+
+   '<div class="mealtpl"><b>Import a share code</b><p class="small muted">Paste the code from their weekly recap card.</p><div class="row"><input type="text" id="codeIn" placeholder="FQ1...." style="flex:1"><button class="btn sm" id="codeAdd">Link</button></div></div></div></div>';
   $('#raidSel').onchange=()=>{f.raid=$('#raidSel').value;store.set('family',f);renderFamily();};
-  $('#mateAdd').onclick=()=>{const n=$('#mateName').value.trim().slice(0,20),dm=clamp(+$('#mateDmg').value||0,0,5000);if(!n){toast('Add a name');return;}f.mates['m:'+n.toLowerCase()]={name:n,dmg:dm};store.set('family',f);sound('tick');renderFamily();};
-  $('#codeAdd').onclick=()=>{const r=importCode($('#codeIn').value);if(r.err){toast(r.err);return;}f.mates['c:'+r.n.toLowerCase()]={name:r.n,icon:r.i,code:1,stats:r.s};store.set('family',f);toast('📥 Added '+r.n+'\'s effort!');sound('badge');renderFamily();};
-  el.querySelectorAll('[data-mate]').forEach(b=>b.onclick=()=>{delete f.mates[b.dataset.mate];store.set('family',f);renderFamily();});
+  $('#mateAdd').onclick=()=>{const n=$('#mateName').value.trim().slice(0,20),dm=clamp(+$('#mateDmg').value||0,0,5000);if(!n){toast('Add a name',true);return;}f.mates['m:'+n.toLowerCase()]={name:n,dmg:dm};store.set('family',f);sound('tick');renderFamily();};
+  $('#codeAdd').onclick=()=>{const r=importCode($('#codeIn').value);if(r.err){toast(r.err,true);return;}f.mates['c:'+r.n.toLowerCase()]={name:r.n,icon:r.i,code:1,stats:r.s};store.set('family',f);toast('📥 Linked '+r.n+'!',true);sound('badge');renderFamily();};
+  const un=b=>{delete f.mates[b.dataset.mate];store.set('family',f);renderFamily();};
+  el.querySelectorAll('[data-mate]').forEach(b=>b.onclick=()=>un(b));
+  const sr=$('#squadRoster');if(sr)sr.querySelectorAll('[data-mate]').forEach(b=>b.onclick=()=>un(b));
   const cl=$('#raidClaim');if(cl)cl.onclick=()=>{const g=G();if(!g||g.raidWeeks[wk])return;g.raidWeeks[wk]=true;g.raids=(g.raids||0)+1;g.items.charm=(g.items.charm||0)+1;saveG();addXP(100,'Raid victory!');confetti(200);sound('level');if(!g.dex.vigoroo)queue({type:'encounter',id:'vigoroo'});else wildEncounter(2);checkProgress();renderFamily();};
 }
 function b64e(s){return btoa(unescape(encodeURIComponent(s)));}
@@ -2558,12 +2662,12 @@ function b64d(s){return decodeURIComponent(escape(atob(s)));}
 function makeCode(p,g){const s=weekStats(g,energy(p));return 'FQ1.'+b64e(JSON.stringify({v:1,n:p.name,i:p.icon,w:weekKey(),lv:levelOf(g.xp).n,st:streakNow('checkin',g),b:Object.keys(g.badges).length,dx:Object.keys(g.dex).length,s:{water:s.water,move:s.move,sleepN:s.sleepN,fv:s.fv,swaps:s.swaps,checkins:s.checkins}}));}
 function importCode(code){try{code=(code||'').trim();if(!code.startsWith('FQ1.'))return {err:'That does not look like a FuelQuest code'};const o=JSON.parse(b64d(code.slice(4)));if(!o||!o.n||!o.s)return {err:'Code is missing data'};if(o.w!==weekKey())return {err:'That code is from a different week ('+o.w+')'};
   const s={};['water','move','sleepN','fv','swaps','checkins'].forEach(k=>s[k]=clamp(+o.s[k]||0,0,5000));return {n:String(o.n).slice(0,20),i:String(o.i||'🧑').slice(0,4),s};}catch(e){return {err:'Could not read that code'};}}
-function renderShare(){const el=$('#shareBody');const p=curProfile();if(!p){el.innerHTML='<div class="card empty">Pick a profile on the Today tab to make your weekly card.</div>';return;}const g=G();const code=makeCode(p,g);
+function renderShare(){const el=$('#shareBody');const p=curProfile();if(!p){el.innerHTML='<div class="card empty">Create your profile first (Energy Calc), then come back.</div>';return;}const g=G();const code=makeCode(p,g);
   el.innerHTML='<div class="card"><canvas id="shareCv" class="sharecanvas" width="720" height="960" aria-label="Weekly summary card"></canvas><div class="row" style="justify-content:center"><button class="btn" id="shDl">⬇️ Save image</button><button class="btn teal" id="shShare">📤 Share</button><button class="btn alt" id="shTxt">📋 Copy text</button></div>'+
    '<p class="small" style="margin-top:12px"><b>🔑 Your share code</b> (teammates paste this into their raid):</p><div class="row"><input type="text" id="shCode" readonly value="'+esc(code)+'" style="flex:1;font-family:monospace;font-size:.75rem"><button class="btn sm" id="shCopy">Copy</button></div><p class="small muted">The card and code show habits, level, streak and collection only. Never weights or calorie totals.</p></div>';
   drawShare(p,g);
   const txt=()=>{const s=weekStats(g,energy(p)),lv=levelOf(g.xp);return '⚡ FuelQuest week: '+p.icon+' '+p.name+'\nLevel '+lv.n+' '+lv.name+' | 🔥 '+streakNow('checkin',g)+'-day streak\n🏅 '+Object.keys(g.badges).length+' badges | 📖 '+Object.keys(g.dex).length+' creatures\n💧 water goal '+s.waterDays+'/7 days | 🏃 movement goal '+s.moveDays+'/7 | 😴 sleep goal '+s.sleepN+'/7 | 🥦 5+ fruit & veg '+s.fvDays+'/7 | 💪 '+s.strength+' strength sessions\nShare code: '+code;};
-  const copy=t=>{(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('📋 Copied!')).catch(()=>{prompt('Copy this:',t);});};
+  const copy=t=>{(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('📋 Copied!',true)).catch(()=>{prompt('Copy this:',t);});};
   $('#shTxt').onclick=()=>copy(txt());$('#shCopy').onclick=()=>copy(code);
   $('#shDl').onclick=()=>{const a=document.createElement('a');a.download='fuelquest-week-'+p.name.replace(/\W+/g,'')+'.png';a.href=$('#shareCv').toDataURL('image/png');a.click();};
   $('#shShare').onclick=()=>{const cv=$('#shareCv');if(navigator.share){cv.toBlob(b=>{const file=new File([b],'fuelquest-week.png',{type:'image/png'});const data=navigator.canShare&&navigator.canShare({files:[file]})?{files:[file],text:txt()}:{text:txt()};navigator.share(data).catch(()=>{});});}else copy(txt());};}
@@ -2592,26 +2696,28 @@ function renderSettings(){const el=$('#settingsBody');
   el.innerHTML='<div class="grid2"><div class="card"><h3>📏 Units</h3><div class="formgrid" style="grid-template-columns:1fr"><label class="f">Energy <select id="stE"><option value="both">kcal + kJ</option><option value="kcal">kcal only</option><option value="kJ">kJ only</option></select></label><label class="f">Weight <select id="stM"><option value="kg">kg</option><option value="lb">lb</option></select></label><label class="f">Height and distance <select id="stL"><option value="cm">cm and km</option><option value="ftin">ft/in and miles</option></select></label></div></div>'+
    '<div class="card"><h3>🌏 Region food pack</h3><p class="small muted">Core foods are generic. A region pack adds local brands and favourites. More packs (e.g. US, UK) can be added later.</p><select id="stP">'+Object.entries(PACKS).map(([k,v])=>'<option value="'+k+'">'+esc(v.name)+'</option>').join('')+'</select><p class="small muted" id="stPinfo"></p></div>'+
    '<div class="card"><h3>🌗 Look and Walk Mode</h3><div class="formgrid" style="grid-template-columns:1fr"><label class="f">Theme <select id="stT"><option value="dark">Dark (default)</option><option value="light">Light</option></select></label><label class="f">Support resources region <select id="stR"><option value="nz">New Zealand</option><option value="au">Australia</option><option value="uk">United Kingdom</option><option value="us">United States</option><option value="ca">Canada</option><option value="other">Somewhere else</option></select></label><label class="f">Walk Mode sensitivity <select id="stW"><option value="low">Low</option><option value="med">Medium</option><option value="high">High</option></select></label></div>'+more('About Walk Mode','<p class="small muted" style="margin:0">Counts steps only while the app is open and the screen is on. Background sync needs a native app (future).</p>')+'</div>'+
-   '<div class="card"><h3>🔊 Sound and privacy</h3><label class="row" style="font-weight:700;cursor:pointer"><input type="checkbox" id="stS"> Sound effects</label><label class="row" style="font-weight:700;cursor:pointer;margin-top:8px"><input type="checkbox" id="stH"> 🙈 Hide numbers (blur energy and weight figures)</label></div>'+
-   '<div class="card"><h3>💾 Backup</h3><p class="small muted">All data lives only in this browser. Export a backup file now and then, or to move to a new phone.</p><div class="row"><button class="btn" id="stExp">⬇️ Export backup (JSON)</button><label class="btn alt" style="cursor:pointer">⬆️ Import backup<input type="file" id="stImp" accept="application/json,.json" class="sr"></label></div><p class="small muted">Storage keys: <code>'+NS+'*</code>, schema v'+SCHEMA+'. Updates keep your data.</p></div>'+
+   '<div class="card"><h3>🔊 Sound and privacy</h3><label class="row" style="font-weight:700;cursor:pointer"><input type="checkbox" id="stS"> Sound effects</label><label class="row" style="font-weight:700;cursor:pointer;margin-top:8px"><input type="checkbox" id="stH"> 🙈 Hide numbers (blur energy and weight figures)</label><label class="row" style="font-weight:700;cursor:pointer;margin-top:8px"><input type="checkbox" id="stQ" checked> Quiet mode (fewer toasts and reward pop-ups)</label><p class="small muted" style="margin:6px 0 0">Badges and level-ups stay earned; they show as a short toast instead of a full-screen pop-up. Weekly recap waits for you on Today.</p></div>'+
+   '<div class="card"><h3>👤 This device</h3><p class="small muted">FuelQuest is meant for one person per phone. Your profile lives here.</p>'+(ensureMe()?'<div class="logitem"><span><span class="avatar sm">'+ensureMe().icon+'</span> <b>'+esc(ensureMe().name)+'</b></span><button class="btn sm alt" id="stEditMe">Edit profile</button></div>':'<button class="btn sm" id="stEditMe">Create my profile</button>')+more('Advanced: another profile on this device','<p class="small muted" style="margin:0 0 8px">Rare case (shared tablet). Extra local profiles are archived from the main flow; manage them in Energy Calc.</p><button class="btn sm alt" id="stMulti">Open Energy Calc profiles</button>')+'</div>'+'<div class="card"><h3>💾 Backup</h3><p class="small muted">All data lives only in this browser. Export a backup file now and then, or to move to a new phone.</p><div class="row"><button class="btn" id="stExp">⬇️ Export backup (JSON)</button><label class="btn alt" style="cursor:pointer">⬆️ Import backup<input type="file" id="stImp" accept="application/json,.json" class="sr"></label></div><p class="small muted">Storage keys: <code>'+NS+'*</code>, schema v'+SCHEMA+'. Updates keep your data.</p></div>'+
    '<div class="card"><h3>📲 Install as an app</h3><p class="small">On iPhone: Share ➜ <b>Add to Home Screen</b>. On Android/Chrome: menu ➜ <b>Install app</b>. Works offline once installed (when hosted, e.g. on GitHub Pages).</p><button class="btn teal" id="stInstall" style="display:'+(deferredInstall?'':'none')+'">📲 Install now</button></div></div>';
-  $('#stE').value=S.energy;$('#stM').value=S.mass;$('#stL').value=S.len;$('#stP').value=S.pack;$('#stS').checked=S.sound;$('#stH').checked=S.hide;$('#stT').value=S.theme||'dark';$('#stR').value=S.helpRegion||'nz';$('#stW').value=S.walkSens||'med';
+  $('#stE').value=S.energy;$('#stM').value=S.mass;$('#stL').value=S.len;$('#stP').value=S.pack;$('#stS').checked=S.sound;$('#stH').checked=S.hide;$('#stQ').checked=S.quietRewards!==false;$('#stT').value=S.theme||'dark';$('#stR').value=S.helpRegion||'nz';$('#stW').value=S.walkSens||'med';
   const info=()=>{const pk=PACKS[$('#stP').value];$('#stPinfo').textContent=(CORE.length+pk.add.length)+' foods, '+Object.keys(pk.rename).length+' local names.';};info();
-  const ch=()=>{S.energy=$('#stE').value;S.mass=$('#stM').value;S.len=$('#stL').value;S.sound=$('#stS').checked;S.hide=$('#stH').checked;S.theme=$('#stT').value;S.helpRegion=$('#stR').value;S.walkSens=$('#stW').value;applyTheme();const packChanged=S.pack!==$('#stP').value;S.pack=$('#stP').value;saveSettings();document.body.classList.toggle('hidenums',S.hide);if(packChanged){buildFoods(S.pack);s2list=defaultS2();}applyUnitVisibility();info();toast('Settings saved');};
-  ['stE','stM','stL','stP','stS','stH','stT','stW','stR'].forEach(id=>$('#'+id).onchange=ch);
+  const ch=()=>{S.energy=$('#stE').value;S.mass=$('#stM').value;S.len=$('#stL').value;S.sound=$('#stS').checked;S.hide=$('#stH').checked;S.quietRewards=$('#stQ').checked;S.theme=$('#stT').value;S.helpRegion=$('#stR').value;S.walkSens=$('#stW').value;applyTheme();const packChanged=S.pack!==$('#stP').value;S.pack=$('#stP').value;saveSettings();document.body.classList.toggle('hidenums',S.hide);if(packChanged){buildFoods(S.pack);s2list=defaultS2();}applyUnitVisibility();info();/* quiet */;};
+  ['stE','stM','stL','stP','stS','stH','stQ','stT','stW','stR'].forEach(id=>$('#'+id).onchange=ch);
+  const em=$('#stEditMe');if(em)em.onclick=()=>showTab('calc');
+  const sm=$('#stMulti');if(sm)sm.onclick=()=>showTab('calc');
   $('#stExp').onclick=()=>{const data={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k.startsWith('fq.'))data[k]=localStorage.getItem(k);}
-    const blob=new Blob([JSON.stringify({app:'FuelQuest',schema:SCHEMA,exported:new Date().toISOString(),data},null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fuelquest-backup-'+dkey()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('⬇️ Backup downloaded');};
-  $('#stImp').onchange=e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{try{const o=JSON.parse(rd.result);if(o.app!=='FuelQuest'||!o.data)throw 0;if(!confirm('Import this backup? It replaces matching data on this device.'))return;Object.entries(o.data).forEach(([k,v])=>{if(k.startsWith('fq.'))localStorage.setItem(k,v);});toast('✅ Backup imported');setTimeout(()=>location.reload(),600);}catch(err){toast('That file is not a FuelQuest backup');}};rd.readAsText(file);};
+    const blob=new Blob([JSON.stringify({app:'FuelQuest',schema:SCHEMA,exported:new Date().toISOString(),data},null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='fuelquest-backup-'+dkey()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000);toast('⬇️ Backup downloaded',true);};
+  $('#stImp').onchange=e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{try{const o=JSON.parse(rd.result);if(o.app!=='FuelQuest'||!o.data)throw 0;if(!confirm('Import this backup? It replaces matching data on this device.'))return;Object.entries(o.data).forEach(([k,v])=>{if(k.startsWith('fq.'))localStorage.setItem(k,v);});toast('✅ Backup imported',true);setTimeout(()=>location.reload(),600);}catch(err){toast('That file is not a FuelQuest backup',true);}};rd.readAsText(file);};
   const ib=$('#stInstall');ib.onclick=()=>{if(deferredInstall){deferredInstall.prompt();deferredInstall=null;ib.style.display='none';}};}
 
 /* =========================================================
    Init
    ========================================================= */
 function init(){
-  migrate();loadSettings();applyTheme();decorateTabs();buildFoods(S.pack);s2list=defaultS2();document.body.classList.toggle('hidenums',!!S.hide);applyUnitVisibility();
+  migrate();loadSettings();applyTheme();decorateTabs();buildFoods(S.pack);ensureMe();s2list=defaultS2();document.body.classList.toggle('hidenums',!!S.hide);applyUnitVisibility();
   initCalorie();initExplorer();initCalc();initWeight();initPlate();initWhen();initHabits();
   $('#hideNums').onchange=()=>{S.hide=$('#hideNums').checked;saveSettings();document.body.classList.toggle('hidenums',S.hide);};
-  const homeCards=[['calorie','zap','Energy 101','Energy in vs out, kJ vs kcal, reading labels','#8b5cff'],['kitchen','kitchen','Food Lab','Tap foods, compare two, see 200 kcal side by side','#0fb5a0'],['plate','plate','Plate Builder','Drag foods onto a plate and save recipes','#ff7a1a'],['dex','dex','Creature Dex','Capture creatures with real habits','#2b8cf0'],['habits','swords','Squad Raid','Team up to take down this week\'s boss','#ff4d6d'],['quiz','quiz','Quiz','10 questions. Stars and XP on the line','#d946ef']];
+  const homeCards=[['calorie','zap','Energy 101','Energy in vs out, kJ vs kcal, reading labels','#8b5cff'],['kitchen','kitchen','Food Lab','Tap foods, compare two, see 200 kcal side by side','#0fb5a0'],['plate','plate','Plate Builder','Drag foods onto a plate and save recipes','#ff7a1a'],['dex','dex','Creature Dex','Capture creatures with real habits','#2b8cf0'],['habits','swords','Squad','Link family and take down this week\'s boss','#ff4d6d'],['quiz','quiz','Quiz','10 questions. Stars and XP on the line','#d946ef']];
   $('#homeCards').innerHTML=homeCards.map(c=>'<button class="habit navcard" data-go="'+c[0]+'" style="--hc:'+c[4]+'"><div class="em">'+ic(c[1],26)+'</div><h3>'+c[2]+'</h3><p>'+c[3]+'</p></button>').join('');
   $('#homeCards').onclick=e=>{const b=e.target.closest('[data-go]');if(b)showTab(b.dataset.go);};
   Object.assign(RENDER,{progress:renderProgress,home:renderToday,log:renderLog,dex:renderDex,plan:renderPlan,badges:renderBadges,kitchen:()=>{renderExplorer();renderSame200();},calc:renderProfiles,weight:fillWeightPeople,plate:()=>{renderPalette();renderPlate();},when:renderSugar,quiz:()=>{if(!QZ.length)startQuiz();},habits:()=>{renderFamily();renderShare();},settings:renderSettings,calorie:initCalorie});
