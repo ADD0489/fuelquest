@@ -1,6 +1,6 @@
 /* FuelQuest service worker: offline cache. Bump CACHE when files change. */
-const CACHE = 'fuelquest-v3';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
+const CACHE = 'fuelquest-v5';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './foods.json'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
@@ -14,6 +14,11 @@ self.addEventListener('fetch', e => {
   // Network first for the page (so updates arrive), cache fallback offline; cache first for other assets.
   if (e.request.mode === 'navigate') {
     e.respondWith(fetch(e.request).then(r => { const copy = r.clone(); caches.open(CACHE).then(c => c.put('./index.html', copy)); return r; }).catch(() => caches.match('./index.html')));
+    return;
+  }
+  // Shared food list: network first so approved foods arrive, cached copy offline.
+  if (url.pathname.endsWith('/foods.json')) {
+    e.respondWith(fetch(e.request).then(r => { const copy = r.clone(); caches.open(CACHE).then(c => c.put('./foods.json', copy)); return r; }).catch(() => caches.match('./foods.json')));
     return;
   }
   e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request).then(r => { const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); return r; })));

@@ -713,6 +713,19 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
 .approx{font-size:.65rem;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--orange,#ff9a3d);background:rgba(255,154,61,.12);border:1px solid rgba(255,154,61,.35);border-radius:999px;padding:1px 7px}
 .pchip.custom{border-color:rgba(255,154,61,.45)}
 .customform .formgrid{margin-top:8px}
+
+/* Food Lab add flow */
+.addfoodcard{border-color:rgba(25,245,211,.35);background:linear-gradient(135deg,rgba(25,245,211,.08),var(--card))}
+.ftile .own{position:absolute;top:6px;left:6px;font-size:.58rem;font-weight:900;text-transform:uppercase;letter-spacing:.4px;padding:1px 6px;border-radius:999px;background:rgba(255,154,61,.18);color:#ffb26b}
+.ftile .own.shared{background:rgba(25,245,211,.16);color:#5eead4}
+.fcactions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.msgbox.ok a{color:var(--teal);font-weight:800}
+.ftile .own.req{background:rgba(139,92,255,.2);color:#c4b5fd}
+.vtick{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:#19f5d3;color:#04211d;font-size:.7rem;font-weight:900}
+.reqform{border:1px dashed var(--line2);border-radius:14px;padding:10px;background:rgba(255,255,255,.03)}
+.pill.req{background:rgba(139,92,255,.22);color:#c4b5fd;border:1px solid rgba(139,92,255,.45)}
+.reqitem{border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:8px;background:rgba(255,255,255,.03)}
+.closest{margin-top:8px}
 </style>
 </head>
 <body>
@@ -869,8 +882,15 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
 
 <!-- 2. KIWI KITCHEN -->
 <section class="panel" id="kitchen" role="tabpanel">
-  <h2>🧺 Kitchen Explorer</h2>
-  <p class="lead soft"><span id="foodCount">58</span> foods · pack <b id="packName">NZ/AU</b>. Tap to explore or compare.</p>
+  <h2>🧺 Food Lab</h2>
+  <p class="lead soft"><span id="foodCount">0</span> foods · pack <b id="packName">NZ/AU</b>. Tap a food to explore, add it to your plate or log it.</p>
+  <div class="card addfoodcard">
+    <div class="spread"><div><b>Missing a food?</b><div class="small muted">Request it. Aaron checks a label or NZ FOODfiles, sets the numbers and adds it for everyone.</div></div>
+      <button type="button" class="btn" id="flAddBtn">📨 Request a food</button></div>
+    <div id="flCustomWrap" class="customform" style="display:none;margin-top:10px"></div>
+    <div id="flStatus" class="msgbox ok" style="display:none;margin-top:10px" aria-live="polite"></div>
+    <div id="flRequests" style="display:none;margin-top:12px"></div>
+  </div>
   <div class="card">
     <div class="spread">
       <div class="chips" id="modeChips">
@@ -975,6 +995,7 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
       <label class="f">Meal <select id="plMeal"><option value="b">🌅 Breakfast (25%)</option><option value="l">🥪 Lunch (30%)</option><option value="d" selected>🍝 Dinner (30%)</option><option value="s">🍎 Snacks for the day (15%)</option></select></label>
       <label class="f" id="plGoalWrap" style="display:none">Daily figure <select id="plGoal"><option value="m">Maintenance</option><option value="l">Gentle weight-loss figure</option></select></label>
       <div class="row" style="align-items:flex-end"><button class="btn alt" id="plClear">🧽 Clear</button><button class="btn teal" id="plLog">📒 Log it</button><button class="btn" id="plSave">💾 Save recipe</button></div>
+      <div id="plStatus" class="msgbox ok" style="display:none;margin-top:8px" aria-live="polite"></div>
     </div>
   </div>
   <div class="platewrap">
@@ -986,6 +1007,7 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
         <span class="glabel" style="right:12%;top:26%">Carbs</span>
         <div class="items" id="plateItems"></div>
       </div>
+      <div class="small" id="plCount" style="text-align:center;font-weight:800;margin:4px 0" aria-live="polite"></div>
       <div class="row" style="justify-content:center;gap:8px;flex-wrap:wrap">
         <div class="stat" style="text-align:center"><small>Energy</small><b id="plKcal" class="num">0 kcal</b><small id="plKJ">0 kJ</small></div>
         <div class="stat" style="text-align:center"><small>Protein</small><b id="plProt" class="num">0 g</b><small id="plProtTgt"></small></div>
@@ -1004,7 +1026,7 @@ hr.soft{border:0;border-top:1px solid var(--line);margin:14px 0}
     <div class="card">
       <div class="foodtools">
         <input type="search" id="plSearch" placeholder="Search foods…" autocomplete="off">
-        <button type="button" class="btn sm alt" id="plCustomBtn">➕ Custom food</button>
+        <button type="button" class="btn sm alt" id="plCustomBtn">📨 Request a food</button>
       </div>
       <div class="chips" id="plCats" style="margin-bottom:10px"></div>
       <div class="palette" id="palette"></div>
@@ -1146,125 +1168,12 @@ const r1=n=>Math.round(n*10)/10;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 // [id, name, serve, kcal, protein g, tag e/s/t, group P/F/Z/T, emoji, fullness 1-5, plate cat p/c/v/t/d]
-const CORE=[
-['weetbix','Wheat biscuit cereal with milk','2 biscuits + 150 ml full-cream milk',205,9,'e','P','🥣',4,'c'],
-['toastw','White toast','1 slice (~38 g)',90,3,'e','P','🍞',2,'c'],
-['wholemeal','Wholemeal bread','1 slice (~36 g)',85,4,'e','P','🍞',3,'c',15,1.2],
-['vogels','Mixed grain bread','1 slice (~45 g)',110,5,'e','P','🌾',3,'c'],
-['oats','Rolled oats (porridge)','½ cup dry (40 g), cooked with water',150,5,'e','P','🥣',4,'c',27,3],
-['rice','Rice, cooked','1 cup (~160 g)',205,4,'e','P','🍚',3,'c',45,0.4],
-['pasta','Pasta, cooked','1 cup (~140 g)',220,8,'e','P','🍝',3,'c',43,1.3],
-['potato','Potato, boiled','1 medium (~150 g)',115,3,'e','P','🥔',4,'c',26,0.2],
-['kumara','Sweet potato, baked','1 medium (~150 g)',135,2.5,'e','P','🍠',4,'c',31,0.2],
-['pumpkin','Pumpkin, roasted','1 cup (~150 g)',70,2,'e','P','🎃',3,'v'],
-['banana','Banana','1 medium',105,1.3,'e','P','🍌',3,'v',27,0.4],
-['apple','Apple','1 medium',80,0.4,'e','P','🍎',3,'v'],
-['tuna','Canned tuna in water','1 small can (95 g), drained',100,22,'e','P','🐟',4,'p',0,1],
-['beans','Baked beans','½ cup (~130 g)',105,6,'e','P','🫘',4,'p'],
-['spag','Spaghetti in a can','½ cup (~130 g)',95,2.5,'e','P','🥫',2,'c'],
-['marmite','Yeast spread on toast','1 slice white, thin butter',135,4.5,'e','P','🍞',2,'c'],
-['pb','Peanut butter','1 Tbsp (~16 g)',95,4,'e','P','🥜',3,'p',3,8],
-['butter','Butter','1 tsp (5 g)',36,0,'s','P','🧈',1,'t',0,4],
-['jam','Jam','1 Tbsp (20 g)',50,0,'s','P','🍓',1,'t'],
-['honey','Honey','1 Tbsp (~21 g)',64,0,'s','P','🍯',1,'t',17,0],
-['muesli','Muesli bar','1 bar (~30 g)',125,2,'s','P','🥮',2,'c'],
-['crackers','Cheese & crackers','4 crackers + 20 g cheese',165,7,'e','P','🧀',3,'p'],
-['milkblue','Full-cream milk','1 glass (250 ml)',165,8.5,'e','F','🥛',3,'p',12,9],
-['milklite','Low-fat milk','1 glass (250 ml)',120,9,'e','F','🥛',3,'p',12,2.5],
-['yog','Greek yoghurt, plain','150 g',160,8,'e','F','🫙',4,'p',6,10],
-['cheese','Cheese slice (Edam style)','1 slice (20 g)',70,5,'e','F','🧀',2,'p',0.5,5.5],
-['eggs','Eggs','2 large',150,12.5,'e','F','🥚',4,'p',1,10],
-['mince','Beef mince, cooked','100 g (~½ cup)',230,26,'e','F','🥩',4,'p',0,15],
-['chicken','Chicken breast, cooked','120 g',195,37,'e','F','🍗',5,'p',0,4],
-['sausage','Beef sausage','1 sausage (~65 g)',170,8,'s','F','🌭',3,'p'],
-['bacon','Bacon, grilled','2 rashers (~40 g cooked)',130,10,'s','F','🥓',3,'p',0.5,10],
-['ham','Ham slice','1 slice (~20 g)',25,3.5,'s','F','🍖',2,'p',0.5,1],
-['kiwi','Kiwifruit (green)','1 fruit (~75 g)',45,0.8,'e','F','🥝',2,'v',11,0.4],
-['frozentropical','Frozen tropical fruit mix','per 100 g',55,0.7,'e','Z','🥭',2,'v',13,0.2],
-['mandarin','Mandarin','1 fruit (~80 g)',35,0.6,'e','F','🍊',2,'v'],
-['carrot','Carrot sticks','1 medium carrot',30,0.7,'e','F','🥕',2,'v',7,0.2],
-['broccoli','Broccoli','1 cup cooked',35,3,'e','F','🥦',3,'v',7,0.4],
-['salad','Side salad','lettuce, tomato, cucumber',25,1,'e','F','🥗',2,'v',4,0.2],
-['sushi','Sushi roll','1 roll (~6 pieces, chicken or tuna)',260,9,'e','F','🍣',3,'c'],
-['peas','Frozen peas','½ cup (80 g)',55,4,'e','Z','🫛',3,'v',10,0.4],
-['mixveg','Frozen mixed veg','1 cup',60,3,'e','Z','🌽',3,'v',10,0.5],
-['fishfingers','Fish fingers, oven baked','4 fingers (~100 g)',220,12,'s','Z','🐠',3,'p'],
-['chips','Oven chips or wedges','1 cup (~100 g)',170,3,'s','Z','🍟',2,'c'],
-['icecream','Ice cream','1 scoop (~55 g)',110,2,'t','Z','🍨',1,'t'],
-['pie','Meat pie (bakery)','1 pie (~200 g)',525,20,'t','T','🥧',4,'t'],
-['fishchips','Fish & chips','1 battered fish + a shared portion of chips',750,25,'t','T','🍤',4,'t'],
-['sausageroll','Sausage roll (bakery)','1 large (~150 g)',420,11,'t','T','🌯',3,'t'],
-['timtam','Chocolate-coated biscuit','1 biscuit (18 g)',95,1,'t','T','🍫',1,'t'],
-['toffeepop','Caramel chocolate biscuit','1 biscuit (~16 g)',75,0.7,'t','T','🍪',1,'t'],
-['whittakers','Milk chocolate','~50 g (a fifth of a 250 g block)',270,4,'t','T','🍫',2,'t'],
-['crisps','Potato chips (crisps)','1 small bag (45 g)',235,3,'t','T','🥨',1,'t'],
-['coke','Cola','1 can (330 ml)',140,0,'t','T','🥤',1,'t'],
-['energy','Energy drink','1 can (500 ml)',230,0,'t','T','⚡',1,'t'],
-['oj','Orange juice','1 glass (250 ml)',110,1.5,'s','T','🧃',1,'c'],
-['milo','Malted chocolate drink with milk','3 heaped tsp + 200 ml full-cream milk',210,9,'s','T','☕',2,'p'],
-['water','Water','1 glass (250 ml)',0,0,'e','T','💧',1,'d'],
-
-// Baking & scratch-cooking staples: serve = per 100 g (or per 100 ml), with carbs + fat
-['flour','Plain flour','per 100 g',364,10,'e','P','🌾',1,'b',76,1],
-['flour_sr','Self-raising flour','per 100 g',350,9,'e','P','🌾',1,'b',75,1],
-['flour_wm','Wholemeal flour','per 100 g',340,13,'e','P','🌾',2,'b',62,2.5],
-['sugar','White sugar','per 100 g',400,0,'s','P','🧂',1,'b',100,0],
-['sugar_br','Brown sugar','per 100 g',380,0,'s','P','🧂',1,'b',98,0],
-['oil','Cooking oil (canola or olive)','per 100 ml',884,0,'s','P','🫒',1,'b',0,100],
-['cream','Cream, thickened','per 100 ml',340,2,'s','F','🥛',1,'b',3,36],
-['bakingp','Baking powder','per 100 g',50,0,'e','P','🥄',1,'b',28,0],
-['yeast','Dried yeast','per 100 g',325,40,'e','P','🫙',1,'b',40,5],
-['cocoa','Cocoa powder','per 100 g',230,20,'e','P','🍫',1,'b',30,14],
-['chocchips','Chocolate chips','per 100 g',500,5,'t','P','🍫',1,'b',60,28],
-['breadcrumbs','Breadcrumbs, dried','per 100 g',395,13,'e','P','🍞',1,'b',72,5],
-['stock','Stock, liquid (chicken or veg)','per 100 ml',8,0.5,'e','P','🥣',1,'b',1,0.2],
-['soysauce','Soy sauce','per 100 ml',55,8,'e','P','🍶',1,'b',5,0],
-['tomsauce','Tomato sauce / ketchup','per 100 g',100,1,'s','P','🍅',1,'b',24,0.1],
-['onion','Onion','per 100 g',40,1.1,'e','F','🧅',2,'v',9,0.1],
-['garlic','Garlic','per 100 g',149,6.4,'e','F','🧄',1,'v',33,0.5],
-['fish','White fish fillet, cooked','per 100 g',100,22,'e','F','🐟',4,'p',0,1.5],
-['tomatoes','Canned tomatoes','per 100 g',20,1,'e','P','🍅',2,'v',4,0.2],
-['cheese_gr','Cheese, grated (cheddar style)','per 100 g',400,25,'e','F','🧀',2,'p',1,33],
-['mayo','Mayonnaise','per 100 g',680,1,'s','F','🫙',1,'t',1.5,75],
-['avocado','Avocado','per 100 g',160,2,'e','F','🥑',3,'v',9,15],
-['spinach','Spinach, cooked','per 100 g',23,3,'e','F','🥬',2,'v',3.6,0.3],
-['corn','Sweetcorn, canned','per 100 g',80,2.5,'e','P','🌽',2,'v',15,1],
-['tortilla','Flour tortilla / wrap','1 wrap (~50 g)',150,4,'e','P','🌮',2,'c',26,3.5],
-['burgerbun','Burger bun','1 bun (~70 g)',200,7,'e','P','🍔',2,'c',36,3],
-['banana_m','Banana, mashed','per 100 g',89,1.1,'e','F','🍌',2,'v',23,0.3],
-['milk_bake','Full-cream milk','per 100 ml',64,3.3,'e','F','🥛',2,'p',4.8,3.6],
-['egg_bake','Egg','per 100 g (≈ 2 large)',143,13,'e','F','🥚',3,'p',0.7,9.5],
-['butter_bake','Butter','per 100 g',717,0.9,'s','F','🧈',1,'b',0.1,81],
-['oats_bake','Rolled oats','per 100 g',380,13,'e','P','🥣',3,'c',60,7],
-['rice_bake','Rice, uncooked','per 100 g',360,7,'e','P','🍚',1,'c',79,0.7],
-['pasta_bake','Pasta, uncooked','per 100 g',360,12,'e','P','🍝',1,'c',72,1.5],
-['honey_bake','Honey','per 100 g',304,0.3,'s','P','🍯',1,'t',82,0],
-['pb_bake','Peanut butter','per 100 g',590,25,'e','P','🥜',3,'p',20,50],
-['potato_bake','Potato','per 100 g',77,2,'e','P','🥔',3,'c',17,0.1],
-['kumara_bake','Kūmara / sweet potato','per 100 g',86,1.6,'e','P','🍠',3,'c',20,0.1],
-['mince_bake','Beef mince, raw','per 100 g',250,17,'e','F','🥩',3,'p',0,20],
-['chicken_bake','Chicken breast, raw','per 100 g',110,23,'e','F','🍗',4,'p',0,1.2],
-];
+/* Built-in food list lives in foods.json (shared, same origin). Loaded at boot; see loadFoodData(). */
+let CORE=[];
 const PACKS={
   core:{name:'Generic (core foods only)',rename:{},add:[],drinks:{},childHealth:'your doctor or local child health service',labelNote:''},
   nzau:{name:'NZ/AU',
-    rename:{
-      weetbix:['2 Weet-Bix with milk','2 biscuits + 150 ml Anchor Blue milk'],
-      toastw:['Tip Top white toast'],vogels:["Vogel's mixed grain"],
-      kumara:['Kūmara, baked'],kumara_bake:['Kūmara / sweet potato'],marmite:['Marmite or Vegemite on toast'],
-      milkblue:['Anchor Blue milk (full cream)'],milklite:['Lite milk'],
-      sausage:['Beef sausage or saveloy'],pie:['Mince & cheese pie (bakery)'],
-      fishchips:['Fish & chips','1 battered fish + half a scoop of chips'],
-      timtam:['Tim Tam'],toffeepop:['Toffee Pop'],whittakers:["Whittaker's chocolate"],
-      coke:['Coke'],icecream:['Ice cream (e.g. Tip Top)'],milo:['Milo with milk','3 heaped tsp + 200 ml blue milk'],
-      frozentropical:['Frozen tropical fruit mix (e.g. mango, pineapple, papaya)']
-    },
-    add:[
-      ['lp','L&P','1 can (330 ml)',150,0,'t','T','🥤',1,'t'],
-      ['chocfish','Chocolate fish','1 fish (~20 g)',85,0.8,'t','T','🐡',1,'t'],
-      ['pinelumps','Pineapple Lumps','5 lumps (~33 g)',130,1,'t','T','🍍',1,'t'],
-      ['frozenberries','Frozen mixed berries','per 100 g',45,0.8,'e','Z','🫐',2,'v',10,0.3],
-    ],
+    rename:{},add:[],
     drinks:{milk:'Anchor Blue milk',milo:'Milo with milk',soft:'L&P'},
     childHealth:'growth charts (WHO charts used by Well Child Tamariki Ora in NZ, or your GP and maternal and child health nurse in Australia)',
     takeaways:[['🥧','Bakery pie','Mince & cheese pie ~525 kcal; pair with fruit or a salad and enjoy it as a meal.'],['🍟','Fish & chip shop scoop','One scoop of chips easily feeds 2 to 3 people; share it and add a salad at home.']]
@@ -1273,15 +1182,24 @@ const PACKS={
 const GROUPS={P:['🥫','Pantry'],F:['🧊','Fridge'],Z:['❄️','Freezer'],T:['🍭','Treats & drinks']};
 const CATS={p:['Protein','#ff6b6b'],c:['Carbs','#ffb000'],v:['Veg & fruit','#4cc43a'],b:['Baking & pantry','#c4b5fd'],t:['Treats & extras','#ff5fa2'],d:['Drinks','#2fa8ff']};
 let FOODS=[], F={};
+/* ---------- shared food list (foods.json); new foods only via reviewed requests ---------- */
+let FOODDATA=null;const FOODS_URL='foods.json';const FOODS_CACHE='fq.v1.foodsData';
+function applyFoodData(d){if(!d||!Array.isArray(d.core))return false;FOODDATA=d;CORE=d.core;
+  Object.keys(PACKS).forEach(k=>{const pk=(d.packs||{})[k]||{};PACKS[k].rename=pk.rename||{};PACKS[k].add=pk.add||[];});return true;}
+function cachedFoodData(){try{return JSON.parse(localStorage.getItem(FOODS_CACHE)||'null');}catch(e){return null;}}
+function fetchFoodData(){if(!window.fetch)return Promise.reject(new Error('no fetch'));return fetch(FOODS_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('foods.json '+r.status);return r.json();}).then(d=>{if(!d||!Array.isArray(d.core))throw new Error('bad foods.json');try{localStorage.setItem(FOODS_CACHE,JSON.stringify(d));}catch(e){}return d;});}
+/* Legacy personal custom foods: kept untouched in storage, never shown in pickers; only used to display old log entries. */
 function customFoods(){return store.get('customFoods',[]);}
-function saveCustomFoods(arr){store.set('customFoods',arr);}
+function communityFood(o){return {id:'s_'+String(o.id||o.name).toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,24),name:String(o.name).slice(0,40),serve:String(o.serve||'1 serve'),kcal:+o.kcal||0,p:+o.p||0,tag:o.tag||'e',g:o.g||'P',e:o.e||'🍽️',full:+o.full||2,cat:o.cat||'t',cb:o.cb!=null?+o.cb:null,ft:o.ft!=null?+o.ft:null,per100:/per 100/i.test(o.serve||''),shared:true,verified:o.verified===true,source:String(o.source||'').slice(0,40)};}
 function buildFoods(packId){
   const pk=PACKS[packId]||PACKS.core;
   FOODS=CORE.map(a=>{const r=pk.rename[a[0]]||[];return mk([a[0],r[0]||a[1],r[1]||a[2],...a.slice(3)]);});
   pk.add.forEach(a=>FOODS.push(mk(a)));
-  customFoods().forEach(c=>{const f=Object.assign({},c,{custom:true,approx:!!c.approx});if(!FOODS.find(x=>x.id===f.id))FOODS.push(f);});
+  ((FOODDATA&&FOODDATA.community)||[]).forEach(o=>{if(o&&o.name&&o.kcal!=null){const f=communityFood(o);if(!FOODS.find(x=>x.id===f.id))FOODS.push(f);}});
   F={};FOODS.forEach(f=>F[f.id]=f);
+  customFoods().forEach(c=>{if(c&&c.id&&!F[c.id])F[c.id]=Object.assign({},c,{custom:true,legacy:true});});
 }
+const libOK=id=>!!(F[id]&&!F[id].legacy);
 function mk(a){const per=!!a[12]||/^per 100/i.test(a[2]||'');return {id:a[0],name:a[1],serve:a[2],kcal:a[3],p:a[4],tag:a[5],g:a[6],e:a[7],full:a[8],cat:a[9],cb:a[10]!=null?a[10]:null,ft:a[11]!=null?a[11]:null,per100:per};}
 
 const SUGAR_BASE=[['💧','water','Water','250 ml',0,''],['🥛','milk','Milk','250 ml',3,'natural milk sugar'],['☕','milo','Malted milk drink','~220 ml',4.5,'about half from the milk'],['🧃','oj','Orange juice','250 ml',5,'natural fruit sugar, but no fibre'],['🥤','cola','Cola','330 ml can',9,''],['🥤','soft','Lemonade-style soft drink','330 ml can',9,''],['⚡','energy','Energy drink','500 ml can',13.5,'plus lots of caffeine']];
@@ -1703,16 +1621,19 @@ function renderExplorer(){
   const q=($('#foodSearch').value||'').toLowerCase().trim();let html='';
   Object.entries(GROUPS).forEach(([gk,gv])=>{if(exGroup!=='all'&&exGroup!==gk)return;const items=FOODS.filter(f=>f.g===gk&&(!q||f.name.toLowerCase().includes(q)));if(!items.length)return;
     html+='<h3 class="grouphead">'+gv[0]+' '+gv[1]+' <span class="small muted">('+items.length+')</span></h3><div class="fgrid">'+items.map(tileHTML).join('')+'</div>';});
-  $('#foodGrid').innerHTML=html||'<p class="empty">No foods match that search.</p>';
+  if(!CORE.length&&!html)html='<p class="empty">The shared food list could not load. Connect to the internet and reopen FuelQuest. Your own foods still work.</p>';
+  $('#foodGrid').innerHTML=html||('<div class="empty"><p>No foods match'+(q?' "'+esc(q)+'"':'')+'.</p>'+(q?'<button type="button" class="btn" data-addq="'+esc(q)+'">📨 Request this food</button>':'')+'</div>');
+  renderRequests();
   $('#cmpPanel').style.display=exMode==='compare'?'block':'none';if(exMode==='compare')renderCompare();
 }
 function tileHTML(f){const ai=cmpSel.indexOf(f.id);const cls=exMode==='compare'&&ai>=0?(ai===0?' selA':' selB'):'';
-  return '<button class="ftile'+cls+'" data-id="'+f.id+'">'+(cls?'<span class="badge">'+(ai===0?'A':'B')+'</span>':'')+'<span class="dot" style="background:'+tagCol[f.tag]+'" title="'+tagName[f.tag]+'"></span><span class="em">'+f.e+'</span><span class="nm">'+esc(f.name)+'</span><span class="kc">'+eVal(f.kcal)+' '+eUnit()+'</span></button>';}
+  return '<button class="ftile'+cls+'" data-id="'+f.id+'">'+(cls?'<span class="badge">'+(ai===0?'A':'B')+'</span>':'')+(f.shared&&f.verified?'<span class="own shared" title="Verified'+(f.source?': '+esc(f.source):'')+'">✓ verified</span>':'')+'<span class="dot" style="background:'+tagCol[f.tag]+'" title="'+tagName[f.tag]+'"></span><span class="em">'+f.e+'</span><span class="nm">'+esc(f.name)+'</span><span class="kc">'+eVal(f.kcal)+' '+eUnit()+'</span></button>';}
 function initExplorer(){
   $('#groupChips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;exGroup=b.dataset.g;renderExplorer();};
   $('#modeChips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;exMode=b.dataset.mode;$$('#modeChips .chip').forEach(c=>c.classList.toggle('on',c===b));if(exMode==='compare'&&cmpSel.length<2)cmpSel=['kiwi','lp'in F?'lp':'coke'];renderExplorer();};
   $('#foodSearch').oninput=renderExplorer;
-  $('#foodGrid').onclick=e=>{const t=e.target.closest('.ftile');if(!t)return;const id=t.dataset.id;
+  $('#flAddBtn').onclick=()=>openRequestIn('fl');
+  $('#foodGrid').onclick=e=>{const aq=e.target.closest('[data-addq]');if(aq){openRequestIn('fl',aq.dataset.addq);$('#flCustomWrap').scrollIntoView({block:'start',behavior:'smooth'});return;}const t=e.target.closest('.ftile');if(!t)return;const id=t.dataset.id;
     if(exMode==='compare'){if(cmpSel.includes(id))cmpSel=cmpSel.filter(x=>x!==id);else{cmpSel.push(id);if(cmpSel.length>2)cmpSel.shift();}renderExplorer();$('#cmpPanel').scrollIntoView({behavior:'smooth',block:'nearest'});}
     else foodCard(id);};
   const s2=$('#s2pick');s2.onchange=null;$('#s2add').onclick=()=>{if(!s2list.includes(s2.value))s2list.push(s2.value);renderSame200();};
@@ -1727,7 +1648,12 @@ function foodCard(id){const f=F[id];if(!f)return;
    '<div class="barlabel"><span>🥚 Protein power</span><span>'+f.p+' g</span></div><div class="bar"><span style="width:'+pPct+'%;background:var(--coral)"></span></div>'+
    '<div class="barlabel"><span>😌 Fullness factor</span><span class="dots">'+dots+'</span></div>'+
    '<h3 style="margin-top:14px">⚡ Energy it gives an adult (~75 kg) for about...</h3>'+burn+
-   '<p class="small muted">Just a fun comparison, not a to-do list: most of your energy is used simply running your body and brain. Values approximate.</p>');}
+   '<p class="small muted">Just a fun comparison, not a to-do list: most of your energy is used simply running your body and brain. Values approximate.</p>'+
+   '<div class="fcactions"><button type="button" class="btn sm" id="fcPlate">➕ Add to plate</button><button type="button" class="btn sm teal" id="fcLog">📒 Log to today</button>'+'</div>'+
+   (f.shared&&f.verified?'<p class="small" style="margin:6px 0 0"><span class="vtick">✓</span> Verified shared food'+(f.source?' · source: '+esc(f.source):'')+'</p>':'')+
+   '<div id="fcMsg" class="msgbox ok" style="display:none;margin-top:8px" aria-live="polite"></div>');
+  $('#fcPlate').onclick=()=>{addPlate(id);const n=plateItems().length;$('#fcMsg').style.display='';$('#fcMsg').innerHTML='✓ Added '+esc(f.name)+' to your plate ('+n+' item'+(n===1?'':'s')+'). <a href="#plate" id="fcGoPlate">Open plate</a>';$('#fcGoPlate').onclick=ev=>{ev.preventDefault();closeModal();showTab('plate');};};
+  $('#fcLog').onclick=()=>{const r=logFoodNow(id,1);$('#fcMsg').style.display='';$('#fcMsg').innerHTML=r.ok?'✓ Logged 1 × '+esc(f.name)+' to '+r.meal+' today.':esc(r.err);};}
 function renderCompare(){const [a,b]=cmpSel.map(id=>F[id]);
   if(!a||!b){$('#cmpPanel').innerHTML='<div class="callout">⚖️ Tap two foods below to compare them side by side. '+(a?'Picked: <b>'+esc(a.name)+'</b>. Now pick one more.':'')+'</div>';return;}
   const mx=Math.max(a.kcal,b.kcal,1),mp=Math.max(a.p,b.p,1);
@@ -1766,10 +1692,10 @@ function renderProfiles(){applyUnitVisibility();const arr=profiles();
   $('#profiles').innerHTML='<div class="grid2">'+arr.map(p=>{const r=energy(p);const maxT=4500;const fill=clamp(r.maint/maxT*100,5,100);
     const LS=leanState(p);const showMark=r.adult&&LS.on;const mark=showMark?'<div class="mark" style="bottom:'+(LS.target/maxT*100)+'%"><span>lean</span></div>':'';
     const split=[['Breakfast',.25,'#ff7a1a'],['Lunch',.3,'#38bdf8'],['Dinner',.3,'#8b5cff'],['Snacks',.15,'#19c9b0']].map(m=>'<div style="background:'+m[2]+'">'+m[0]+'<b class="num">'+eVal(r.maint*m[1])+'</b>'+eUnit()+'</div>').join('');
-    const wb=r.maint/F.weetbix.kcal,kw=r.maint/F.kiwi.kcal,pie=r.maint/F.pie.kcal;
+    const FW=F.weetbix||{kcal:205,name:'Wheat biscuit cereal'},FK=F.kiwi||{kcal:45},FP=F.pie||{kcal:525};const wb=r.maint/FW.kcal,kw=r.maint/FK.kcal,pie=r.maint/FP.kcal;
     return '<div class="card profilecard"><div class="spread"><div class="row"><span class="avatar">'+p.icon+'</span><div><h3 style="margin:0">'+esc(p.name)+'</h3><div class="small muted num">'+p.age+' y, '+fLen(p.ht)+', '+fMass(p.wt)+', activity '+p.act+'/5</div></div></div><div class="row"><button class="btn sm" data-act="use" data-id="'+p.id+'">Use</button><button class="btn sm alt" data-act="edit" data-id="'+p.id+'">Edit</button><button class="btn sm alt" data-act="del" data-id="'+p.id+'" aria-label="Delete">Delete</button></div></div>'+
      '<div class="tankwrap" style="margin-top:10px"><div class="tank"><div class="ticks"></div><div class="fuel" style="height:'+fill+'%"></div>'+mark+'</div><div style="flex:1;min-width:200px">'+targetCard(p,'calc')+'<div class="stat" style="margin-top:8px"><small>Protein guide</small><b class="num">~'+r.protein+' g/day</b><small>spread over meals, ~20 to 30 g each</small></div></div></div>'+
-     '<div class="mealsplit">'+split+'</div><p class="small" style="margin:10px 0 0">🥣 That is about the same energy as <b class="num">'+r1(wb)+'</b> '+esc(F.weetbix.name)+' breakfasts, or <b class="num">'+Math.round(kw)+'</b> kiwifruit, or <b class="num">'+r1(pie)+'</b> bakery pies. (A real day mixes lots of foods, of course!)</p><div class="iconrow" aria-hidden="true">'+'🥣'.repeat(Math.min(20,Math.round(wb)))+'</div></div>';}).join('')+'</div>';}
+     '<div class="mealsplit">'+split+'</div><p class="small" style="margin:10px 0 0">🥣 That is about the same energy as <b class="num">'+r1(wb)+'</b> '+esc(FW.name)+' breakfasts, or <b class="num">'+Math.round(kw)+'</b> kiwifruit, or <b class="num">'+r1(pie)+'</b> bakery pies. (A real day mixes lots of foods, of course!)</p><div class="iconrow" aria-hidden="true">'+'🥣'.repeat(Math.min(20,Math.round(wb)))+'</div></div>';}).join('')+'</div>';}
 
 /* =========================================================
    4. Healthy weight
@@ -1803,21 +1729,22 @@ function initPlate(){
   $('#plClear').onclick=()=>{plate=[];renderPlate();};
   $('#plCats').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;plCat=b.dataset.c;renderPalette();};
   const ps=$('#plSearch');if(ps){ps.oninput=()=>{plQ=(ps.value||'').toLowerCase().trim();renderPalette();};}
-  const pcb=$('#plCustomBtn');if(pcb)pcb.onclick=()=>toggleCustomFoodForm();
+  const pcb=$('#plCustomBtn');if(pcb)pcb.onclick=()=>openRequestIn('pl');
 
   $('#plateItems').onclick=e=>{const b=e.target.closest('.pi');if(!b)return;plate.splice(+b.dataset.i,1);renderPlate();sound('tick');};
   $('#plLog').onclick=()=>{const g=G();if(!g){toast('Create your profile first (Energy Calc)',true);return;}const items=plateItems();if(!items.length){toast('Add some food first',true);return;}
-    const d=today(g);const m=$('#plMeal').value;items.forEach(it=>d.foods.push({f:it.id,q:it.q,m}));mealXP(d,m);saveG();evaluate();toast('Logged to today\'s '+MEALS[m][0].toLowerCase());};
-  $('#plSave').onclick=()=>{const g=G();if(!g){toast('Create your profile first (Energy Calc)',true);return;}const items=plateItems();if(items.length<2){toast('Add at least 2 foods to save a recipe',true);return;}
+    const d=today(g);const m=$('#plMeal').value;items.forEach(it=>d.foods.push({f:it.id,q:it.q,m}));mealXP(d,m);saveG();evaluate();plStatus('✓ Logged '+items.length+' food'+(items.length===1?'':'s')+' to today\'s '+MEALS[m][0].toLowerCase()+'.');};
+  $('#plSave').onclick=()=>{const g=G();if(!g){toast('Create your profile first (Energy Calc)',true);return;}const items=plateItems();if(items.length<2){toast('Add at least 2 foods to save a recipe',true);return;}if(items.some(it=>!libOK(it.id))){plStatus('Recipes can only use foods from the library.');return;}
     const name=(prompt('Name your recipe:',MEALS[$('#plMeal').value][0]+' combo '+((g.recipes||[]).length+1))||'').trim().slice(0,40);if(!name)return;
     g.recipes.push({name,items:items.map(it=>({id:it.id,q:it.q})),meal:$('#plMeal').value,serves:1,custom:true});if(plateBalanced())g.balancedPlates=(g.balancedPlates||0)+1;saveG();award('recipe','New recipe saved');checkProgress();renderRecipes();};
   $('#recipeList').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;const g=G();const i=+b.dataset.r;const r=g.recipes[i];if(b.dataset.act==='edit'){editSavedRecipe(i);return;}
-    if(b.dataset.act==='load'){plate=(r.items||[]).map(it=>({id:it.id||it,q:it.q!=null?it.q:1}));$('#plMeal').value=r.meal||'d';renderPlate();toast('Loaded');}
+    if(b.dataset.act==='load'){plate=(r.items||[]).map(it=>({id:it.id||it,q:it.q!=null?it.q:1})).filter(x=>libOK(x.id));$('#plMeal').value=r.meal||'d';renderPlate();plStatus('✓ Loaded '+esc(r.name)+' onto the plate.');}
     else if(b.dataset.act==='del'){g.recipes.splice(i,1);saveG();renderRecipes();}
-    else if(b.dataset.act==='log'){const M=savedRecipeMacros(r);const d=today(g);const m=r.meal||'d';(r.items||[]).forEach(it=>{const id=it.id||it,q=it.q!=null?it.q:1;if(F[id])d.foods.push({f:id,q,m});});mealXP(d,m);saveG();evaluate();toast('Logged '+esc(r.name));}};
+    else if(b.dataset.act==='log'){const M=savedRecipeMacros(r);const d=today(g);const m=r.meal||'d';(r.items||[]).forEach(it=>{const id=it.id||it,q=it.q!=null?it.q:1;if(libOK(id))d.foods.push({f:id,q,m});});mealXP(d,m);saveG();evaluate();plStatus('✓ Logged '+esc(r.name)+' to today.');}};
   // pointer drag (mouse/pen/touch-sideways) + tap to add
   const pal=$('#palette'),plateEl=$('#plateEl');
   const over=ev=>{const r=plateEl.getBoundingClientRect();return ev.clientX>r.left&&ev.clientX<r.right&&ev.clientY>r.top&&ev.clientY<r.bottom;};
+  pal.addEventListener('click',e=>{const aq=e.target.closest('[data-addq]');if(aq)openRequestIn('pl',aq.dataset.addq);});
   pal.addEventListener('pointerdown',e=>{const chip=e.target.closest('.pchip');if(!chip)return;const id=chip.dataset.id,sx=e.clientX,sy=e.clientY;let ghost=null,cancelled=false;
     const mv=ev=>{if(!ghost&&Math.hypot(ev.clientX-sx,ev.clientY-sy)>8){ghost=document.createElement('div');ghost.className='ghost';ghost.textContent=F[id].e;document.body.appendChild(ghost);}if(ghost){ghost.style.left=ev.clientX+'px';ghost.style.top=ev.clientY+'px';plateEl.classList.toggle('over',over(ev));}};
     const end=ev=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',end);window.removeEventListener('pointercancel',cnl);plateEl.classList.remove('over');if(ghost){ghost.remove();if(over(ev))addPlate(id);}else if(!cancelled)addPlate(id);};
@@ -1834,9 +1761,8 @@ function renderPalette(){
   const list=FOODS.filter(f=>(plCat==='all'||f.cat===plCat)&&(!q||f.name.toLowerCase().includes(q)||(f.serve||'').toLowerCase().includes(q)||(f.id||'').includes(q)));
   $('#palette').innerHTML=(list.length?list.map(f=>{
     const mac=f.per100?'<span class="pcm num">'+f.kcal+' kcal · P '+r1(f.p)+' · C '+(f.cb!=null?r1(f.cb):'?')+' · F '+(f.ft!=null?r1(f.ft):'?')+' /100</span>':'<span class="pcm muted">'+(f.serve.length>28?f.serve.slice(0,26)+'…':f.serve)+'</span>';
-    const approx=f.approx?' <span class="approx">approx</span>':'';
-    return '<div class="pchip'+(f.per100?' per100':'')+(f.custom?' custom':'')+'" data-id="'+f.id+'" role="button" tabindex="0" title="'+esc(f.name)+' · '+esc(f.serve)+'"><span class="em">'+f.e+'</span><span class="pnm">'+esc(f.name.length>22?f.name.slice(0,20)+'…':f.name)+approx+'</span>'+mac+'</div>';
-  }).join(''):'<p class="small muted" style="grid-column:1/-1;padding:12px">No foods match. Try another search, or add a custom food.</p>');}
+    return '<div class="pchip'+(f.per100?' per100':'')+'" data-id="'+f.id+'" role="button" tabindex="0" title="'+esc(f.name)+' · '+esc(f.serve)+'"><span class="em">'+f.e+'</span><span class="pnm">'+esc(f.name.length>22?f.name.slice(0,20)+'…':f.name)+'</span>'+mac+'</div>';
+  }).join(''):'<div style="grid-column:1/-1;padding:12px"><p class="small muted">No foods match'+(q?' "'+esc(q)+'"':'')+'.</p>'+(q?'<button type="button" class="btn sm" data-addq="'+esc(q)+'">📨 Request this food</button>':'')+'</div>');}
 function plateBalanced(){const items=plateItems();const c={p:0,c:0,v:0,t:0,b:0};items.forEach(it=>{const k=F[it.id].cat;if(c[k]!=null)c[k]+=it.q;});const m=$('#plMeal').value;const tot=plateKcal(),[lo,hi]=plRange();return c.p>0&&c.v>0&&(m==='s'||c.c+c.b>0)&&c.t<=1.5&&tot>=lo&&tot<=hi;}
 const plateKcal=()=>plateMacro().kcal;
 function savedRecipeMacros(r){const tot={kcal:0,p:0,cb:0,ft:0};(r.items||[]).forEach(it=>{const id=it.id||it,q=it.q!=null?it.q:1;const f=F[id];if(!f)return;tot.kcal+=f.kcal*q;tot.p+=f.p*q;tot.cb+=(f.cb||0)*q;tot.ft+=(f.ft||0)*q;});const s=Math.max(1,r.serves||1);return {tot,per:{kcal:tot.kcal/s,p:tot.p/s,cb:tot.cb/s,ft:tot.ft/s}};}
@@ -1847,6 +1773,7 @@ function renderPlate(){
   // migrate legacy string plate
   plate=plate.map(x=>typeof x==='string'?{id:x,q:1}:x);
   const items=plateItems();
+  if($('#plCount')){const nq=items.length;$('#plCount').textContent=nq?('🍽️ '+nq+' item'+(nq===1?'':'s')+' on your plate · tap one to remove'):'';}
   $('#plateItems').innerHTML=items.map((it,i)=>{const f=F[it.id];const lab=f.per100?Math.round(it.q*100)+'g':(it.q!==1?r1(it.q)+'×':'');return '<button class="pi" data-i="'+i+'" title="Remove '+esc(f.name)+'"><span class="em">'+f.e+'</span>'+(lab?'<span class="piq">'+lab+'</span>':'')+'</button>';}).join('');
   const M=plateMacro();const [lo,hi,t]=plRange();
   $('#plKcal').textContent=fE(M.kcal,1);$('#plKJ').textContent=nf(KJ(M.kcal))+' kJ';$('#plProt').textContent=r1(M.p)+' g';
@@ -1919,56 +1846,67 @@ function renderQ(){const box=$('#quizBox');
 const HABITS=[['🍽️','Eat together','Shared meals, phones away, as often as you can. It is the best part of the day.','#7b5cff'],['🥦','Half the plate fruit and veg','Where possible. Frozen and canned count too!','#4cc43a'],['💧','Water as the main drink','Keep a bottle handy. Fizzy and energy drinks are sometimes drinks.','#2fa8ff'],['😴','Sleep well','8 to 10 hours for teens, 7 to 9 for adults. Screens off before bed helps heaps.','#5b4bc4'],['🏃','Move every day','Walk, bike, play, train, dance. About 60 min a day for under-18s, 30+ for adults.','#00b3a4'],['🙅','No food as reward or punishment','Food is fuel and enjoyment, not a prize or a penalty.','#ff9f1c'],['🍰','All foods fit','Everyday, sometimes and treat foods all have a place. No guilt.','#ff5fa2'],['💪','Focus on how you feel and perform','Energy, strength, mood and sleep matter more than any number.','#ff6b6b'],['🍳','Cook together','Everyone can help: choosing, chopping, stirring, serving.','#c98b5a'],['🗓️','Plan ahead','A quick weekly meal plan and a stocked kitchen make healthy choices easy.','#1d2340']];
 function initHabits(){$('#habitGrid').innerHTML=HABITS.map(h=>'<div class="habit" style="background:'+h[3]+'"><div class="em">'+h[0]+'</div><h3>'+h[1]+'</h3><p>'+h[2]+'</p></div>').join('');}
 
-/* =========================================================
-   Custom foods (local, approximate)
-   ========================================================= */
-const FOOD_EST=[
-  {keys:['tropical','mango','pineapple','papaya','passion'],name:'Frozen tropical fruit mix',e:'🥭',serve:'per 100 g',kcal:55,p:0.7,cb:13,ft:0.2,cat:'v',g:'Z',per100:true},
-  {keys:['berry','berries','mixed berry'],name:'Frozen mixed berries',e:'🫐',serve:'per 100 g',kcal:45,p:0.8,cb:10,ft:0.3,cat:'v',g:'Z',per100:true},
-  {keys:['apple'],name:'Apple',e:'🍎',serve:'1 medium',kcal:95,p:0.5,cb:25,ft:0.3,cat:'v',g:'F'},
-  {keys:['banana'],name:'Banana',e:'🍌',serve:'1 medium',kcal:105,p:1.3,cb:27,ft:0.4,cat:'v',g:'P'},
-  {keys:['yoghurt','yogurt'],name:'Yoghurt',e:'🥛',serve:'150 g pot',kcal:120,p:6,cb:15,ft:3.5,cat:'p',g:'F'},
-  {keys:['chicken'],name:'Chicken (cooked)',e:'🍗',serve:'100 g',kcal:165,p:31,cb:0,ft:3.6,cat:'p',g:'F',per100:true},
-  {keys:['rice'],name:'Cooked rice',e:'🍚',serve:'per 100 g',kcal:130,p:2.7,cb:28,ft:0.3,cat:'c',g:'P',per100:true},
-  {keys:['bread','toast'],name:'Bread',e:'🍞',serve:'1 slice (~35 g)',kcal:90,p:3.5,cb:16,ft:1.2,cat:'c',g:'P'},
-  {keys:['milk'],name:'Milk',e:'🥛',serve:'250 ml',kcal:150,p:8,cb:12,ft:8,cat:'p',g:'F'},
-  {keys:['oil','olive'],name:'Cooking oil',e:'🫒',serve:'1 tbsp (15 ml)',kcal:120,p:0,cb:0,ft:14,cat:'b',g:'P'},
-  {keys:['cheese'],name:'Cheese',e:'🧀',serve:'30 g',kcal:120,p:7,cb:0.5,ft:10,cat:'p',g:'F'},
-  {keys:['egg'],name:'Egg',e:'🥚',serve:'1 large',kcal:75,p:6.5,cb:0.5,ft:5,cat:'p',g:'F'},
-  {keys:['oat'],name:'Oats (dry)',e:'🌾',serve:'per 100 g',kcal:380,p:13,cb:60,ft:7,cat:'c',g:'P',per100:true},
-  {keys:['protein powder','whey'],name:'Protein powder',e:'🥤',serve:'1 scoop (~30 g)',kcal:120,p:24,cb:3,ft:1.5,cat:'p',g:'P'},
-];
-function estimateFood(name){const q=(name||'').toLowerCase();for(const e of FOOD_EST){if(e.keys.some(k=>q.includes(k)))return Object.assign({},e,{approx:true});}
-  return {name:(name||'Custom food').slice(0,40),e:'🍽️',serve:'per 100 g',kcal:100,p:3,cb:12,ft:2,cat:'t',g:'P',per100:true,approx:true};}
-function toggleCustomFoodForm(prefill){const wrap=$('#plCustomWrap');if(!wrap)return;
-  if(wrap.style.display!=='none'&&!prefill){wrap.style.display='none';wrap.innerHTML='';return;}
-  const e=prefill||{name:'',e:'🍽️',serve:'per 100 g',kcal:'',p:'',cb:'',ft:'',cat:'v',g:'Z'};
-  wrap.style.display='';
-  wrap.innerHTML='<div class="card" style="margin:0;border-style:dashed"><div class="eyebrow">Custom food · stored on this device</div><h3 style="margin:2px 0">Add your own</h3><p class="small muted">Estimates are approximate. Prefer a label when you have one.</p>'+
-   '<div class="formgrid" style="grid-template-columns:1fr 1fr"><label class="f wide">Name <input type="text" id="cfName" maxlength="40" value="'+esc(e.name||'')+'" placeholder="e.g. frozen tropical fruit mix"></label>'+
-   '<label class="f">Emoji <input type="text" id="cfE" maxlength="4" value="'+esc(e.e||'🍽️')+'"></label>'+
-   '<label class="f">Serve <input type="text" id="cfServe" maxlength="40" value="'+esc(e.serve||'per 100 g')+'"></label>'+
-   '<label class="f">kcal <input type="number" id="cfKcal" min="0" max="900" step="1" value="'+(e.kcal!=null&&e.kcal!==''?e.kcal:'')+'"></label>'+
-   '<label class="f">Protein g <input type="number" id="cfP" min="0" max="100" step="0.1" value="'+(e.p!=null&&e.p!==''?e.p:'')+'"></label>'+
-   '<label class="f">Carbs g <input type="number" id="cfCb" min="0" max="100" step="0.1" value="'+(e.cb!=null&&e.cb!==''?e.cb:'')+'"></label>'+
-   '<label class="f">Fat g <input type="number" id="cfFt" min="0" max="100" step="0.1" value="'+(e.ft!=null&&e.ft!==''?e.ft:'')+'"></label>'+
-   '<label class="f">Category <select id="cfCat">'+Object.entries(CATS).map(([k,v])=>'<option value="'+k+'"'+(e.cat===k?' selected':'')+'>'+v[0]+'</option>').join('')+'</select></label>'+
-   '<label class="f">Group <select id="cfG">'+Object.entries(GROUPS).map(([k,v])=>'<option value="'+k+'"'+(e.g===k?' selected':'')+'>'+v[0]+' '+v[1]+'</option>').join('')+'</select></label></div>'+
-   '<div class="row" style="margin-top:10px;flex-wrap:wrap"><button type="button" class="btn sm" id="cfEst">Estimate from name</button><button type="button" class="btn sm teal" id="cfSave">Save food</button><button type="button" class="btn sm alt" id="cfCancel">Cancel</button></div>'+
-   '<p class="small muted" id="cfHint" style="margin-top:8px">Tip: type a name then Estimate. Built-in NZ/AU foods (like frozen tropical fruit mix) already appear in search.</p></div>';
-  $('#cfEst').onclick=()=>{const est=estimateFood($('#cfName').value);$('#cfName').value=est.name;$('#cfE').value=est.e;$('#cfServe').value=est.serve;$('#cfKcal').value=est.kcal;$('#cfP').value=est.p;$('#cfCb').value=est.cb;$('#cfFt').value=est.ft;$('#cfCat').value=est.cat;$('#cfG').value=est.g;$('#cfHint').textContent='Approximate estimate applied. Adjust if your label differs.';};
-  $('#cfCancel').onclick=()=>{wrap.style.display='none';wrap.innerHTML='';};
-  $('#cfSave').onclick=()=>{
-    const name=($('#cfName').value||'').trim().slice(0,40);if(!name){toast('Add a name first',true);return;}
-    const kcal=+$('#cfKcal').value,p=+$('#cfP').value,cb=+$('#cfCb').value,ft=+$('#cfFt').value;
-    if(!(kcal>=0)||$('#cfKcal').value===''){toast('Add energy (kcal)',true);return;}
-    const serve=($('#cfServe').value||'per 100 g').trim().slice(0,40);
-    const id='c_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,18)+'_'+Date.now().toString(36).slice(-4);
-    const f={id,name,serve,kcal,p:p||0,tag:'e',g:$('#cfG').value||'P',e:($('#cfE').value||'🍽️').slice(0,4),full:2,cat:$('#cfCat').value||'t',cb:cb||0,ft:ft||0,per100:/per 100/i.test(serve),custom:true,approx:true};
-    const arr=customFoods();arr.push(f);saveCustomFoods(arr);buildFoods(S.pack);wrap.style.display='none';wrap.innerHTML='';
-    plQ=name.toLowerCase();if($('#plSearch'))$('#plSearch').value=name;renderPalette();toast('Added '+name+' (approx)',true);sound('tick');};
-}
+/* Request for the library: no accounts, no numbers. Sends only what the user knows; the reviewer researches values. */
+function foodRequests(){return store.get('foodRequests',{});}
+function isRequested(id){return !!foodRequests()[id];}
+function requestText(r){const L=['FuelQuest food request','Food: '+r.name];if(r.brand)L.push('Brand: '+r.brand);if(r.serve)L.push('Serving: '+r.serve);if(r.note)L.push('Note: '+r.note);L.push('From: '+r.from);return L.join('\n');}
+const FQ_REQ_URL='https://api2.cursor.sh/automations/webhook/c1a5cb52-16af-5286-adfe-db04cec591cf';
+const FQ_REQ_AUTH='Bearer '+'crsr_12200a62d487ec3a48f1d2e8c812eb09acd10ebf9bed81f5a8b24898e0f3e481';
+function requestPayload(r){return {food:r.name,brand:r.brand||'',serving:r.serve||'',note:r.note||'',from:r.from,requestedAt:new Date().toISOString()};}
+function sendFoodRequest(r){const body=requestPayload(r);const text=requestText(r);
+  return fetch(FQ_REQ_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'application/json','Authorization':FQ_REQ_AUTH},body:JSON.stringify(body)})
+    .then(res=>{if(!res.ok)throw new Error('HTTP '+res.status);return {ok:true,via:'webhook',body,text};})
+    .catch(()=>new Promise(resolve=>{
+      const finish=how=>resolve({ok:false,via:how,body,text,fallback:true});
+      if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(()=>finish('copy')).catch(()=>finish('manual'));
+      else finish('manual');}));}
 
+function requestFormHTML(f){const sv=f&&f.serve&&!/^per 100 g$/i.test(f.serve)?f.serve:'';
+  return '<div class="reqform"><div class="eyebrow">Request for the library</div><p class="small muted" style="margin:2px 0 8px">Sends only the name and details below (no calorie numbers). Aaron researches a label or NZ FOODfiles, sets the values and adds it for everyone. Until then, pick the closest food from the library.</p>'+
+   '<div class="formgrid" style="grid-template-columns:1fr 1fr"><label class="f wide">Food <input type="text" id="rqName" maxlength="40" value="'+esc(f?f.name:'')+'"></label>'+
+   '<label class="f">Brand <span class="muted">(optional)</span><input type="text" id="rqBrand" maxlength="40" placeholder="e.g. Pams"></label>'+
+   '<label class="f">Serving / pack size <span class="muted">(optional)</span><input type="text" id="rqServe" maxlength="40" value="'+esc(sv)+'" placeholder="e.g. 500 g bag"></label>'+
+   '<label class="f wide">Note <span class="muted">(optional)</span><input type="text" id="rqNote" maxlength="120" placeholder="e.g. frozen aisle at Countdown"></label></div>'+
+   '<div class="row" style="margin-top:10px;flex-wrap:wrap"><button type="button" class="btn sm teal" id="rqSend">📨 Send request</button><button type="button" class="btn sm alt" id="rqCancel">Cancel</button></div>'+
+   '<div id="rqMsg" class="small" style="margin-top:8px" aria-live="polite"></div></div>';}
+function bindRequestForm(box,f,onDone){
+  box.querySelector('#rqCancel').onclick=()=>{box.innerHTML='';box.style.display='none';};
+  box.querySelector('#rqSend').onclick=()=>{const name=(box.querySelector('#rqName').value||'').trim().slice(0,40);const msg=box.querySelector('#rqMsg');if(!name){msg.textContent='Add the food name first.';return;}
+    const p=curProfile();const r={name,brand:(box.querySelector('#rqBrand').value||'').trim().slice(0,40),serve:(box.querySelector('#rqServe').value||'').trim().slice(0,40),note:(box.querySelector('#rqNote').value||'').trim().slice(0,120),from:p?p.name:'FuelQuest user'};
+    const btn=box.querySelector('#rqSend');btn.disabled=true;msg.textContent='Sending…';
+    const mark=how=>{const all=foodRequests();all[reqKey(name)]=Object.assign({at:dkey(),how},r);store.set('foodRequests',all);};
+    const finish=html=>{msg.innerHTML=html;if(onDone)onDone();};
+    sendFoodRequest(r).then(out=>{
+      if(out.ok){mark('webhook');finish('✓ Request sent. Marked as <b>Requested</b> on this phone.');}
+      else if(out.via==='copy'){mark('copy');finish('Couldn\'t reach Terry, request copied so you can send it another way. Marked as <b>Requested</b> on this phone.');}
+      else{mark('manual');finish('Couldn\'t reach Terry. Copy this and send it another way:<textarea readonly rows="6" style="width:100%;margin-top:6px">'+esc(out.text)+'</textarea>');const ta=msg.querySelector('textarea');if(ta){ta.focus();ta.select();}}
+    }).catch(()=>{btn.disabled=false;msg.textContent='Something went wrong. Try again.';});};}
+function openRequest(box,f,onDone,noClosest){box.style.display='';box.innerHTML=requestFormHTML(f);bindRequestForm(box,f,()=>{const nm=(box.querySelector('#rqName')||{}).value||(f&&f.name)||'';const msg=box.querySelector('#rqMsg');const hold=msg.innerHTML;
+  box.querySelector('.formgrid').style.display='none';box.querySelector('#rqSend').parentNode.style.display='none';
+  if(noClosest){msg.innerHTML=hold+' See <b>Your requests</b> below to pick the closest food for now.';if(onDone)onDone();return;}
+  msg.innerHTML=hold+'<div class="reqitem" style="margin-top:8px"><span class="pill req">Requested</span> <b>'+esc(nm)+'</b>'+closestBlock(nm)+'</div>';bindClosest(msg.querySelector('.reqitem'));if(onDone)onDone();});}
+function logFoodNow(id,q){const g=G();if(!g)return {ok:false,err:'Create your profile first (Energy Calc).'};if(!F[id])return {ok:false,err:'Food not found.'};
+  const h=new Date().getHours();const m=h<10?'b':h<14?'l':h<17?'s':'d';const d=today(g);d.foods.push({f:id,q:q||1,m});mealXP(d,m);saveG();evaluate();return {ok:true,meal:MEALS[m][0].toLowerCase()};}
+/* Pending requests + "pick the closest food for now" (approved library only, no user numbers) */
+function reqKey(name){return 'q_'+String(name).toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,30);}
+function pendingRequests(){const lib=new Set(FOODS.map(f=>f.name.toLowerCase()));return Object.entries(foodRequests()).map(([k,r])=>Object.assign({key:k},r)).filter(r=>r&&r.name&&!lib.has(String(r.name).toLowerCase()));}
+function closestFoods(q,n){const toks=String(q||'').toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>=3);if(!toks.length)return [];
+  return FOODS.map(f=>{const nm=(f.name+' '+(f.serve||'')).toLowerCase();return [toks.reduce((a,w)=>a+(nm.includes(w)?1:0),0),f];}).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).slice(0,n||6).map(x=>x[1]);}
+function closestHTML(q){const res=closestFoods(q);return res.length?res.map(f=>'<div class="logitem"><span>'+f.e+' <b>'+esc(f.name)+'</b> <span class="small muted num">'+eVal(f.kcal)+' '+eUnit()+(f.per100?' /100 g':'')+'</span></span><span class="row"><button type="button" class="btn sm" data-cplate="'+f.id+'">➕ Plate</button><button type="button" class="btn sm teal" data-clog="'+f.id+'">Log</button></span></div>').join(''):'<p class="small muted">No close match yet. Try another word, e.g. "fruit", "frozen", "yoghurt".</p>';}
+function bindClosest(box){const inp=box.querySelector('.closestq'),out=box.querySelector('.closestres'),msg=box.querySelector('.closestmsg');if(!inp)return;
+  const draw=()=>{out.innerHTML=closestHTML(inp.value);};inp.oninput=draw;draw();
+  out.onclick=e=>{const p=e.target.closest('[data-cplate]'),l=e.target.closest('[data-clog]');
+    if(p){addPlate(p.dataset.cplate);msg.textContent='✓ Added '+F[p.dataset.cplate].name+' to your plate ('+plateItems().length+' item'+(plateItems().length===1?'':'s')+').';}
+    if(l){const r=logFoodNow(l.dataset.clog,1);msg.textContent=r.ok?'✓ Logged 1 × '+F[l.dataset.clog].name+' to '+r.meal+' today.':r.err;}};}
+function closestBlock(name){return '<div class="closest"><b class="small">Pick the closest food for now</b><input type="search" class="closestq" value="'+esc(name)+'" placeholder="Search the library" style="margin-top:6px"><div class="closestres" style="margin-top:6px"></div><div class="closestmsg small" aria-live="polite" style="margin-top:4px;font-weight:800;color:var(--teal)"></div></div>';}
+function openRequestIn(where,name){const box=$(where==='fl'?'#flCustomWrap':where==='pl'?'#plCustomWrap':'#logReqBox');if(!box)return;
+  if(box.style.display!=='none'&&!name&&box.innerHTML){box.style.display='none';box.innerHTML='';return;}
+  openRequest(box,{id:reqKey(name||''),name:name||''},()=>{if(where==='fl')renderRequests();},where==='fl');}
+function renderRequests(){const el=$('#flRequests');if(!el)return;const rs=pendingRequests();
+  if(!rs.length){el.innerHTML='';el.style.display='none';return;}el.style.display='';
+  el.innerHTML='<h3 style="margin:0 0 6px">Your requests</h3>'+rs.map((r,i)=>'<div class="reqitem"><div class="spread"><span><b>'+esc(r.name)+'</b>'+(r.brand?' <span class="small muted">'+esc(r.brand)+'</span>':'')+'</span><span class="pill req">Requested</span></div><p class="small muted" style="margin:4px 0">Waiting for Aaron to check the numbers and add it for everyone.</p>'+closestBlock(r.name)+'</div>').join('');
+  el.querySelectorAll('.reqitem').forEach(bindClosest);}
+function plStatus(html){const st=$('#plStatus');if(!st)return;st.style.display='';st.innerHTML=html;clearTimeout(plStatus._t);plStatus._t=setTimeout(()=>{st.style.display='none';},6000);}
 
 /* =========================================================
    FuelQuest v2 visuals: icons, tier emblems, creature art,
@@ -2500,7 +2438,7 @@ function editSavedRecipe(i){const g=G();const r=g.recipes[i];if(!r)return;
    '<ul class="rxlist">'+(r.items||[]).map(it=>{const id=it.id||it;const q=it.q!=null?it.q:1;const f=F[id];return '<li>'+(f?f.e+' ':'')+esc(f?f.name:id)+' · <span class="num">'+(f&&f.per100?r1(q*100)+' g':r1(q)+' serve')+'</span></li>';}).join('')+'</ul>'+
    '<div class="row" style="margin-top:12px"><button class="btn" id="edSave">Save changes</button><button class="btn alt" id="edLoad">Load on plate</button><button class="btn coral" id="edDel">Delete</button></div></div>');
   $('#edSave').onclick=()=>{r.name=($('#edName').value||r.name).trim().slice(0,40);r.meal=$('#edMeal').value;r.serves=clamp(+$('#edServes').value||1,1,20);saveG();closeModal();renderRecipes();/* quiet */;};
-  $('#edLoad').onclick=()=>{plate=(r.items||[]).map(it=>({id:it.id||it,q:it.q!=null?it.q:1})).filter(x=>F[x.id]);$('#plMeal').value=r.meal||'d';closeModal();renderPlate();/* quiet */;};
+  $('#edLoad').onclick=()=>{plate=(r.items||[]).map(it=>({id:it.id||it,q:it.q!=null?it.q:1})).filter(x=>libOK(x.id));$('#plMeal').value=r.meal||'d';closeModal();renderPlate();/* quiet */;};
   $('#edDel').onclick=()=>{g.recipes.splice(i,1);saveG();closeModal();renderRecipes();toast('Recipe deleted',true);};}
 
 /* Normalise plate items: accept legacy string ids */
@@ -2541,7 +2479,7 @@ function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return
   const tk=kcalOf(d),tgt=targetOf(p);
   el.innerHTML='<div class="card chart"><h3>📈 Fuel zone</h3>'+zoneChart(g,p)+'</div><div class="card"><div class="spread"><h3 style="margin:0">🍽️ Food</h3><span class="small muted">'+kdate(dkey()).toLocaleDateString('en',{weekday:'long',day:'numeric',month:'short'})+'</span></div>'+
    '<div class="chips" style="margin:10px 0">'+Object.entries(MEALS).map(([k,v])=>'<button class="chip'+(logMeal===k?' on':'')+'" data-meal="'+k+'">'+v[2]+' '+v[0]+'</button>').join('')+'</div>'+
-   '<div class="foodtools"><input type="search" id="logSearch" placeholder="Search foods…" autocomplete="off" style="flex:1;min-width:140px"><select id="logFood" style="flex:1.4;min-width:180px">'+opts+'</select></div><div class="row" style="margin-top:8px"><span class="counter"><button class="btn sm alt" data-q="-1">−</button><b id="logQ">1</b><button class="btn sm alt" data-q="1">+</button></span><button class="btn" id="logAdd">Add</button></div>'+
+   '<div class="foodtools"><input type="search" id="logSearch" placeholder="Search foods…" autocomplete="off" style="flex:1;min-width:140px"><select id="logFood" style="flex:1.4;min-width:180px">'+opts+'</select></div><div id="logReq" style="display:none"></div><div class="row" style="margin-top:8px"><span class="counter"><button class="btn sm alt" data-q="-1">−</button><b id="logQ">1</b><button class="btn sm alt" data-q="1">+</button></span><button class="btn" id="logAdd">Add</button></div>'+
    byMeal+'<div class="row" style="margin-top:12px;gap:10px"><div class="stat"><small>Energy in today</small><b class="num">'+fE(tk,1)+'</b><small class="num">target ~'+fE(tgt,1)+'</small></div><div class="stat"><small>Protein</small><b class="num">'+Math.round(proteinOf(d))+' g</b><small class="num">goal ~'+E.protein+' g</small></div></div></div>'+
    '<div class="card"><h3>📈 Habits</h3><div class="trackers">'+
     tracker('💧 Water','glasses (250 ml)',d.water+' / '+E.water,'water',d.water/E.water,'#2fa8ff',[[-1,'−'],[1,'+1']])+
@@ -2556,12 +2494,13 @@ function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return
   el.querySelector('#logFood').value=el._lastFood||'eggs';let q=1;
   const rebuildLogFoods=()=>{const qq=($('#logSearch').value||'').toLowerCase().trim();const cur=$('#logFood').value;
     const opts2=Object.entries(GROUPS).map(([gk,gv])=>{const items=FOODS.filter(f=>f.g===gk&&(!qq||f.name.toLowerCase().includes(qq)||(f.serve||'').toLowerCase().includes(qq)));if(!items.length)return '';return '<optgroup label="'+gv[1]+'">'+items.map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+(f.approx?' ~':'')+' ('+eVal(f.kcal)+' '+eUnit()+')</option>').join('')+'</optgroup>';}).join('');
-    $('#logFood').innerHTML=opts2||'<option value="">No matches</option>';if(cur&&F[cur])$('#logFood').value=cur;};
+    $('#logFood').innerHTML=opts2||'<option value="">No matches</option>';if(cur&&F[cur])$('#logFood').value=cur;
+    const rq=$('#logReq');if(rq){rq.style.display=(!opts2&&qq)?'':'none';rq.innerHTML=(!opts2&&qq)?'<p class="small muted" style="margin:6px 0">No foods match "'+esc(qq)+'".</p><button type="button" class="btn sm" id="logReqBtn">📨 Request this food</button><div id="logReqBox" style="display:none;margin-top:8px"></div>':'';const rb=$('#logReqBtn');if(rb)rb.onclick=()=>openRequestIn('log',$('#logSearch').value.trim());}};
   const ls=$('#logSearch');if(ls)ls.oninput=rebuildLogFoods;
 
   el.querySelectorAll('[data-meal]').forEach(b=>b.onclick=()=>{logMeal=b.dataset.meal;renderLog();});
   el.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{q=clamp(q+(+b.dataset.q)*0.5,0.5,10);$('#logQ').textContent=fmtQ(q);});
-  $('#logAdd').onclick=()=>{const f=$('#logFood').value;el._lastFood=f;d.foods.push({f,q,m:logMeal});mealXP(d,logMeal);sound('tick');saveG();evaluate();renderLog();};
+  $('#logAdd').onclick=()=>{const f=$('#logFood').value;if(!libOK(f))return;el._lastFood=f;d.foods.push({f,q,m:logMeal});mealXP(d,logMeal);sound('tick');saveG();evaluate();renderLog();};
   el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{d.foods.splice(+b.dataset.del,1);saveG();renderLog();});
   el.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const k=b.dataset.tr,v=+b.dataset.v;if(k==='water')d.water=clamp(d.water+v,0,30);if(k==='fv')d.fvExtra=clamp((d.fvExtra||0)+v,-fvOf(d)+(d.fvExtra||0),20);if(k==='move')d.move=clamp(d.move+v,0,600);if(k==='sleep')d.sleep=clamp(d.sleep+v,0,16);sound('tick');saveG();evaluate();renderLog();});
   bindSteps(el,renderLog);
@@ -2731,9 +2670,13 @@ function init(){
   showTab(location.hash.slice(1)||'home');
   if(G()){checkProgress();}
   if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
-  window.FQ={RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
+  window.FQ={FOODDATA:()=>FOODDATA,refreshFoodData,foodRequests,requestText,requestPayload,sendFoodRequest,openRequestIn,pendingRequests,closestFoods,libOK,logFoodNow,addPlate,RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+function refreshFoodData(){return fetchFoodData().then(d=>{const changed=!FOODDATA||JSON.stringify(d)!==JSON.stringify(FOODDATA);if(!changed)return false;applyFoodData(d);buildFoods(S.pack);s2list=defaultS2();refreshGameViews();return true;}).catch(()=>false);}
+function boot(){const c=cachedFoodData();
+  if(c&&applyFoodData(c)){init();refreshFoodData();return;}
+  fetchFoodData().then(d=>{applyFoodData(d);init();}).catch(()=>{applyFoodData({version:'none',core:[],packs:{},community:[]});init();});}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 
 </script>
