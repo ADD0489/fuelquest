@@ -1,5 +1,5 @@
 /* FuelQuest service worker: offline cache. Bump CACHE when files change. */
-const CACHE = 'fuelquest-v6';
+const CACHE = 'fuelquest-v7';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './foods.json'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
