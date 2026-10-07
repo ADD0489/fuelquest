@@ -2407,7 +2407,7 @@ function lootHTML(o){const T=o.tier?TIERS.find(t=>t[1]===o.tier):null;const col=
    '<p class="small" style="margin-top:8px">'+(o.combo?'Combo: <b>'+o.combo+' week'+(o.combo>1?'s':'')+' at Gold+</b>. ':'')+(o.shieldUsed?'A combo shield kept your streak alive. ':'')+(o.perfect?'<b>Perfect Week!</b> ':'')+'</p></div>';}
 function maybeRecap(p,g){/* no auto popup; Today shows an inline banner via recapBanner() */}
 function recapBanner(p,g){const wk=pendingRecap(p,g);if(!wk)return '';
-  return '<div class="card" id="recapBanner" style="border-color:rgba(182,255,59,.35)"><div class="spread"><div><div class="eyebrow">Weekly recap ready</div><b>Open your consistency chest when you like</b></div><div class="row"><button class="btn sm" id="recapOpen">Open</button><button class="btn sm alt" id="recapLater">Later</button></div></div></div>';}
+  return '<div class="card" id="recapBanner" style="border-color:rgba(182,255,59,.35)"><div class="spread"><div><div class="eyebrow">Weekly recap ready</div><div style="margin-top:2px"><b>Open your consistency chest when you like</b></div></div><div class="row"><button class="btn sm" id="recapOpen">Open</button><button class="btn sm alt" id="recapLater">Later</button></div></div></div>';}
 
 
 /* ---------- Progress screen ---------- */
