@@ -1972,8 +1972,8 @@ function initHabits(){$('#habitGrid').innerHTML=HABITS.map(h=>'<div class="habit
 function foodRequests(){return store.get('foodRequests',{});}
 function isRequested(id){return !!foodRequests()[id];}
 function requestText(r){const L=['FuelQuest food request','Food: '+r.name];if(r.brand)L.push('Brand: '+r.brand);if(r.serve)L.push('Serving: '+r.serve);if(r.note)L.push('Note: '+r.note);L.push('From: '+r.from);return L.join('\n');}
-const FQ_REQ_URL='https://api2.cursor.sh/automations/webhook/c1a5cb52-16af-5286-adfe-db04cec591cf';
-const FQ_REQ_AUTH='Bearer '+'crsr_12200a62d487ec3a48f1d2e8c812eb09acd10ebf9bed81f5a8b24898e0f3e481';
+const FQ_REQ_URL='https://api2.cursor.sh/automations/webhook/ad6fd4ef-5be3-5b27-9cde-ad83ca494c8f';
+const FQ_REQ_AUTH='Bearer '+'crsr_8ddbdcad69f77e130b436ad97a4226943b083b46dd4ba78181617de8ebb4f8cb';
 function requestPayload(r){return {food:r.name,brand:r.brand||'',serving:r.serve||'',note:r.note||'',from:r.from,requestedAt:new Date().toISOString()};}
 function sendFoodRequest(r){const body=requestPayload(r);const text=requestText(r);
   return fetch(FQ_REQ_URL,{method:'POST',mode:'cors',headers:{'Content-Type':'application/json','Authorization':FQ_REQ_AUTH},body:JSON.stringify(body)})
@@ -2000,8 +2000,8 @@ function bindRequestForm(box,f,onDone){
     const finish=html=>{msg.innerHTML=html;if(onDone)onDone();};
     sendFoodRequest(r).then(out=>{
       if(out.ok){mark('webhook');finish('✓ Request sent. Marked as <b>Requested</b> on this phone.');}
-      else if(out.via==='copy'){mark('copy');finish('Couldn\'t reach Terry, request copied so you can send it another way. Marked as <b>Requested</b> on this phone.');}
-      else{mark('manual');finish('Couldn\'t reach Terry. Copy this and send it another way:<textarea readonly rows="6" style="width:100%;margin-top:6px">'+esc(out.text)+'</textarea>');const ta=msg.querySelector('textarea');if(ta){ta.focus();ta.select();}}
+      else if(out.via==='copy'){mark('copy');finish('Couldn\'t send the request, it\'s copied so you can send it another way. Marked as <b>Requested</b> on this phone.');}
+      else{mark('manual');finish('Couldn\'t send the request. Copy this and send it another way:<textarea readonly rows="6" style="width:100%;margin-top:6px">'+esc(out.text)+'</textarea>');const ta=msg.querySelector('textarea');if(ta){ta.focus();ta.select();}}
     }).catch(()=>{btn.disabled=false;msg.textContent='Something went wrong. Try again.';});};}
 function openRequest(box,f,onDone,noClosest){box.style.display='';box.innerHTML=requestFormHTML(f);bindRequestForm(box,f,()=>{const nm=(box.querySelector('#rqName')||{}).value||(f&&f.name)||'';const msg=box.querySelector('#rqMsg');const hold=msg.innerHTML;
   box.querySelector('.formgrid').style.display='none';box.querySelector('#rqSend').parentNode.style.display='none';
