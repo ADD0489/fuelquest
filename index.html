@@ -770,6 +770,14 @@ nav.tabs>.tab:last-child{margin-right:auto}
 details.growbits{margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:8px 12px;background:var(--card2)}
 details.growbits summary{cursor:pointer;font-weight:800}
 details.growbits ul{margin:8px 0 2px;padding-left:20px}
+
+/* v10 usuals */
+.usuals{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:10px 12px;margin:0 0 10px}
+.chip.usual{font-weight:700}.chip.usual.here{border-color:#8b5cff;box-shadow:0 0 10px rgba(139,92,255,.3)}
+.chip.usual[disabled]{opacity:.5;cursor:not-allowed}
+.linkbtn{background:none;border:0;color:var(--muted,#9aa3c7);text-decoration:underline;cursor:pointer;padding:6px 0 0}
+.slottools{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.usualsug{margin-top:12px;padding:12px;border-radius:14px}
 </style>
 </head>
 <body>
@@ -1251,7 +1259,7 @@ function cachedFoodData(){try{return JSON.parse(localStorage.getItem(FOODS_CACHE
 function fetchFoodData(){if(!window.fetch)return Promise.reject(new Error('no fetch'));return fetch(FOODS_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('foods.json '+r.status);return r.json();}).then(d=>{if(!d||!Array.isArray(d.core))throw new Error('bad foods.json');try{localStorage.setItem(FOODS_CACHE,JSON.stringify(d));}catch(e){}return d;});}
 /* Legacy personal custom foods: kept untouched in storage, never shown in pickers; only used to display old log entries. */
 function customFoods(){return store.get('customFoods',[]);}
-function communityFood(o){return {id:'s_'+String(o.id||o.name).toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,24),name:String(o.name).slice(0,40),serve:String(o.serve||'1 serve'),kcal:+o.kcal||0,p:+o.p||0,tag:o.tag||'e',g:o.g||'P',e:o.e||'🍽️',full:+o.full||2,cat:o.cat||'t',cb:o.cb!=null?+o.cb:null,ft:o.ft!=null?+o.ft:null,per100:/per 100/i.test(o.serve||''),shared:true,verified:o.verified===true,source:String(o.source||'').slice(0,40)};}
+function communityFood(o){return {id:'s_'+String(o.id||o.name).toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,24),name:String(o.name).slice(0,40),serve:String(o.serve||'1 serve'),kcal:+o.kcal||0,p:+o.p||0,tag:o.tag||'e',g:o.g||'P',e:o.e||'🍽️',full:+o.full||2,cat:o.cat||'t',cb:o.cb!=null?+o.cb:null,ft:o.ft!=null?+o.ft:null,per100:/per 100/i.test(o.serve||''),shared:true,verified:o.verified===true,source:String(o.source||'').slice(0,40),adult:o.adult===true};}
 function buildFoods(packId){
   const pk=PACKS[packId]||PACKS.core;
   FOODS=CORE.map(a=>{const r=pk.rename[a[0]]||[];return mk([a[0],r[0]||a[1],r[1]||a[2],...a.slice(3)]);});
@@ -1260,7 +1268,10 @@ function buildFoods(packId){
   F={};FOODS.forEach(f=>F[f.id]=f);
   customFoods().forEach(c=>{if(c&&c.id&&!F[c.id])F[c.id]=Object.assign({},c,{custom:true,legacy:true});});
 }
-const libOK=id=>!!(F[id]&&!F[id].legacy);
+function ageYears(p){if(!p)return null;if(p.dob){const b=new Date(p.dob);if(!isNaN(b)){const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a;}}const a=+p.age;return a>0?a:null;}
+function isAdultProfile(p){const a=ageYears(p);return a!=null&&a>=18;}
+function ageOK(f){return !!f&&(!f.adult||isAdultProfile(typeof curProfile==='function'?curProfile():null));}
+const libOK=id=>!!(F[id]&&!F[id].legacy&&ageOK(F[id]));
 function mk(a){const per=!!a[12]||/^per 100/i.test(a[2]||'');return {id:a[0],name:a[1],serve:a[2],kcal:a[3],p:a[4],tag:a[5],g:a[6],e:a[7],full:a[8],cat:a[9],cb:a[10]!=null?a[10]:null,ft:a[11]!=null?a[11]:null,per100:per};}
 
 const SUGAR_BASE=[['💧','water','Water','250 ml',0,''],['🥛','milk','Milk','250 ml',3,'natural milk sugar'],['☕','milo','Malted milk drink','~220 ml',4.5,'about half from the milk'],['🧃','oj','Orange juice','250 ml',5,'natural fruit sugar, but no fibre'],['🥤','cola','Cola','330 ml can',9,''],['🥤','soft','Lemonade-style soft drink','330 ml can',9,''],['⚡','energy','Energy drink','500 ml can',13.5,'plus lots of caffeine']];
@@ -1718,7 +1729,7 @@ function renderExplorer(){
   $('#foodCount').textContent=FOODS.length;$('#packName').textContent=(PACKS[S.pack]||PACKS.core).name;
   $('#groupChips').innerHTML=[['all','🍽️ All']].concat(Object.entries(GROUPS).map(([k,v])=>[k,v[0]+' '+v[1]])).map(([k,l])=>'<button class="chip'+(exGroup===k?' on':'')+'" data-g="'+k+'">'+l+'</button>').join('');
   const q=($('#foodSearch').value||'').toLowerCase().trim();let html='';
-  Object.entries(GROUPS).forEach(([gk,gv])=>{if(exGroup!=='all'&&exGroup!==gk)return;const items=FOODS.filter(f=>f.g===gk&&(!q||f.name.toLowerCase().includes(q)));if(!items.length)return;
+  Object.entries(GROUPS).forEach(([gk,gv])=>{if(exGroup!=='all'&&exGroup!==gk)return;const items=FOODS.filter(ageOK).filter(f=>f.g===gk&&(!q||f.name.toLowerCase().includes(q)));if(!items.length)return;
     html+='<h3 class="grouphead">'+gv[0]+' '+gv[1]+' <span class="small muted">('+items.length+')</span></h3><div class="fgrid">'+items.map(tileHTML).join('')+'</div>';});
   if(!CORE.length&&!html)html='<p class="empty">The shared food list could not load. Connect to the internet and reopen FuelQuest. Your own foods still work.</p>';
   $('#foodGrid').innerHTML=html||('<div class="empty"><p>No foods match'+(q?' "'+esc(q)+'"':'')+'.</p>'+(q?'<button type="button" class="btn" data-addq="'+esc(q)+'">📨 Request this food</button>':'')+'</div>');
@@ -1761,7 +1772,7 @@ function renderCompare(){const [a,b]=cmpSel.map(id=>F[id]);
   $('#cmpPanel').innerHTML='<div class="card" style="margin:0;background:var(--card2)"><div class="cmp">'+col(a)+col(b)+'</div><div class="grid3" style="margin-top:10px"><div><div class="small" style="text-align:center;font-weight:800">⚡ Energy</div><div class="vbars">'+vb(a.kcal,mx,'var(--sky)',eVal(a.kcal))+vb(b.kcal,mx,'var(--coral)',eVal(b.kcal))+'</div><div class="small muted" style="text-align:center">'+eUnit()+'</div></div><div><div class="small" style="text-align:center;font-weight:800">🥚 Protein</div><div class="vbars">'+vb(a.p,mp,'var(--sky)',a.p+'g')+vb(b.p,mp,'var(--coral)',b.p+'g')+'</div></div><div><div class="small" style="text-align:center;font-weight:800">😌 Fullness</div><div class="vbars">'+vb(a.full,5,'var(--sky)',a.full+'/5')+vb(b.full,5,'var(--coral)',b.full+'/5')+'</div></div></div><p class="small" style="text-align:center;margin-bottom:0">'+(a.kcal===b.kcal?'Same energy!':'<b>'+esc(a.kcal>b.kcal?a.name:b.name)+'</b> has about '+r1(Math.max(a.kcal,b.kcal)/Math.max(1,Math.min(a.kcal,b.kcal)))+'× the energy'+(Math.min(a.kcal,b.kcal)===0?' (the other has none)':'')+'.')+'</p></div>';}
 const defaultS2=()=>['kiwi','carrot','apple','banana','eggs','timtam','whittakers','crisps','lp'in F?'lp':'coke'].filter(id=>F[id]);
 let s2list=[];
-function renderSame200(){$('#s2pick').innerHTML=FOODS.filter(f=>f.kcal>0).map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+'</option>').join('');
+function renderSame200(){$('#s2pick').innerHTML=FOODS.filter(ageOK).filter(f=>f.kcal>0).map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+'</option>').join('');
   $('#same200').innerHTML=s2list.filter(id=>F[id]).map(id=>{const f=F[id];const n=200/f.kcal;const whole=Math.floor(n),part=n-whole;const shown=Math.min(whole,24);
     let ems='';for(let i=0;i<shown;i++)ems+=f.e;if(part>0.05&&whole<24)ems+='<span class="part" style="width:'+(part*1.15).toFixed(2)+'em">'+f.e+'</span>';
     const grams=/(\d+)\s*g\b/.exec(f.serve);
@@ -1880,7 +1891,7 @@ function addPlate(id,q){q=q==null?1:+q;plate=plate.map(x=>typeof x==='string'?{i
 function renderPalette(){
   $('#plCats').innerHTML=[['all','All']].concat(Object.entries(CATS).map(([k,v])=>[k,v[0]])).map(([k,l])=>'<button class="chip'+(plCat===k?' on':'')+'" data-c="'+k+'">'+l+'</button>').join('');
   const q=plQ||(($('#plSearch')||{}).value||'').toLowerCase().trim();
-  const list=FOODS.filter(f=>(plCat==='all'||f.cat===plCat)&&(!q||f.name.toLowerCase().includes(q)||(f.serve||'').toLowerCase().includes(q)||(f.id||'').includes(q)));
+  const list=FOODS.filter(ageOK).filter(f=>(plCat==='all'||f.cat===plCat)&&(!q||f.name.toLowerCase().includes(q)||(f.serve||'').toLowerCase().includes(q)||(f.id||'').includes(q)));
   $('#palette').innerHTML=(list.length?list.map(f=>{
     const mac=f.per100?'<span class="pcm num">'+f.kcal+' kcal · P '+r1(f.p)+' · C '+(f.cb!=null?r1(f.cb):'?')+' · F '+(f.ft!=null?r1(f.ft):'?')+' /100</span>':'<span class="pcm muted">'+(f.serve.length>28?f.serve.slice(0,26)+'…':f.serve)+'</span>';
     return '<div class="pchip'+(f.per100?' per100':'')+'" data-id="'+f.id+'" role="button" tabindex="0" title="'+esc(f.name)+' · '+esc(f.serve)+'"><span class="em">'+f.e+'</span><span class="pnm">'+esc(f.name.length>22?f.name.slice(0,20)+'…':f.name)+'</span>'+mac+'</div>';
@@ -2013,7 +2024,7 @@ function logFoodNow(id,q){const g=G();if(!g)return {ok:false,err:'Create your pr
 function reqKey(name){return 'q_'+String(name).toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,30);}
 function pendingRequests(){const lib=new Set(FOODS.map(f=>f.name.toLowerCase()));return Object.entries(foodRequests()).map(([k,r])=>Object.assign({key:k},r)).filter(r=>r&&r.name&&!lib.has(String(r.name).toLowerCase()));}
 function closestFoods(q,n){const toks=String(q||'').toLowerCase().split(/[^a-z0-9]+/).filter(w=>w.length>=3);if(!toks.length)return [];
-  return FOODS.map(f=>{const nm=(f.name+' '+(f.serve||'')).toLowerCase();return [toks.reduce((a,w)=>a+(nm.includes(w)?1:0),0),f];}).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).slice(0,n||6).map(x=>x[1]);}
+  return FOODS.filter(ageOK).map(f=>{const nm=(f.name+' '+(f.serve||'')).toLowerCase();return [toks.reduce((a,w)=>a+(nm.includes(w)?1:0),0),f];}).filter(x=>x[0]>0).sort((a,b)=>b[0]-a[0]).slice(0,n||6).map(x=>x[1]);}
 function closestHTML(q){const res=closestFoods(q);return res.length?res.map(f=>'<div class="logitem"><span>'+f.e+' <b>'+esc(f.name)+'</b> <span class="small muted num">'+eVal(f.kcal)+' '+eUnit()+(f.per100?' /100 g':'')+'</span></span><span class="row"><button type="button" class="btn sm" data-cplate="'+f.id+'">➕ Plate</button><button type="button" class="btn sm teal" data-clog="'+f.id+'">Log</button></span></div>').join(''):'<p class="small muted">No close match yet. Try another word, e.g. "fruit", "frozen", "yoghurt".</p>';}
 function bindClosest(box){const inp=box.querySelector('.closestq'),out=box.querySelector('.closestres'),msg=box.querySelector('.closestmsg');if(!inp)return;
   const draw=()=>{out.innerHTML=closestHTML(inp.value);};inp.oninput=draw;draw();
@@ -2569,6 +2580,56 @@ function plateItems(){return plate.map(x=>typeof x==='string'?{id:x,q:1}:x).filt
 function plateMacro(){const tot={kcal:0,p:0,cb:0,ft:0};plateItems().forEach(it=>{const f=F[it.id];tot.kcal+=f.kcal*it.q;tot.p+=f.p*it.q;tot.cb+=(f.cb||0)*it.q;tot.ft+=(f.ft||0)*it.q;});return tot;}
 
 /* =========================================================
+   My usuals + Same as yesterday (v10)
+   Usuals live on the per-profile game state (g.usuals), so they are
+   per profile and included in backup export/import automatically.
+   They only reference library food ids + serving counts. No calories stored.
+   ========================================================= */
+function usualsOf(g){g=g||G();if(!g)return [];if(!Array.isArray(g.usuals))g.usuals=[];return g.usuals;}
+function slotItems(d,m){return d?(d.foods||[]).filter(x=>x.m===m):[];}
+function comboSig(items){return items.map(x=>x.f||x.id).filter(Boolean).slice().sort().join('|');}
+function usualItemsOK(u){return (u.items||[]).filter(it=>libOK(it.f));}
+function saveUsual(name,m,items,g){g=g||G();const list=usualsOf(g);name=String(name||'').trim().slice(0,40)||MEALS[m][0]+' usual';
+  const its=items.filter(x=>libOK(x.f)).map(x=>({f:x.f,q:x.q!=null?x.q:1}));if(!its.length)return null;
+  const u={id:'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name,m,items:its,made:dkey()};list.push(u);
+  g.usualDismiss=g.usualDismiss||{};g.usualDismiss[m+':'+comboSig(its)]=1;saveG();return u;}
+function logUsual(uid,m,g){g=g||G();const u=usualsOf(g).find(x=>x.id===uid);if(!u)return {ok:false,n:0};m=m||u.m;const its=usualItemsOK(u);if(!its.length)return {ok:false,n:0};
+  const d=today(g);its.forEach(it=>d.foods.push({f:it.f,q:it.q,m}));mealXP(d,m);saveG();evaluate();return {ok:true,n:its.length,skipped:(u.items||[]).length-its.length};}
+function renameUsual(uid,name,g){g=g||G();const u=usualsOf(g).find(x=>x.id===uid);name=String(name||'').trim().slice(0,40);if(!u||!name)return false;u.name=name;saveG();return true;}
+function deleteUsual(uid,g){g=g||G();const l=usualsOf(g);const i=l.findIndex(x=>x.id===uid);if(i<0)return false;l.splice(i,1);saveG();return true;}
+function yesterdaySlot(g,m){g=g||G();const y=g.days[addDays(dkey(),-1)];return slotItems(y,m).filter(x=>libOK(x.f));}
+function sameAsYesterday(m,g){g=g||G();const its=yesterdaySlot(g,m);if(!its.length)return 0;const d=today(g);its.forEach(x=>d.foods.push({f:x.f,q:x.q,m}));mealXP(d,m);saveG();evaluate();return its.length;}
+/* suggestion: today's slot combo seen on 3+ days (incl. today), not already a usual, not dismissed */
+function usualSuggestion(m,g){g=g||G();const d=g.days[dkey()];const items=slotItems(d,m);if(!items.length)return null;const sig=comboSig(items);
+  if((g.usualDismiss||{})[m+':'+sig])return null;if(usualsOf(g).some(u=>u.m===m&&comboSig(u.items)===sig))return null;
+  const n=Object.values(g.days).filter(x=>{const s=slotItems(x,m);return s.length&&comboSig(s)===sig;}).length;return n>=3?{m,sig,items,n}:null;}
+function dismissSuggestion(m,sig,g){g=g||G();g.usualDismiss=g.usualDismiss||{};g.usualDismiss[m+':'+sig]=1;saveG();}
+function usualLabel(u){const its=usualItemsOK(u);return its.map(it=>F[it.f].e).join('')+' '+esc(u.name);}
+function usualsBox(g,m){const list=usualsOf(g);if(!list.length)return '';const sorted=list.filter(u=>u.m===m).concat(list.filter(u=>u.m!==m));
+  return '<div class="usuals" id="usualsBox"><div class="spread"><b class="small">⭐ My usuals</b><span class="small muted">Tap to add to '+MEALS[m][0].toLowerCase()+'</span></div><div class="chips" style="margin:6px 0 0">'+
+   sorted.map(u=>{const ok=usualItemsOK(u).length;return '<button class="chip usual'+(u.m===m?' here':'')+'" data-usual="'+u.id+'"'+(ok?'':' disabled title="These foods are no longer in the library"')+'>'+usualLabel(u)+(ok<(u.items||[]).length?' <span class="muted">('+ok+' of '+u.items.length+')</span>':'')+'</button>';}).join('')+
+   '</div><button type="button" class="linkbtn small" id="usualManage">Rename or delete</button></div>';}
+function slotTools(g,d,m){const has=slotItems(d,m).length;const y=yesterdaySlot(g,m).length;if(!has&&!y)return '';
+  return '<div class="slottools">'+(has?'<button class="btn sm alt" data-saveu="'+m+'">⭐ Save as usual</button>':'')+(y?'<button class="btn sm alt" data-yday="'+m+'">↺ Same as yesterday</button>':'')+'</div>';}
+function suggestBox(g){for(const m of Object.keys(MEALS)){const s=usualSuggestion(m,g);if(s)return '<div class="msgbox info usualsug" id="usualSug" data-m="'+m+'" data-sig="'+esc(s.sig)+'"><b>Save this as a usual?</b><p class="small" style="margin:4px 0 8px">You have had this '+MEALS[m][0].toLowerCase()+' on '+s.n+' days: '+s.items.map(x=>F[x.f].e+' '+esc(F[x.f].name)).join(', ')+'. Save it to add it in one tap next time.</p><div class="row"><button class="btn sm" id="usualSugSave">Save</button><button class="btn sm alt" id="usualSugNo">No thanks</button></div></div>';}return '';}
+function openSaveUsual(m,items,after){const def=MEALS[m][0];
+  openModal('<h2 style="margin-top:0">⭐ Save as usual</h2><p class="small muted">Saves these foods and serving sizes so you can add them in one tap.</p><div class="small" style="margin:8px 0">'+items.filter(x=>libOK(x.f)).map(x=>'<div class="logitem"><span>'+F[x.f].e+' '+(x.q!==1?fmtQ(x.q)+' × ':'')+esc(F[x.f].name)+'</span></div>').join('')+'</div><label class="f">Name<input type="text" id="usualName" maxlength="40" placeholder="e.g. Weekday '+def.toLowerCase()+'" value="Weekday '+def.toLowerCase()+'"></label><div class="row" style="margin-top:10px"><button class="btn" id="usualSaveBtn">Save usual</button></div>');
+  $('#usualSaveBtn').onclick=()=>{const u=saveUsual($('#usualName').value,m,items);closeModal();if(u)toast('⭐ Saved '+u.name,true);if(after)after();};}
+function openManageUsuals(after){const g=G();const draw=()=>{const l=usualsOf(g);
+  $('#sheet').querySelector('.usualman').innerHTML=l.length?l.map(u=>'<div class="logitem"><span>'+MEALS[u.m][2]+' '+usualLabel(u)+'</span><span class="row" style="gap:6px;flex-wrap:nowrap"><button class="btn sm alt" data-ren="'+u.id+'">Rename</button><button class="xbtn" data-delu="'+u.id+'" aria-label="Delete">✕</button></span></div>').join(''):'<p class="small muted">No usuals saved.</p>';
+  $('#sheet').querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>{const u=l.find(x=>x.id===b.dataset.ren);const row=b.closest('.logitem');row.innerHTML='<input type="text" maxlength="40" value="'+esc(u.name)+'" style="flex:1"><button class="btn sm">Done</button>';row.querySelector('button').onclick=()=>{renameUsual(u.id,row.querySelector('input').value);draw();};});
+  $('#sheet').querySelectorAll('[data-delu]').forEach(b=>b.onclick=()=>{deleteUsual(b.dataset.delu);draw();});};
+  openModal('<h2 style="margin-top:0">⭐ My usuals</h2><div class="usualman"></div>',after);draw();}
+function bindUsuals(el,g,d,re){
+  el.querySelectorAll('[data-usual]').forEach(b=>b.onclick=()=>{const r=logUsual(b.dataset.usual,logMeal);if(r.ok){sound('tick');toast('✓ Added '+r.n+' food'+(r.n===1?'':'s'),true);}re();});
+  const mg=el.querySelector('#usualManage');if(mg)mg.onclick=()=>openManageUsuals(re);
+  el.querySelectorAll('[data-saveu]').forEach(b=>b.onclick=()=>openSaveUsual(b.dataset.saveu,slotItems(d,b.dataset.saveu),re));
+  el.querySelectorAll('[data-yday]').forEach(b=>b.onclick=()=>{const n=sameAsYesterday(b.dataset.yday);if(n){sound('tick');toast('✓ Copied yesterday\'s '+MEALS[b.dataset.yday][0].toLowerCase(),true);}re();});
+  const sb=el.querySelector('#usualSug');if(sb){const m=sb.dataset.m,sig=sb.dataset.sig;
+    el.querySelector('#usualSugSave').onclick=()=>openSaveUsual(m,slotItems(d,m),re);
+    el.querySelector('#usualSugNo').onclick=()=>{dismissSuggestion(m,sig);re();};}}
+
+/* =========================================================
    Single-device profile (one person per phone by default)
    ========================================================= */
 function ensureMe(){const arr=profiles();if(!arr.length)return null;let id=curId();if(!id||!arr.find(p=>p.id===id)){id=arr[0].id;store.set('current',id);_gid=null;}return arr.find(p=>p.id===id)||null;}
@@ -2596,14 +2657,14 @@ function bindBag(el,re){el.querySelectorAll('[data-item]').forEach(b=>b.onclick=
 let logMeal=null;
 function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return;const g=G(),E=energy(p),d=today(g);
   if(!logMeal){const h=new Date().getHours();logMeal=h<10?'b':h<14?'l':h<17?'s':'d';}
-  const opts=Object.entries(GROUPS).map(([gk,gv])=>'<optgroup label="'+gv[1]+'">'+FOODS.filter(f=>f.g===gk).map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+' ('+eVal(f.kcal)+' '+eUnit()+')</option>').join('')+'</optgroup>').join('');
+  const opts=Object.entries(GROUPS).map(([gk,gv])=>'<optgroup label="'+gv[1]+'">'+FOODS.filter(ageOK).filter(f=>f.g===gk).map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+' ('+eVal(f.kcal)+' '+eUnit()+')</option>').join('')+'</optgroup>').join('');
   const byMeal=Object.keys(MEALS).map(m=>{const items=d.foods.map((x,i)=>Object.assign({i},x)).filter(x=>x.m===m);const k=items.reduce((a,x)=>a+F[x.f].kcal*x.q,0);
-    return '<div style="margin-top:10px"><div class="spread"><b>'+MEALS[m][2]+' '+MEALS[m][0]+'</b><span class="small muted num">'+(items.length?fE(k,1):'')+'</span></div>'+(items.length?items.map(x=>'<div class="logitem"><span>'+F[x.f].e+' '+(x.q!==1?fmtQ(x.q)+' × ':'')+esc(F[x.f].name)+' <span class="small muted num">'+eVal(F[x.f].kcal*x.q)+' '+eUnit()+'</span></span><button class="xbtn" data-del="'+x.i+'" aria-label="Remove">✕</button></div>').join(''):'<div class="small muted">Nothing yet</div>')+'</div>';}).join('');
+    return '<div style="margin-top:10px"><div class="spread"><b>'+MEALS[m][2]+' '+MEALS[m][0]+'</b><span class="small muted num">'+(items.length?fE(k,1):'')+'</span></div>'+(items.length?items.map(x=>'<div class="logitem"><span>'+F[x.f].e+' '+(x.q!==1?fmtQ(x.q)+' × ':'')+esc(F[x.f].name)+' <span class="small muted num">'+eVal(F[x.f].kcal*x.q)+' '+eUnit()+'</span></span><button class="xbtn" data-del="'+x.i+'" aria-label="Remove">✕</button></div>').join(''):'<div class="small muted">Nothing yet</div>')+slotTools(g,d,m)+'</div>';}).join('');
   const tk=kcalOf(d),tgt=targetOf(p);
   el.innerHTML='<div class="card chart"><h3>📈 Fuel zone</h3>'+zoneChart(g,p)+'</div><div class="card"><div class="spread"><h3 style="margin:0">🍽️ Food</h3><span class="small muted">'+kdate(dkey()).toLocaleDateString('en',{weekday:'long',day:'numeric',month:'short'})+'</span></div>'+
    '<div class="chips" style="margin:10px 0">'+Object.entries(MEALS).map(([k,v])=>'<button class="chip'+(logMeal===k?' on':'')+'" data-meal="'+k+'">'+v[2]+' '+v[0]+'</button>').join('')+'</div>'+
-   '<div class="foodtools"><input type="search" id="logSearch" placeholder="Search foods…" autocomplete="off" style="flex:1;min-width:140px"><select id="logFood" style="flex:1.4;min-width:180px">'+opts+'</select></div><div id="logReq" style="display:none"></div><div class="row" style="margin-top:8px"><span class="counter"><button class="btn sm alt" data-q="-1">−</button><b id="logQ">1</b><button class="btn sm alt" data-q="1">+</button></span><button class="btn" id="logAdd">Add</button></div>'+
-   byMeal+'<div class="row" style="margin-top:12px;gap:10px"><div class="stat"><small>Energy in today</small><b class="num">'+fE(tk,1)+'</b><small class="num">target ~'+fE(tgt,1)+'</small></div><div class="stat"><small>Protein</small><b class="num">'+Math.round(proteinOf(d))+' g</b><small class="num">goal ~'+E.protein+' g</small></div></div></div>'+
+   usualsBox(g,logMeal)+'<div class="foodtools"><input type="search" id="logSearch" placeholder="Search foods…" autocomplete="off" style="flex:1;min-width:140px"><select id="logFood" style="flex:1.4;min-width:180px">'+opts+'</select></div><div id="logReq" style="display:none"></div><div class="row" style="margin-top:8px"><span class="counter"><button class="btn sm alt" data-q="-1">−</button><b id="logQ">1</b><button class="btn sm alt" data-q="1">+</button></span><button class="btn" id="logAdd">Add</button></div>'+
+   suggestBox(g)+byMeal+'<div class="row" style="margin-top:12px;gap:10px"><div class="stat"><small>Energy in today</small><b class="num">'+fE(tk,1)+'</b><small class="num">target ~'+fE(tgt,1)+'</small></div><div class="stat"><small>Protein</small><b class="num">'+Math.round(proteinOf(d))+' g</b><small class="num">goal ~'+E.protein+' g</small></div></div></div>'+
    '<div class="card"><h3>📈 Habits</h3><div class="trackers">'+
     tracker('💧 Water','glasses (250 ml)',d.water+' / '+E.water,'water',d.water/E.water,'#2fa8ff',[[-1,'−'],[1,'+1']])+
     tracker('🥦 Fruit & veg','serves (food log counts automatically)',r1(fvOf(d))+' / 5','fv',fvOf(d)/5,'#4cc43a',[[-1,'−'],[1,'+1']])+
@@ -2616,7 +2677,7 @@ function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return
    '<div class="card"><h3>🌙 Wrap up my day</h3><p class="small muted">At the end of the day, tap to see how your fuel went. A balanced day (within 10% of your target) earns XP. Low-fuel days never earn rewards.</p><button class="btn" id="wrapBtn">🌙 Wrap up today</button><div id="wrapMsg"></div></div>';
   el.querySelector('#logFood').value=el._lastFood||'eggs';let q=1;
   const rebuildLogFoods=()=>{const qq=($('#logSearch').value||'').toLowerCase().trim();const cur=$('#logFood').value;
-    const opts2=Object.entries(GROUPS).map(([gk,gv])=>{const items=FOODS.filter(f=>f.g===gk&&(!qq||f.name.toLowerCase().includes(qq)||(f.serve||'').toLowerCase().includes(qq)));if(!items.length)return '';return '<optgroup label="'+gv[1]+'">'+items.map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+(f.approx?' ~':'')+' ('+eVal(f.kcal)+' '+eUnit()+')</option>').join('')+'</optgroup>';}).join('');
+    const opts2=Object.entries(GROUPS).map(([gk,gv])=>{const items=FOODS.filter(ageOK).filter(f=>f.g===gk&&(!qq||f.name.toLowerCase().includes(qq)||(f.serve||'').toLowerCase().includes(qq)));if(!items.length)return '';return '<optgroup label="'+gv[1]+'">'+items.map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+(f.approx?' ~':'')+' ('+eVal(f.kcal)+' '+eUnit()+')</option>').join('')+'</optgroup>';}).join('');
     $('#logFood').innerHTML=opts2||'<option value="">No matches</option>';if(cur&&F[cur])$('#logFood').value=cur;
     const rq=$('#logReq');if(rq){rq.style.display=(!opts2&&qq)?'':'none';rq.innerHTML=(!opts2&&qq)?'<p class="small muted" style="margin:6px 0">No foods match "'+esc(qq)+'".</p><button type="button" class="btn sm" id="logReqBtn">📨 Request this food</button><div id="logReqBox" style="display:none;margin-top:8px"></div>':'';const rb=$('#logReqBtn');if(rb)rb.onclick=()=>openRequestIn('log',$('#logSearch').value.trim());}};
   const ls=$('#logSearch');if(ls)ls.oninput=rebuildLogFoods;
@@ -2626,6 +2687,7 @@ function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return
   $('#logAdd').onclick=()=>{const f=$('#logFood').value;if(!libOK(f))return;el._lastFood=f;d.foods.push({f,q,m:logMeal});mealXP(d,logMeal);sound('tick');saveG();evaluate();renderLog();};
   el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{d.foods.splice(+b.dataset.del,1);saveG();renderLog();});
   el.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const k=b.dataset.tr,v=+b.dataset.v;if(k==='water')d.water=clamp(d.water+v,0,30);if(k==='fv')d.fvExtra=clamp((d.fvExtra||0)+v,-fvOf(d)+(d.fvExtra||0),20);if(k==='move')d.move=clamp(d.move+v,0,600);if(k==='sleep')d.sleep=clamp(d.sleep+v,0,16);sound('tick');saveG();evaluate();renderLog();});
+  bindUsuals(el,g,d,renderLog);
   bindSteps(el,renderLog);
   $('#strTog').onclick=()=>{d.strength=!d.strength;saveG();evaluate();renderLog();};
   el.querySelectorAll('[data-swap]').forEach(b=>b.onclick=()=>{if((d.swaps||0)>=5){toast('Swap legend! That is plenty for today.',true);return;}d.swaps=(d.swaps||0)+1;g.swaps=(g.swaps||0)+1;award('swap','Smart swap');saveG();checkProgress();renderLog();});
@@ -2797,7 +2859,7 @@ function init(){
   showTab(location.hash.slice(1)||'home');
   if(G()){checkProgress();}
   if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
-  window.FQ={teenWeight,whoLMS,whoZ,FOODDATA:()=>FOODDATA,refreshFoodData,foodRequests,requestText,requestPayload,sendFoodRequest,openRequestIn,pendingRequests,closestFoods,libOK,logFoodNow,addPlate,RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
+  window.FQ={ageOK,isAdultProfile,ageYears,usualsOf,saveUsual,logUsual,renameUsual,deleteUsual,sameAsYesterday,usualSuggestion,dismissSuggestion,renderLog,teenWeight,whoLMS,whoZ,FOODDATA:()=>FOODDATA,refreshFoodData,foodRequests,requestText,requestPayload,sendFoodRequest,openRequestIn,pendingRequests,closestFoods,libOK,logFoodNow,addPlate,RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
 }
 function refreshFoodData(){return fetchFoodData().then(d=>{const changed=!FOODDATA||JSON.stringify(d)!==JSON.stringify(FOODDATA);if(!changed)return false;applyFoodData(d);buildFoods(S.pack);s2list=defaultS2();refreshGameViews();return true;}).catch(()=>false);}
 function boot(){const c=cachedFoodData();
