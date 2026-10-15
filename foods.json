@@ -1,5 +1,5 @@
 {
- "version": "2026.10.15-4",
+ "version": "2026.10.15-5",
  "note": "FuelQuest shared food library. Only the reviewer edits this file. Row format for core/packs: [id, name, serve, kcal, protein g, tag e/s/t, group P/F/Z/T, emoji, fullness 1-5, plate cat p/c/v/b/t/d, carbs g, fat g]. community[] entries are objects: {name, serve, kcal, p, cb, ft, cat, g, e, tag, verified:true, source:'NZ FOODfiles' or 'pack label'}. Values are researched by the reviewer, never copied from a request. Bump version on every change.",
  "core": [
   [
@@ -331,20 +331,6 @@
    10
   ],
   [
-   "cheese",
-   "Cheese slice (Edam style)",
-   "1 slice (20 g)",
-   70,
-   5,
-   "e",
-   "F",
-   "🧀",
-   2,
-   "p",
-   0.5,
-   5.5
-  ],
-  [
    "eggs",
    "Eggs",
    "2 large",
@@ -585,18 +571,6 @@
    "t"
   ],
   [
-   "pie",
-   "Meat pie (bakery)",
-   "1 pie (~200 g)",
-   525,
-   20,
-   "t",
-   "T",
-   "🥧",
-   4,
-   "t"
-  ],
-  [
    "fishchips",
    "Fish & chips",
    "1 battered fish + a shared portion of chips",
@@ -610,7 +584,7 @@
   ],
   [
    "sausageroll",
-   "Sausage roll (bakery)",
+   "Sausage roll",
    "1 large (~150 g)",
    420,
    11,
@@ -654,18 +628,6 @@
    "T",
    "🍫",
    2,
-   "t"
-  ],
-  [
-   "crisps",
-   "Potato chips (crisps)",
-   "1 small bag (45 g)",
-   235,
-   3,
-   "t",
-   "T",
-   "🥨",
-   1,
    "t"
   ],
   [
@@ -1310,9 +1272,6 @@
     "sausage": [
      "Beef sausage or saveloy"
     ],
-    "pie": [
-     "Mince & cheese pie (bakery)"
-    ],
     "fishchips": [
      "Fish & chips",
      "1 battered fish + half a scoop of chips"
@@ -1459,12 +1418,13 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "pack label",
+   "source": "Retailer pack label",
    "id": "nothingnaughtywheyanyfla",
    "aka": [
     "nothing naughty",
     "whey"
-   ]
+   ],
+   "ref": "pack label"
   },
   {
    "name": "Long black",
@@ -1479,7 +1439,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "USDA FoodData Central (FDC 171891)"
+   "source": "NZ food composition data",
+   "ref": "USDA FoodData Central (FDC 171891)"
   },
   {
    "name": "Long white (café coffee)",
@@ -1509,7 +1470,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "NZ FOODfiles"
+   "source": "NZ food composition data",
+   "ref": "NZ FOODfiles"
   },
   {
    "name": "Orange",
@@ -1524,7 +1486,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006277"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006277"
   },
   {
    "name": "Pear",
@@ -1539,7 +1502,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006585"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006585"
   },
   {
    "name": "Grapes (green)",
@@ -1554,7 +1518,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F004260"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F004260"
   },
   {
    "name": "Strawberries",
@@ -1569,7 +1534,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008952"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F008952"
   },
   {
    "name": "Watermelon",
@@ -1584,7 +1550,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005520"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005520"
   },
   {
    "name": "Blueberries",
@@ -1599,7 +1566,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001290"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001290"
   },
   {
    "name": "Feijoas",
@@ -1614,7 +1582,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003818"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003818"
   },
   {
    "name": "Kiwifruit (gold)",
@@ -1629,7 +1598,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F004815"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F004815"
   },
   {
    "name": "Sultanas",
@@ -1644,7 +1614,8 @@
    "tag": "s",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008983"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F008983"
   },
   {
    "name": "Corn on the cob",
@@ -1659,7 +1630,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003200"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003200"
   },
   {
    "name": "Tomato",
@@ -1674,7 +1646,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009193"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009193"
   },
   {
    "name": "Scrambled eggs",
@@ -1689,7 +1662,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003732"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003732"
   },
   {
    "name": "Chicken thigh, roast (with skin)",
@@ -1704,7 +1678,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002807"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002807"
   },
   {
    "name": "Chicken drumstick (with skin)",
@@ -1719,7 +1694,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002648"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002648"
   },
   {
    "name": "Lamb chop, grilled",
@@ -1734,7 +1710,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F004883"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F004883"
   },
   {
    "name": "Pork loin chop, grilled",
@@ -1749,7 +1726,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006991"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006991"
   },
   {
    "name": "Beef rump steak, grilled",
@@ -1764,7 +1742,8 @@
    "tag": "e",
    "full": 5,
    "verified": true,
-   "source": "FSANZ AFCD R3 F000738"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F000738"
   },
   {
    "name": "Salmon fillet, cooked",
@@ -1779,7 +1758,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F007826"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F007826"
   },
   {
    "name": "Hummus",
@@ -1794,7 +1774,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003539"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003539"
   },
   {
    "name": "Cornflakes (dry)",
@@ -1809,7 +1790,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001701"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001701"
   },
   {
    "name": "Crumpet, toasted",
@@ -1824,7 +1806,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003313"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003313"
   },
   {
    "name": "English muffin, toasted",
@@ -1839,7 +1822,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005898"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005898"
   },
   {
    "name": "Bagel, plain",
@@ -1854,7 +1838,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F000233"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F000233"
   },
   {
    "name": "Croissant, plain",
@@ -1869,7 +1854,8 @@
    "tag": "s",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003305"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003305"
   },
   {
    "name": "Pancakes, homemade",
@@ -1884,7 +1870,8 @@
    "tag": "s",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006298"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006298"
   },
   {
    "name": "Hot cross bun",
@@ -1899,22 +1886,8 @@
    "tag": "s",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009792"
-  },
-  {
-   "name": "Bread roll, white",
-   "serve": "1 roll (~60 g)",
-   "kcal": 150,
-   "p": 5.6,
-   "cb": 26.8,
-   "ft": 1.7,
-   "cat": "c",
-   "g": "P",
-   "e": "🥖",
-   "tag": "e",
-   "full": 3,
-   "verified": true,
-   "source": "FSANZ AFCD R3 F001353"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009792"
   },
   {
    "name": "Brown rice, cooked",
@@ -1929,7 +1902,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F007641"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F007641"
   },
   {
    "name": "Spaghetti bolognese, homemade",
@@ -1944,7 +1918,8 @@
    "tag": "e",
    "full": 5,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006393"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006393"
   },
   {
    "name": "Lasagne, homemade beef",
@@ -1959,7 +1934,8 @@
    "tag": "e",
    "full": 5,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005146"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005146"
   },
   {
    "name": "Instant noodles with flavour sachet",
@@ -1974,13 +1950,14 @@
    "tag": "s",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006055",
+   "source": "NZ food composition data",
    "id": "instantnoodles2minutesty",
    "aka": [
     "2 minute noodles",
     "maggi",
     "mi goreng"
-   ]
+   ],
+   "ref": "FSANZ AFCD R3 F006055"
   },
   {
    "name": "Baked potato, plain",
@@ -1995,7 +1972,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F007314"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F007314"
   },
   {
    "name": "Pizza slice, takeaway (supreme)",
@@ -2010,7 +1988,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006800"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006800"
   },
   {
    "name": "Chicken nuggets, oven baked",
@@ -2025,7 +2004,8 @@
    "tag": "s",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002755"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002755"
   },
   {
    "name": "Rice crackers, plain",
@@ -2040,7 +2020,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001152"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001152"
   },
   {
    "name": "Almonds",
@@ -2055,7 +2036,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006081"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006081"
   },
   {
    "name": "Popcorn, butter flavoured",
@@ -2070,7 +2052,8 @@
    "tag": "s",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006844"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006844"
   },
   {
    "name": "Yoghurt, fruit flavoured",
@@ -2085,7 +2068,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009741"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009741"
   },
   {
    "name": "Ice block, fruit (water-based)",
@@ -2100,22 +2084,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F004421"
-  },
-  {
-   "name": "Muffin, berry (cafe style)",
-   "serve": "1 large (~120 g)",
-   "kcal": 405,
-   "p": 6.2,
-   "cb": 53.3,
-   "ft": 18.7,
-   "cat": "t",
-   "g": "T",
-   "e": "🧁",
-   "tag": "t",
-   "full": 3,
-   "verified": true,
-   "source": "FSANZ AFCD R3 F005877"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F004421"
   },
   {
    "name": "Flat white / latte (whole milk)",
@@ -2130,7 +2100,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009796"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009796"
   },
   {
    "name": "Hot chocolate with milk",
@@ -2145,7 +2116,8 @@
    "tag": "s",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001064"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001064"
   },
   {
    "name": "Apple juice",
@@ -2160,7 +2132,8 @@
    "tag": "s",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F004663"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F004663"
   },
   {
    "name": "Fizzy drink, fruit (e.g. lemonade)",
@@ -2175,7 +2148,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008438"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F008438"
   },
   {
    "name": "Diet or zero-sugar cola",
@@ -2190,7 +2164,8 @@
    "tag": "s",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008404"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F008404"
   },
   {
    "name": "Beer, full strength",
@@ -2205,8 +2180,9 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F000994",
-   "adult": true
+   "source": "NZ food composition data",
+   "adult": true,
+   "ref": "FSANZ AFCD R3 F000994"
   },
   {
    "name": "Wine, red or white",
@@ -2221,8 +2197,9 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009571",
-   "adult": true
+   "source": "NZ food composition data",
+   "adult": true,
+   "ref": "FSANZ AFCD R3 F009571"
   },
   {
    "name": "Big Mac (McDonald's)",
@@ -2312,7 +2289,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006762"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006762"
   },
   {
    "name": "Hot chips, takeaway scoop",
@@ -2327,7 +2305,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F007238"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F007238"
   },
   {
    "name": "Potato chips, ready salted",
@@ -2342,7 +2321,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F007193"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F007193"
   },
   {
    "name": "Corn chips",
@@ -2357,7 +2337,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003198"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003198"
   },
   {
    "name": "Cheese puffs",
@@ -2372,11 +2353,12 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003802",
+   "source": "NZ food composition data",
    "id": "cheesepuffstwistiesstyle",
    "aka": [
     "twisties"
-   ]
+   ],
+   "ref": "FSANZ AFCD R3 F003802"
   },
   {
    "name": "Snack crackers, plain",
@@ -2391,7 +2373,8 @@
    "tag": "s",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001126"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001126"
   },
   {
    "name": "Gingernut biscuit",
@@ -2406,7 +2389,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001195"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001195"
   },
   {
    "name": "Chocolate chip biscuit",
@@ -2421,7 +2405,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001170"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001170"
   },
   {
    "name": "Hard lollies",
@@ -2436,7 +2421,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005235"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005235"
   },
   {
    "name": "Peanuts, salted",
@@ -2451,7 +2437,8 @@
    "tag": "s",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006109"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006109"
   },
   {
    "name": "Nut bar (over 55% nuts)",
@@ -2466,7 +2453,8 @@
    "tag": "s",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009801"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009801"
   },
   {
    "name": "Anzac biscuit",
@@ -2481,7 +2469,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001164"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001164"
   },
   {
    "name": "Chocolate brownie",
@@ -2496,7 +2485,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008273"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F008273"
   },
   {
    "name": "Doughnut, iced",
@@ -2511,7 +2501,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003574"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003574"
   },
   {
    "name": "Cappuccino (whole milk)",
@@ -2526,7 +2517,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009796"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009796"
   },
   {
    "name": "Guarana energy drink (250 ml can)",
@@ -2541,11 +2533,12 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008424",
+   "source": "NZ food composition data",
    "id": "venergydrink",
    "aka": [
     "v energy"
-   ]
+   ],
+   "ref": "FSANZ AFCD R3 F008424"
   },
   {
    "name": "Energy drink (250 ml can)",
@@ -2560,12 +2553,13 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008421",
+   "source": "NZ food composition data",
    "id": "redbull",
    "aka": [
     "red bull",
     "redbull"
-   ]
+   ],
+   "ref": "FSANZ AFCD R3 F008421"
   },
   {
    "name": "Chocolate milk, reduced fat",
@@ -2580,7 +2574,8 @@
    "tag": "s",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005587"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005587"
   },
   {
    "name": "Kombucha",
@@ -2595,7 +2590,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009795"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009795"
   },
   {
    "name": "Coconut water",
@@ -2610,7 +2606,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009794"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009794"
   },
   {
    "name": "Sparkling water, citrus flavoured",
@@ -2625,7 +2622,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005694"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005694"
   },
   {
    "name": "Beer, light",
@@ -2640,8 +2638,9 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001004",
-   "adult": true
+   "source": "NZ food composition data",
+   "adult": true,
+   "ref": "FSANZ AFCD R3 F001004"
   },
   {
    "name": "Cider",
@@ -2656,8 +2655,9 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002955",
-   "adult": true
+   "source": "NZ food composition data",
+   "adult": true,
+   "ref": "FSANZ AFCD R3 F002955"
   },
   {
    "name": "Corn, oat & wheat cereal pieces",
@@ -2672,12 +2672,13 @@
    "tag": "s",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001767",
+   "source": "NZ food composition data",
    "id": "nutrigrain",
    "aka": [
     "nutri-grain",
     "nutrigrain"
-   ]
+   ],
+   "ref": "FSANZ AFCD R3 F001767"
   },
   {
    "name": "Puffed rice cereal",
@@ -2692,12 +2693,13 @@
    "tag": "s",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001803",
+   "source": "NZ food composition data",
    "id": "ricebubbles",
    "aka": [
     "rice bubbles",
     "rice krispies"
-   ]
+   ],
+   "ref": "FSANZ AFCD R3 F001803"
   },
   {
    "name": "Chocolate puffed rice cereal",
@@ -2712,12 +2714,13 @@
    "tag": "s",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001807",
+   "source": "NZ food composition data",
    "id": "cocopops",
    "aka": [
     "coco pops",
     "cocopops"
-   ]
+   ],
+   "ref": "FSANZ AFCD R3 F001807"
   },
   {
    "name": "Rice & wheat flake cereal",
@@ -2732,11 +2735,12 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001720",
+   "source": "NZ food composition data",
    "id": "specialk",
    "aka": [
     "special k"
-   ]
+   ],
+   "ref": "FSANZ AFCD R3 F001720"
   },
   {
    "name": "Toasted muesli",
@@ -2751,22 +2755,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005856"
-  },
-  {
-   "name": "Granola, toasted",
-   "serve": "1/2 cup (~55 g), milk not included",
-   "kcal": 235,
-   "p": 6.2,
-   "cb": 28.8,
-   "ft": 9.7,
-   "cat": "c",
-   "g": "P",
-   "e": "🥣",
-   "tag": "e",
-   "full": 3,
-   "verified": true,
-   "source": "FSANZ AFCD R3 F009807"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005856"
   },
   {
    "name": "Porridge made with milk",
@@ -2781,7 +2771,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F007156"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F007156"
   },
   {
    "name": "Fried egg",
@@ -2796,7 +2787,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003718"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003718"
   },
   {
    "name": "Pikelets",
@@ -2811,7 +2803,8 @@
    "tag": "s",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006701"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006701"
   },
   {
    "name": "Fruit salad, canned in juice",
@@ -2826,7 +2819,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F004141"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F004141"
   },
   {
    "name": "Almond milk, unsweetened",
@@ -2841,7 +2835,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009826"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009826"
   },
   {
    "name": "Trim milk (skim)",
@@ -2856,7 +2851,8 @@
    "tag": "e",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005637"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005637"
   },
   {
    "name": "Oat milk",
@@ -2871,7 +2867,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006131"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006131"
   },
   {
    "name": "Pita bread, white",
@@ -2886,7 +2883,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001401"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001401"
   },
   {
    "name": "Naan bread",
@@ -2901,7 +2899,8 @@
    "tag": "s",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001647"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001647"
   },
   {
    "name": "Salami",
@@ -2916,7 +2915,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F007818"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F007818"
   },
   {
    "name": "Chicken luncheon, reduced fat",
@@ -2931,7 +2931,8 @@
    "tag": "s",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002756"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002756"
   },
   {
    "name": "Cottage cheese",
@@ -2946,7 +2947,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002435"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002435"
   },
   {
    "name": "Cream cheese",
@@ -2961,7 +2963,8 @@
    "tag": "s",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002444"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002444"
   },
   {
    "name": "Edam cheese",
@@ -2976,7 +2979,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002448"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002448"
   },
   {
    "name": "Tasty cheddar",
@@ -2991,7 +2995,8 @@
    "tag": "e",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002414"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002414"
   },
   {
    "name": "Baked beans in tomato sauce",
@@ -3006,7 +3011,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F000243"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F000243"
   },
   {
    "name": "Bread roll, wholemeal",
@@ -3021,7 +3027,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001360"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001360"
   },
   {
    "name": "Roast lamb, leg (lean)",
@@ -3036,7 +3043,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005014"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005014"
   },
   {
    "name": "Roast kumara (orange)",
@@ -3051,7 +3059,8 @@
    "tag": "e",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009033"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009033"
   },
   {
    "name": "Gravy, made from powder",
@@ -3066,7 +3075,8 @@
    "tag": "s",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F004265"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F004265"
   },
   {
    "name": "Chicken schnitzel, baked",
@@ -3081,7 +3091,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009790"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009790"
   },
   {
    "name": "Crumbed fish, oven baked",
@@ -3096,7 +3107,8 @@
    "tag": "e",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003954"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003954"
   },
   {
    "name": "Spring roll, meat and veg",
@@ -3111,7 +3123,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008794"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F008794"
   },
   {
    "name": "Pork belly, roasted (no rind)",
@@ -3126,7 +3139,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006860"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006860"
   },
   {
    "name": "Steamed pudding (plum)",
@@ -3141,7 +3155,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "FSANZ AFCD R3 F007512"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F007512"
   },
   {
    "name": "Big Arch (McDonald's)",
@@ -7197,7 +7212,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Average of official labels: Big Ben Classic Mince & Cheese 170 g, bigben.co.nz; Mrs Mac's Beef & Cheese 175 g, FreshChoice pack panel (accessed Oct 2026)"
+   "source": "Average of manufacturer labels (NZ)",
+   "ref": "Average of official labels: Big Ben Classic Mince & Cheese 170 g, bigben.co.nz; Mrs Mac's Beef & Cheese 175 g, FreshChoice pack panel (accessed Oct 2026)"
   },
   {
    "name": "Steak & cheese pie",
@@ -7212,7 +7228,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Average of official labels: Big Ben Classic Steak & Cheese 170 g, bigben.co.nz; Muffin Break Steak & Cheese Pie 230 g, muffinbreak.co.nz (accessed Oct 2026)"
+   "source": "Average of manufacturer labels (NZ)",
+   "ref": "Average of official labels: Big Ben Classic Steak & Cheese 170 g, bigben.co.nz; Muffin Break Steak & Cheese Pie 230 g, muffinbreak.co.nz (accessed Oct 2026)"
   },
   {
    "name": "Butter chicken pie",
@@ -7227,7 +7244,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Average of official labels: Big Ben Classic Butter Chicken 170 g, bigben.co.nz; Muffin Break Butter Chicken Pie 220 g (accessed Oct 2026)"
+   "source": "Average of manufacturer labels (NZ)",
+   "ref": "Average of official labels: Big Ben Classic Butter Chicken 170 g, bigben.co.nz; Muffin Break Butter Chicken Pie 220 g (accessed Oct 2026)"
   },
   {
    "name": "Butter chicken pie, XXL",
@@ -7242,7 +7260,8 @@
    "tag": "t",
    "full": 5,
    "verified": true,
-   "source": "Big Ben XXL Creamy Butter Chicken label, bigben.co.nz (accessed Oct 2026)"
+   "source": "Manufacturer label (NZ)",
+   "ref": "Big Ben XXL Creamy Butter Chicken label, bigben.co.nz (accessed Oct 2026)"
   },
   {
    "name": "Bacon & egg pie",
@@ -7257,7 +7276,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Average of official labels: Big Ben Classic Bacon & Egg 160 g, bigben.co.nz; Muffin Break Bacon & Egg Pie 247 g (accessed Oct 2026)"
+   "source": "Average of manufacturer labels (NZ)",
+   "ref": "Average of official labels: Big Ben Classic Bacon & Egg 160 g, bigben.co.nz; Muffin Break Bacon & Egg Pie 247 g (accessed Oct 2026)"
   },
   {
    "name": "Mince, cheese & bacon pie",
@@ -7272,7 +7292,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Mrs Mac's Beef Cheese & Bacon 175 g label (FreshChoice pack panel, accessed Oct 2026)"
+   "source": "Manufacturer label (NZ)",
+   "ref": "Mrs Mac's Beef Cheese & Bacon 175 g label (FreshChoice pack panel, accessed Oct 2026)"
   },
   {
    "name": "Chilli mince & cheese pie",
@@ -7287,7 +7308,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Mrs Mac's Chilli Beef & Cheese 175 g label (SuperValue/FreshChoice pack panel, accessed Oct 2026)"
+   "source": "Manufacturer label (NZ)",
+   "ref": "Mrs Mac's Chilli Beef & Cheese 175 g label (SuperValue/FreshChoice pack panel, accessed Oct 2026)"
   },
   {
    "name": "Pepper steak pie",
@@ -7302,7 +7324,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Mrs Mac's Pepper Steak 175 g label (FreshChoice pack panel, accessed Oct 2026)"
+   "source": "Manufacturer label (NZ)",
+   "ref": "Mrs Mac's Pepper Steak 175 g label (FreshChoice pack panel, accessed Oct 2026)"
   },
   {
    "name": "Kumara & cashew pie (vegetarian)",
@@ -7317,7 +7340,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Kumara & Cashew Pie), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Kumara & Cashew Pie), accessed Oct 2026"
   },
   {
    "name": "Party pie",
@@ -7332,10 +7356,11 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Patties Party Pies label (FreshChoice pack panel, accessed Oct 2026)"
+   "source": "Manufacturer label (NZ)",
+   "ref": "Patties Party Pies label (FreshChoice pack panel, accessed Oct 2026)"
   },
   {
-   "name": "Chicken pie (bakery)",
+   "name": "Chicken & vegetable pie",
    "serve": "1 bakery pie (~200 g, chicken & vegetable)",
    "kcal": 472,
    "p": 16.4,
@@ -7347,22 +7372,9 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006656 x 200 g typical NZ bakery serve"
-  },
-  {
-   "name": "Spinach & cheese pastry",
-   "serve": "1 pie (~150 g, vegetarian)",
-   "kcal": 435,
-   "p": 14.1,
-   "cb": 37.0,
-   "ft": 24.6,
-   "cat": "t",
-   "g": "T",
-   "e": "🥧",
-   "tag": "t",
-   "full": 3,
-   "verified": true,
-   "source": "FSANZ AFCD R3 F006493 x 150 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "id": "chickenpiebakery",
+   "ref": "FSANZ AFCD R3 F006656 x 200 g typical NZ bakery serve"
   },
   {
    "name": "Apple pie (individual)",
@@ -7377,7 +7389,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F006679 x 130 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F006679 x 130 g typical NZ bakery serve"
   },
   {
    "name": "Party sausage roll",
@@ -7392,7 +7405,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Patties Party Sausage Rolls label (FreshChoice pack panel, accessed Oct 2026)"
+   "source": "Manufacturer label (NZ)",
+   "ref": "Patties Party Sausage Rolls label (FreshChoice pack panel, accessed Oct 2026)"
   },
   {
    "name": "Sausage roll, giant",
@@ -7407,7 +7421,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Average of official labels: Mrs Mac's Giant Sausage Roll 175 g, FreshChoice pack panel; Muffin Break Sausage Roll 229 g (accessed Oct 2026)"
+   "source": "Average of manufacturer labels (NZ)",
+   "ref": "Average of official labels: Mrs Mac's Giant Sausage Roll 175 g, FreshChoice pack panel; Muffin Break Sausage Roll 229 g (accessed Oct 2026)"
   },
   {
    "name": "Spinach & feta roll",
@@ -7422,7 +7437,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Spinach & Feta Roll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Spinach & Feta Roll), accessed Oct 2026"
   },
   {
    "name": "Cheese & bacon roll",
@@ -7437,7 +7453,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Cheese & Bacon Savoury Roll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Cheese & Bacon Savoury Roll), accessed Oct 2026"
   },
   {
    "name": "Cheese & yeast-spread scroll",
@@ -7452,7 +7469,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Cheesymite Scroll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Cheesymite Scroll), accessed Oct 2026"
   },
   {
    "name": "Cheese-topped roll",
@@ -7467,7 +7485,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (White Cheese Roll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (White Cheese Roll), accessed Oct 2026"
   },
   {
    "name": "Southland cheese roll",
@@ -7482,7 +7501,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Cheese Rolls), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Cheese Rolls), accessed Oct 2026"
   },
   {
    "name": "Cheese & chive scone",
@@ -7497,7 +7517,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Cheese & Chive Scone), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Cheese & Chive Scone), accessed Oct 2026"
   },
   {
    "name": "Three-cheese & chive scone (café size)",
@@ -7512,7 +7533,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (3 Cheese and Chive Scones), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (3 Cheese and Chive Scones), accessed Oct 2026"
   },
   {
    "name": "Ham & cheese danish",
@@ -7527,7 +7549,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Ham & Cheese Danish), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Ham & Cheese Danish), accessed Oct 2026"
   },
   {
    "name": "Ham & cheese savoury muffin",
@@ -7542,7 +7565,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Ham & Cheese Savoury), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Ham & Cheese Savoury), accessed Oct 2026"
   },
   {
    "name": "Bacon & cheese savoury muffin",
@@ -7557,7 +7581,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Bacon & Cheese Savoury), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Bacon & Cheese Savoury), accessed Oct 2026"
   },
   {
    "name": "Spinach & feta savoury muffin",
@@ -7572,7 +7597,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Spinach & Feta Savoury), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Spinach & Feta Savoury), accessed Oct 2026"
   },
   {
    "name": "Cheese & yeast-spread savoury muffin",
@@ -7587,7 +7613,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Mitey Cheese Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Mitey Cheese Muffin), accessed Oct 2026"
   },
   {
    "name": "Quiche Lorraine (individual)",
@@ -7602,7 +7629,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Lorraine Quiche), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Lorraine Quiche), accessed Oct 2026"
   },
   {
    "name": "Vegetable quiche (individual)",
@@ -7617,7 +7645,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Vegetable Quiche), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Vegetable Quiche), accessed Oct 2026"
   },
   {
    "name": "Spinach, feta & pine nut quiche",
@@ -7632,7 +7661,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Spinach, Feta & Pine Nut Quiches), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Spinach, Feta & Pine Nut Quiches), accessed Oct 2026"
   },
   {
    "name": "Chicken & asparagus quiche",
@@ -7647,7 +7677,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Chicken & Asparagus Quiches), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Chicken & Asparagus Quiches), accessed Oct 2026"
   },
   {
    "name": "Pumpkin & bacon quiche",
@@ -7662,7 +7693,8 @@
    "tag": "t",
    "full": 3,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Pumpkin & Bacon Quiche), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Pumpkin & Bacon Quiche), accessed Oct 2026"
   },
   {
    "name": "Spinach & three-cheese parcel",
@@ -7677,7 +7709,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Spinach & 3 Cheese Parcel), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Spinach & 3 Cheese Parcel), accessed Oct 2026"
   },
   {
    "name": "Sweet chilli chicken filo",
@@ -7692,7 +7725,8 @@
    "tag": "t",
    "full": 4,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Sweet Chilli Chicken Filo), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Sweet Chilli Chicken Filo), accessed Oct 2026"
   },
   {
    "name": "White bread roll, knot/long/bap",
@@ -7707,7 +7741,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (White Knot Roll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (White Knot Roll), accessed Oct 2026"
   },
   {
    "name": "White dinner roll (small)",
@@ -7722,7 +7757,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (White Dinner Roll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (White Dinner Roll), accessed Oct 2026"
   },
   {
    "name": "Apple & cinnamon scroll",
@@ -7737,22 +7773,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Apple & Cinnamon Scroll), accessed Oct 2026"
-  },
-  {
-   "name": "Apple scroll",
-   "serve": "1 scroll (112 g)",
-   "kcal": 284,
-   "p": 5.8,
-   "cb": 56.3,
-   "ft": 3.1,
-   "cat": "t",
-   "g": "T",
-   "e": "🌀",
-   "tag": "t",
-   "full": 2,
-   "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Apple Scroll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Apple & Cinnamon Scroll), accessed Oct 2026"
   },
   {
    "name": "Custard scroll",
@@ -7767,7 +7789,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Scroll - Custard), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Scroll - Custard), accessed Oct 2026"
   },
   {
    "name": "Apple & custard scroll",
@@ -7782,7 +7805,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Apple & Custard Scroll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Apple & Custard Scroll), accessed Oct 2026"
   },
   {
    "name": "Apple & walnut scroll",
@@ -7797,7 +7821,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Apple & Walnut Scroll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Apple & Walnut Scroll), accessed Oct 2026"
   },
   {
    "name": "Berry scroll",
@@ -7812,7 +7837,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Berry Scroll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Berry Scroll), accessed Oct 2026"
   },
   {
    "name": "Mini cinnamon scroll",
@@ -7827,7 +7853,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Mini Cinnamon Scroll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Mini Cinnamon Scroll), accessed Oct 2026"
   },
   {
    "name": "Mini custard scroll",
@@ -7842,7 +7869,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Mini Custard Scroll), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Mini Custard Scroll), accessed Oct 2026"
   },
   {
    "name": "Mini cinnamon scroll, cream cheese icing",
@@ -7857,7 +7885,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Cinnamon Mini Scroll Cream Cheese Icing), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Cinnamon Mini Scroll Cream Cheese Icing), accessed Oct 2026"
   },
   {
    "name": "Fruit bun",
@@ -7872,7 +7901,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Fruit Bun), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Fruit Bun), accessed Oct 2026"
   },
   {
    "name": "Finger bun, iced with sprinkles",
@@ -7887,7 +7917,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Boston Icing and 100s & 1000s Finger Bun), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Boston Icing and 100s & 1000s Finger Bun), accessed Oct 2026"
   },
   {
    "name": "Finger bun, chocolate iced",
@@ -7902,7 +7933,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Choc Fondant Finger Bun), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Choc Fondant Finger Bun), accessed Oct 2026"
   },
   {
    "name": "Boston bun",
@@ -7917,7 +7949,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Boston Bun), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Boston Bun), accessed Oct 2026"
   },
   {
    "name": "Jam bun (small)",
@@ -7932,7 +7965,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Jam Bunlet), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Jam Bunlet), accessed Oct 2026"
   },
   {
    "name": "Chocolate chip bun",
@@ -7947,7 +7981,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Choc Chip Bun), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Choc Chip Bun), accessed Oct 2026"
   },
   {
    "name": "Chocolate croissant",
@@ -7962,7 +7997,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Choc Croissant), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Choc Croissant), accessed Oct 2026"
   },
   {
    "name": "Apple danish",
@@ -7977,7 +8013,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Apple Danish Square), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Apple Danish Square), accessed Oct 2026"
   },
   {
    "name": "Blueberry danish",
@@ -7992,7 +8029,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Blueberry Danish Square), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Blueberry Danish Square), accessed Oct 2026"
   },
   {
    "name": "Custard & apricot danish",
@@ -8007,7 +8045,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Custard & Apricot Danish), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Custard & Apricot Danish), accessed Oct 2026"
   },
   {
    "name": "Date scone",
@@ -8022,7 +8061,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Date Scone), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Date Scone), accessed Oct 2026"
   },
   {
    "name": "Berry & white choc scone",
@@ -8037,7 +8077,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Berry & White Choc Scone), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Berry & White Choc Scone), accessed Oct 2026"
   },
   {
    "name": "Lemon & blueberry scone, glazed",
@@ -8052,7 +8093,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Glazed Lemon & Blueberry Scone), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Glazed Lemon & Blueberry Scone), accessed Oct 2026"
   },
   {
    "name": "Apple strudel scone",
@@ -8067,7 +8109,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Apple Strudel Scone), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Apple Strudel Scone), accessed Oct 2026"
   },
   {
    "name": "Finger bun, plain",
@@ -8082,7 +8125,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Bakers Delight NZ official page bakersdelight.co.nz (Plain Finger Bun), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Bakers Delight NZ official page bakersdelight.co.nz (Plain Finger Bun), accessed Oct 2026"
   },
   {
    "name": "Banana muffin (café size)",
@@ -8097,7 +8141,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Banana Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Banana Muffin), accessed Oct 2026"
   },
   {
    "name": "Double chocolate muffin (café size)",
@@ -8112,7 +8157,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Double Choc), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Double Choc), accessed Oct 2026"
   },
   {
    "name": "Blueberry & apple muffin (café size)",
@@ -8127,7 +8173,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Blueberry Apple Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Blueberry Apple Muffin), accessed Oct 2026"
   },
   {
    "name": "Apple & cinnamon muffin (café size)",
@@ -8142,7 +8189,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Apple Cinnamon), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Apple Cinnamon), accessed Oct 2026"
   },
   {
    "name": "Blueberry & coconut muffin (café size)",
@@ -8157,7 +8205,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Blueberry Coconut Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Blueberry Coconut Muffin), accessed Oct 2026"
   },
   {
    "name": "Raspberry & white choc muffin (café)",
@@ -8172,7 +8221,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Raspberry White Choc Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Raspberry White Choc Muffin), accessed Oct 2026"
   },
   {
    "name": "Raspberry & apple muffin (café size)",
@@ -8187,7 +8237,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Raspberry Apple), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Raspberry Apple), accessed Oct 2026"
   },
   {
    "name": "Apricot & banana muffin (café size)",
@@ -8202,7 +8253,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Apricot Banana), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Apricot Banana), accessed Oct 2026"
   },
   {
    "name": "Apricot & choc chip muffin (café size)",
@@ -8217,7 +8269,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Apricot Choc Chip), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Apricot Choc Chip), accessed Oct 2026"
   },
   {
    "name": "Lemon & cream cheese muffin (café size)",
@@ -8232,7 +8285,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Lemon Cream Cheese Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Lemon Cream Cheese Muffin), accessed Oct 2026"
   },
   {
    "name": "Raspberry & cream cheese muffin (café)",
@@ -8247,7 +8301,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Raspberry Cream Cheese Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Raspberry Cream Cheese Muffin), accessed Oct 2026"
   },
   {
    "name": "Coffee & cream cheese muffin (café size)",
@@ -8262,7 +8317,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Coffee Cream Cheese Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Coffee Cream Cheese Muffin), accessed Oct 2026"
   },
   {
    "name": "Coffee & walnut muffin (café size)",
@@ -8277,7 +8333,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Coffee Walnut Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Coffee Walnut Muffin), accessed Oct 2026"
   },
   {
    "name": "Caramel & apple muffin (café size)",
@@ -8292,7 +8349,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Caramel Apple), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Caramel Apple), accessed Oct 2026"
   },
   {
    "name": "Chocolate caramel muffin (café size)",
@@ -8307,7 +8365,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Choc Caramel Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Choc Caramel Muffin), accessed Oct 2026"
   },
   {
    "name": "Orange & choc muffin (café size)",
@@ -8322,7 +8381,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Orange Choc Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Orange Choc Muffin), accessed Oct 2026"
   },
   {
    "name": "Strawberry & coconut muffin (café size)",
@@ -8337,7 +8397,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Strawberry Coconut Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Strawberry Coconut Muffin), accessed Oct 2026"
   },
   {
    "name": "Strawberry choc chip muffin (café size)",
@@ -8352,7 +8413,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Strawberry Choc Chip Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Strawberry Choc Chip Muffin), accessed Oct 2026"
   },
   {
    "name": "Lemon & raspberry muffin (café size)",
@@ -8367,7 +8429,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Lemon Raspberry Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Lemon Raspberry Muffin), accessed Oct 2026"
   },
   {
    "name": "Pumpkin spice muffin (café size)",
@@ -8382,7 +8445,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Pumpkin Spice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Pumpkin Spice), accessed Oct 2026"
   },
   {
    "name": "Date, apple & walnut loaf (slice)",
@@ -8397,7 +8461,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Date Apple Walnut Loaf), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Date Apple Walnut Loaf), accessed Oct 2026"
   },
   {
    "name": "Gluten-free berry muffin (café size)",
@@ -8412,7 +8477,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Mixed Berry Muffin (GF)), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Mixed Berry Muffin (GF)), accessed Oct 2026"
   },
   {
    "name": "Wholemeal berry muffin (café size)",
@@ -8427,7 +8493,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Mixed Berry Wholemeal Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Mixed Berry Wholemeal Muffin), accessed Oct 2026"
   },
   {
    "name": "Satay vegetable vegan muffin",
@@ -8442,7 +8509,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Satay Vegetable Savory Muffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Satay Vegetable Savory Muffin), accessed Oct 2026"
   },
   {
    "name": "Choc hazelnut filled muffin",
@@ -8457,7 +8525,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Choc Hazelnut Duffin), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Choc Hazelnut Duffin), accessed Oct 2026"
   },
   {
    "name": "Berry muffin (café size)",
@@ -8472,7 +8541,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Mixed Berry), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Mixed Berry), accessed Oct 2026"
   },
   {
    "name": "Belgian slice",
@@ -8487,7 +8557,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Belgium Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Belgium Slice), accessed Oct 2026"
   },
   {
    "name": "Chocolate caramel slice",
@@ -8502,7 +8573,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Choc Caramel Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Choc Caramel Slice), accessed Oct 2026"
   },
   {
    "name": "Macadamia caramel slice",
@@ -8517,7 +8589,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Macadamia Caramel Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Macadamia Caramel Slice), accessed Oct 2026"
   },
   {
    "name": "Caramel berry slice",
@@ -8532,7 +8605,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Caramel Berry Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Caramel Berry Slice), accessed Oct 2026"
   },
   {
    "name": "Caramel macaroon slice",
@@ -8547,7 +8621,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Caramel Macacroon Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Caramel Macacroon Slice), accessed Oct 2026"
   },
   {
    "name": "Chocolate peppermint slice",
@@ -8562,7 +8637,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Choc Peppermint Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Choc Peppermint Slice), accessed Oct 2026"
   },
   {
    "name": "Lolly cake slice",
@@ -8577,7 +8653,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Lollie Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Lollie Slice), accessed Oct 2026"
   },
   {
    "name": "Date slice",
@@ -8592,7 +8669,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Date Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Date Slice), accessed Oct 2026"
   },
   {
    "name": "Apricot & almond slice",
@@ -8607,7 +8685,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Apricot Almond Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Apricot Almond Slice), accessed Oct 2026"
   },
   {
    "name": "Orange & almond slice (flourless)",
@@ -8622,7 +8701,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Flourless Orange & Almond Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Flourless Orange & Almond Slice), accessed Oct 2026"
   },
   {
    "name": "Strawberry & rhubarb crumble slice",
@@ -8637,7 +8717,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Strawberry & Rhubarb Crumble Slice), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Strawberry & Rhubarb Crumble Slice), accessed Oct 2026"
   },
   {
    "name": "Caramel meringue slice",
@@ -8652,7 +8733,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Caramel Meringue), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Caramel Meringue), accessed Oct 2026"
   },
   {
    "name": "Rum ball",
@@ -8667,7 +8749,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Rum Balls), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Rum Balls), accessed Oct 2026"
   },
   {
    "name": "Carrot cake (café slice)",
@@ -8682,7 +8765,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Carrot Cake), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Carrot Cake), accessed Oct 2026"
   },
   {
    "name": "Mississippi mud cake (café slice)",
@@ -8697,7 +8781,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Mississippi Mud Cake), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Mississippi Mud Cake), accessed Oct 2026"
   },
   {
    "name": "Chocolate mousse cake (slice)",
@@ -8712,7 +8797,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Chocolate Mousse Cake), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Chocolate Mousse Cake), accessed Oct 2026"
   },
   {
    "name": "Baked cheesecake (café slice)",
@@ -8727,7 +8813,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Strawberry Cheesecake), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Strawberry Cheesecake), accessed Oct 2026"
   },
   {
    "name": "Choc & strawberry lamington (café)",
@@ -8742,7 +8829,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Choc Strawberry Lamington), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Choc Strawberry Lamington), accessed Oct 2026"
   },
   {
    "name": "Double choc cookie (café size)",
@@ -8757,7 +8845,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Double Choc Cookies), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Double Choc Cookies), accessed Oct 2026"
   },
   {
    "name": "Peanut butter cookie (café size)",
@@ -8772,7 +8861,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Peanut Butter Cookies), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Peanut Butter Cookies), accessed Oct 2026"
   },
   {
    "name": "Lemon coconut cookie (café size)",
@@ -8787,7 +8877,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Lemon Coconut Cookies), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Lemon Coconut Cookies), accessed Oct 2026"
   },
   {
    "name": "ANZAC cookie (café size)",
@@ -8802,7 +8893,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (ANZAC Cookies), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (ANZAC Cookies), accessed Oct 2026"
   },
   {
    "name": "Gingerbread man",
@@ -8817,7 +8909,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "Muffin Break NZ official page muffinbreak.co.nz (Gingerbread Cookies), accessed Oct 2026"
+   "source": "Bakery manufacturer label (NZ)",
+   "ref": "Muffin Break NZ official page muffinbreak.co.nz (Gingerbread Cookies), accessed Oct 2026"
   },
   {
    "name": "Iced fruit bun",
@@ -8832,7 +8925,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001939 x 85 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001939 x 85 g typical NZ bakery serve"
   },
   {
    "name": "Plain scone",
@@ -8847,7 +8941,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008173 x 80 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F008173 x 80 g typical NZ bakery serve"
   },
   {
    "name": "Fruit scone",
@@ -8862,7 +8957,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008172 x 90 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F008172 x 90 g typical NZ bakery serve"
   },
   {
    "name": "Custard tart",
@@ -8877,7 +8973,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F009102 x 90 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F009102 x 90 g typical NZ bakery serve"
   },
   {
    "name": "Lamington",
@@ -8892,7 +8989,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002159 x 70 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002159 x 70 g typical NZ bakery serve"
   },
   {
    "name": "Jam doughnut",
@@ -8907,7 +9005,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003575 x 75 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003575 x 75 g typical NZ bakery serve"
   },
   {
    "name": "Cinnamon sugar doughnut",
@@ -8922,7 +9021,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F003573 x 60 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F003573 x 60 g typical NZ bakery serve"
   },
   {
    "name": "Caramel slice",
@@ -8937,7 +9037,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F008278 x 70 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F008278 x 70 g typical NZ bakery serve"
   },
   {
    "name": "Shortbread",
@@ -8952,7 +9053,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F001244 x 40 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F001244 x 40 g typical NZ bakery serve"
   },
   {
    "name": "Sponge cake with jam & cream (slice)",
@@ -8967,7 +9069,8 @@
    "tag": "t",
    "full": 1,
    "verified": true,
-   "source": "FSANZ AFCD R3 F002177 x 80 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F002177 x 80 g typical NZ bakery serve"
   },
   {
    "name": "Choc chip muffin (café size)",
@@ -8982,7 +9085,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F005882 x 130 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F005882 x 130 g typical NZ bakery serve"
   },
   {
    "name": "Danish pastry (generic)",
@@ -8997,7 +9101,8 @@
    "tag": "t",
    "full": 2,
    "verified": true,
-   "source": "FSANZ AFCD R3 F010173 x 100 g typical NZ bakery serve"
+   "source": "NZ food composition data",
+   "ref": "FSANZ AFCD R3 F010173 x 100 g typical NZ bakery serve"
   },
   {
    "name": "Custard square",
@@ -9029,7 +9134,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
+   "source": "Indicative: median of NZ third-party listings",
+   "ref": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
   },
   {
    "name": "Cream doughnut",
@@ -9045,23 +9151,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
-  },
-  {
-   "name": "Iced doughnut",
-   "serve": "1 ring (~70 g)",
-   "kcal": 282,
-   "p": 4,
-   "cb": 35,
-   "ft": 14,
-   "cat": "t",
-   "g": "T",
-   "e": "🍩",
-   "tag": "t",
-   "full": 2,
-   "verified": false,
-   "indicative": true,
-   "source": "Indicative: FOODfiles/AFCD analogue scaled to NZ serve"
+   "source": "Indicative: median of NZ third-party listings",
+   "ref": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
   },
   {
    "name": "Chelsea bun",
@@ -9077,7 +9168,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Cinnamon scroll, iced (full size)",
@@ -9093,7 +9185,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
+   "source": "Indicative: median of NZ third-party listings",
+   "ref": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
   },
   {
    "name": "Afghan biscuit",
@@ -9109,7 +9202,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Ginger kiss",
@@ -9125,7 +9219,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Louise slice",
@@ -9141,7 +9236,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Ginger slice",
@@ -9157,7 +9253,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Chocolate fudge slice",
@@ -9173,7 +9270,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Neenish tart",
@@ -9189,7 +9287,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Fruit mince pie",
@@ -9221,7 +9320,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
+   "source": "Indicative: median of NZ third-party listings",
+   "ref": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
   },
   {
    "name": "Chocolate eclair (cream-filled)",
@@ -9253,23 +9353,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
-  },
-  {
-   "name": "Plain croissant",
-   "serve": "1 croissant (~65 g)",
-   "kcal": 264,
-   "p": 5.5,
-   "cb": 29,
-   "ft": 14,
-   "cat": "t",
-   "g": "T",
-   "e": "🥐",
-   "tag": "t",
-   "full": 2,
-   "verified": false,
-   "indicative": true,
-   "source": "Indicative: FOODfiles/AFCD analogue scaled to NZ serve"
+   "source": "Indicative: median of NZ third-party listings",
+   "ref": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
   },
   {
    "name": "Almond croissant",
@@ -9285,7 +9370,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
+   "source": "Indicative: median of NZ third-party listings",
+   "ref": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
   },
   {
    "name": "Ham & cheese croissant",
@@ -9301,7 +9387,8 @@
    "full": 4,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
+   "source": "Indicative: median of NZ third-party listings",
+   "ref": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
   },
   {
    "name": "Mince pie (plain)",
@@ -9333,23 +9420,8 @@
    "full": 4,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
-  },
-  {
-   "name": "Chicken & vegetable pie",
-   "serve": "1 pie (~190 g)",
-   "kcal": 440,
-   "p": 16,
-   "cb": 40,
-   "ft": 24,
-   "cat": "t",
-   "g": "T",
-   "e": "🥧",
-   "tag": "t",
-   "full": 4,
-   "verified": false,
-   "indicative": true,
-   "source": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
+   "source": "Indicative: median of NZ third-party listings",
+   "ref": "Indicative: median of NZ third-party listings (CalorieKing NZ/FatSecret NZ)"
   },
   {
    "name": "Potato top pie",
@@ -9365,7 +9437,8 @@
    "full": 4,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Cornish pasty",
@@ -9377,22 +9450,6 @@
    "cat": "t",
    "g": "T",
    "e": "🥟",
-   "tag": "t",
-   "full": 4,
-   "verified": false,
-   "indicative": true,
-   "source": "Indicative: FOODfiles/AFCD analogue scaled to NZ serve"
-  },
-  {
-   "name": "Sausage roll (standard)",
-   "serve": "1 roll (~150 g)",
-   "kcal": 401,
-   "p": 12,
-   "cb": 32,
-   "ft": 25,
-   "cat": "t",
-   "g": "T",
-   "e": "🌭",
    "tag": "t",
    "full": 4,
    "verified": false,
@@ -9413,7 +9470,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Chicken & salad roll",
@@ -9429,7 +9487,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Egg & lettuce roll",
@@ -9445,7 +9504,8 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   },
   {
    "name": "Salad roll (no meat)",
@@ -9461,7 +9521,22 @@
    "full": 2,
    "verified": false,
    "indicative": true,
-   "source": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+   "source": "Indicative: recipe-based calc (NZ food composition data)",
+   "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
   }
- ]
+ ],
+ "remap": {
+  "pie": "s_mincecheesepie",
+  "s_sausagerollstandard": "sausageroll",
+  "s_chickenvegetablepie": "s_chickenpiebakery",
+  "s_plaincroissant": "s_croissantplain",
+  "s_iceddoughnut": "s_doughnuticed",
+  "s_muffinberrycafestyle": "s_berrymuffincafsize",
+  "crisps": "s_potatochipsreadysalted",
+  "cheese": "s_edamcheese",
+  "s_spinachcheesepastry": "s_spinachfetaroll",
+  "s_breadrollwhite": "s_whitebreadrollknotlongba",
+  "s_applescroll": "s_applecinnamonscroll",
+  "s_granolatoasted": "s_toastedmuesli"
+ }
 }

@@ -1262,7 +1262,7 @@ function cachedFoodData(){try{return JSON.parse(localStorage.getItem(FOODS_CACHE
 function fetchFoodData(){if(!window.fetch)return Promise.reject(new Error('no fetch'));return fetch(FOODS_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('foods.json '+r.status);return r.json();}).then(d=>{if(!d||!Array.isArray(d.core))throw new Error('bad foods.json');try{localStorage.setItem(FOODS_CACHE,JSON.stringify(d));}catch(e){}return d;});}
 /* Legacy personal custom foods: kept untouched in storage, never shown in pickers; only used to display old log entries. */
 function customFoods(){return store.get('customFoods',[]);}
-function communityFood(o){return {id:'s_'+String(o.id||o.name).toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,24),name:String(o.name).slice(0,40),serve:String(o.serve||'1 serve'),kcal:+o.kcal||0,p:+o.p||0,tag:o.tag||'e',g:o.g||'P',e:o.e||'🍽️',full:+o.full||2,cat:o.cat||'t',cb:o.cb!=null?+o.cb:null,ft:o.ft!=null?+o.ft:null,per100:/per 100/i.test(o.serve||''),shared:true,verified:o.verified===true&&o.indicative!==true,indicative:o.indicative===true,source:String(o.source||'').slice(0,40),adult:o.adult===true,aka:Array.isArray(o.aka)?o.aka.map(x=>String(x).toLowerCase()):[]};}
+function communityFood(o){return {id:'s_'+String(o.id||o.name).toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,24),name:String(o.name).slice(0,40),serve:String(o.serve||'1 serve'),kcal:+o.kcal||0,p:+o.p||0,tag:o.tag||'e',g:o.g||'P',e:o.e||'🍽️',full:+o.full||2,cat:o.cat||'t',cb:o.cb!=null?+o.cb:null,ft:o.ft!=null?+o.ft:null,per100:/per 100/i.test(o.serve||''),shared:true,verified:o.verified===true&&o.indicative!==true,indicative:o.indicative===true,source:String(o.source||'').slice(0,80),adult:o.adult===true,aka:Array.isArray(o.aka)?o.aka.map(x=>String(x).toLowerCase()):[]};}
 /* Hidden search terms: matched only, never rendered. */
 function akaHit(f,q){if(!q||!f.aka||!f.aka.length)return false;const qn=q.replace(/[^a-z0-9]/g,'');return f.aka.some(a=>{const an=a.replace(/[^a-z0-9]/g,'');return an.length>=3&&(an.startsWith(qn)&&qn.length>=2||qn.includes(an));});}
 const EST_NOTE='Indicative only: calories vary between bakeries and stores.';
@@ -1274,6 +1274,8 @@ function buildFoods(packId){
   FOODS.forEach(f=>{const al=(pk.aka||{})[f.id];if(al)f.aka=al.map(x=>String(x).toLowerCase());});
   ((FOODDATA&&FOODDATA.community)||[]).forEach(o=>{if(o&&o.name&&o.kcal!=null){const f=communityFood(o);if(!FOODS.find(x=>x.id===f.id))FOODS.push(f);}});
   F={};FOODS.forEach(f=>F[f.id]=f);
+  /* v14: dropped duplicates resolve to the kept food (old logs, usuals, templates). Hidden: not in FOODS, so never listed. */
+  Object.entries((FOODDATA&&FOODDATA.remap)||{}).forEach(([o,n])=>{if(!F[o]&&F[n])F[o]=F[n];});
   customFoods().forEach(c=>{if(c&&c.id&&!F[c.id])F[c.id]=Object.assign({},c,{custom:true,legacy:true});});
 }
 function parseDob(d){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d||'');if(!m)return null;const y=+m[1],mo=+m[2],da=+m[3];const t=new Date(y,mo-1,da);return t.getFullYear()===y&&t.getMonth()===mo-1&&t.getDate()===da?{y,mo,da}:null;}
