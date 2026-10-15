@@ -778,6 +778,9 @@ details.growbits ul{margin:8px 0 2px;padding-left:20px}
 .linkbtn{background:none;border:0;color:var(--muted,#9aa3c7);text-decoration:underline;cursor:pointer;padding:6px 0 0}
 .slottools{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .usualsug{margin-top:12px;padding:12px;border-radius:14px}
+
+.esttag{display:inline-block;font-size:.72em;font-weight:600;color:var(--muted,#6b7280);border:1px solid currentColor;border-radius:999px;padding:0 6px;margin-left:4px;line-height:1.5;cursor:help;white-space:nowrap;vertical-align:middle}
+.estnote{color:var(--muted,#6b7280)}
 </style>
 </head>
 <body>
@@ -1254,16 +1257,21 @@ let FOODS=[], F={};
 /* ---------- shared food list (foods.json); new foods only via reviewed requests ---------- */
 let FOODDATA=null;const FOODS_URL='foods.json';const FOODS_CACHE='fq.v1.foodsData';
 function applyFoodData(d){if(!d||!Array.isArray(d.core))return false;FOODDATA=d;CORE=d.core;
-  Object.keys(PACKS).forEach(k=>{const pk=(d.packs||{})[k]||{};PACKS[k].rename=pk.rename||{};PACKS[k].add=pk.add||[];});return true;}
+  Object.keys(PACKS).forEach(k=>{const pk=(d.packs||{})[k]||{};PACKS[k].rename=pk.rename||{};PACKS[k].add=pk.add||[];PACKS[k].aka=pk.aka||{};});return true;}
 function cachedFoodData(){try{return JSON.parse(localStorage.getItem(FOODS_CACHE)||'null');}catch(e){return null;}}
 function fetchFoodData(){if(!window.fetch)return Promise.reject(new Error('no fetch'));return fetch(FOODS_URL,{cache:'no-cache'}).then(r=>{if(!r.ok)throw new Error('foods.json '+r.status);return r.json();}).then(d=>{if(!d||!Array.isArray(d.core))throw new Error('bad foods.json');try{localStorage.setItem(FOODS_CACHE,JSON.stringify(d));}catch(e){}return d;});}
 /* Legacy personal custom foods: kept untouched in storage, never shown in pickers; only used to display old log entries. */
 function customFoods(){return store.get('customFoods',[]);}
-function communityFood(o){return {id:'s_'+String(o.id||o.name).toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,24),name:String(o.name).slice(0,40),serve:String(o.serve||'1 serve'),kcal:+o.kcal||0,p:+o.p||0,tag:o.tag||'e',g:o.g||'P',e:o.e||'🍽️',full:+o.full||2,cat:o.cat||'t',cb:o.cb!=null?+o.cb:null,ft:o.ft!=null?+o.ft:null,per100:/per 100/i.test(o.serve||''),shared:true,verified:o.verified===true,source:String(o.source||'').slice(0,40),adult:o.adult===true};}
+function communityFood(o){return {id:'s_'+String(o.id||o.name).toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,24),name:String(o.name).slice(0,40),serve:String(o.serve||'1 serve'),kcal:+o.kcal||0,p:+o.p||0,tag:o.tag||'e',g:o.g||'P',e:o.e||'🍽️',full:+o.full||2,cat:o.cat||'t',cb:o.cb!=null?+o.cb:null,ft:o.ft!=null?+o.ft:null,per100:/per 100/i.test(o.serve||''),shared:true,verified:o.verified===true&&o.indicative!==true,indicative:o.indicative===true,source:String(o.source||'').slice(0,40),adult:o.adult===true,aka:Array.isArray(o.aka)?o.aka.map(x=>String(x).toLowerCase()):[]};}
+/* Hidden search terms: matched only, never rendered. */
+function akaHit(f,q){if(!q||!f.aka||!f.aka.length)return false;const qn=q.replace(/[^a-z0-9]/g,'');return f.aka.some(a=>{const an=a.replace(/[^a-z0-9]/g,'');return an.length>=3&&(an.startsWith(qn)&&qn.length>=2||qn.includes(an));});}
+const EST_NOTE='Indicative only: calories vary between bakeries and stores.';
+function estTag(f){return f&&f.indicative?' <span class="esttag" role="button" tabindex="0" data-est="1" title="'+EST_NOTE+'" aria-label="estimate. '+EST_NOTE+'">≈ estimate</span>':'';}
 function buildFoods(packId){
   const pk=PACKS[packId]||PACKS.core;
   FOODS=CORE.map(a=>{const r=pk.rename[a[0]]||[];return mk([a[0],r[0]||a[1],r[1]||a[2],...a.slice(3)]);});
   pk.add.forEach(a=>FOODS.push(mk(a)));
+  FOODS.forEach(f=>{const al=(pk.aka||{})[f.id];if(al)f.aka=al.map(x=>String(x).toLowerCase());});
   ((FOODDATA&&FOODDATA.community)||[]).forEach(o=>{if(o&&o.name&&o.kcal!=null){const f=communityFood(o);if(!FOODS.find(x=>x.id===f.id))FOODS.push(f);}});
   F={};FOODS.forEach(f=>F[f.id]=f);
   customFoods().forEach(c=>{if(c&&c.id&&!F[c.id])F[c.id]=Object.assign({},c,{custom:true,legacy:true});});
@@ -1737,7 +1745,7 @@ function renderExplorer(){
   $('#foodCount').textContent=FOODS.length;$('#packName').textContent=(PACKS[S.pack]||PACKS.core).name;
   $('#groupChips').innerHTML=[['all','🍽️ All']].concat(Object.entries(GROUPS).map(([k,v])=>[k,v[0]+' '+v[1]])).map(([k,l])=>'<button class="chip'+(exGroup===k?' on':'')+'" data-g="'+k+'">'+l+'</button>').join('');
   const q=($('#foodSearch').value||'').toLowerCase().trim();let html='';
-  Object.entries(GROUPS).forEach(([gk,gv])=>{if(exGroup!=='all'&&exGroup!==gk)return;const items=FOODS.filter(ageOK).filter(f=>f.g===gk&&(!q||f.name.toLowerCase().includes(q)));if(!items.length)return;
+  Object.entries(GROUPS).forEach(([gk,gv])=>{if(exGroup!=='all'&&exGroup!==gk)return;const items=FOODS.filter(ageOK).filter(f=>f.g===gk&&(!q||f.name.toLowerCase().includes(q)||akaHit(f,q)));if(!items.length)return;
     html+='<h3 class="grouphead">'+gv[0]+' '+gv[1]+' <span class="small muted">('+items.length+')</span></h3><div class="fgrid">'+items.map(tileHTML).join('')+'</div>';});
   if(!CORE.length&&!html)html='<p class="empty">The shared food list could not load. Connect to the internet and reopen FuelQuest. Your own foods still work.</p>';
   $('#foodGrid').innerHTML=html||('<div class="empty"><p>No foods match'+(q?' "'+esc(q)+'"':'')+'.</p>'+(q?'<button type="button" class="btn" data-addq="'+esc(q)+'">📨 Request this food</button>':'')+'</div>');
@@ -1745,7 +1753,7 @@ function renderExplorer(){
   $('#cmpPanel').style.display=exMode==='compare'?'block':'none';if(exMode==='compare')renderCompare();
 }
 function tileHTML(f){const ai=cmpSel.indexOf(f.id);const cls=exMode==='compare'&&ai>=0?(ai===0?' selA':' selB'):'';
-  return '<button class="ftile'+cls+'" data-id="'+f.id+'">'+(cls?'<span class="badge">'+(ai===0?'A':'B')+'</span>':'')+(f.shared&&f.verified?'<span class="own shared" title="Verified'+(f.source?': '+esc(f.source):'')+'">✓ verified</span>':'')+'<span class="dot" style="background:'+tagCol[f.tag]+'" title="'+tagName[f.tag]+'"></span><span class="em">'+f.e+'</span><span class="nm">'+esc(f.name)+'</span><span class="kc">'+eVal(f.kcal)+' '+eUnit()+'</span></button>';}
+  return '<button class="ftile'+cls+'" data-id="'+f.id+'">'+(cls?'<span class="badge">'+(ai===0?'A':'B')+'</span>':'')+(f.shared&&f.verified&&!f.indicative?'<span class="own shared" title="Verified'+(f.source?': '+esc(f.source):'')+'">✓ verified</span>':'')+'<span class="dot" style="background:'+tagCol[f.tag]+'" title="'+tagName[f.tag]+'"></span><span class="em">'+f.e+'</span><span class="nm">'+esc(f.name)+'</span><span class="kc"><span class="num">'+eVal(f.kcal)+' '+eUnit()+'</span>'+estTag(f)+'</span></button>';}
 function initExplorer(){
   $('#groupChips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;exGroup=b.dataset.g;renderExplorer();};
   $('#modeChips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;exMode=b.dataset.mode;$$('#modeChips .chip').forEach(c=>c.classList.toggle('on',c===b));if(exMode==='compare'&&cmpSel.length<2)cmpSel=['kiwi','lp'in F?'lp':'coke'];renderExplorer();};
@@ -1768,7 +1776,8 @@ function foodCard(id){const f=F[id];if(!f)return;
    '<h3 style="margin-top:14px">⚡ Energy it gives an adult (~75 kg) for about...</h3>'+burn+
    '<p class="small muted">Just a fun comparison, not a to-do list: most of your energy is used simply running your body and brain. Values approximate.</p>'+
    '<div class="fcactions"><button type="button" class="btn sm" id="fcPlate">➕ Add to plate</button><button type="button" class="btn sm teal" id="fcLog">📒 Log to today</button>'+'</div>'+
-   (f.shared&&f.verified?'<p class="small" style="margin:6px 0 0"><span class="vtick">✓</span> Verified shared food'+(f.source?' · source: '+esc(f.source):'')+'</p>':'')+
+   (f.indicative?'<p class="small estnote" style="margin:6px 0 0">≈ '+EST_NOTE+'</p>':'')+
+   (f.shared&&f.verified&&!f.indicative?'<p class="small" style="margin:6px 0 0"><span class="vtick">✓</span> Verified shared food'+(f.source?' · source: '+esc(f.source):'')+'</p>':'')+
    '<div id="fcMsg" class="msgbox ok" style="display:none;margin-top:8px" aria-live="polite"></div>');
   $('#fcPlate').onclick=()=>{addPlate(id);const n=plateItems().length;$('#fcMsg').style.display='';$('#fcMsg').innerHTML='✓ Added '+esc(f.name)+' to your plate ('+n+' item'+(n===1?'':'s')+'). <a href="#plate" id="fcGoPlate">Open plate</a>';$('#fcGoPlate').onclick=ev=>{ev.preventDefault();closeModal();showTab('plate');};};
   $('#fcLog').onclick=()=>{const r=logFoodNow(id,1);$('#fcMsg').style.display='';$('#fcMsg').innerHTML=r.ok?'✓ Logged 1 × '+esc(f.name)+' to '+r.meal+' today.':esc(r.err);};}
@@ -1907,7 +1916,7 @@ function addPlate(id,q){q=q==null?1:+q;plate=plate.map(x=>typeof x==='string'?{i
 function renderPalette(){
   $('#plCats').innerHTML=[['all','All']].concat(Object.entries(CATS).map(([k,v])=>[k,v[0]])).map(([k,l])=>'<button class="chip'+(plCat===k?' on':'')+'" data-c="'+k+'">'+l+'</button>').join('');
   const q=plQ||(($('#plSearch')||{}).value||'').toLowerCase().trim();
-  const list=FOODS.filter(ageOK).filter(f=>(plCat==='all'||f.cat===plCat)&&(!q||f.name.toLowerCase().includes(q)||(f.serve||'').toLowerCase().includes(q)||(f.id||'').includes(q)));
+  const list=FOODS.filter(ageOK).filter(f=>(plCat==='all'||f.cat===plCat)&&(!q||f.name.toLowerCase().includes(q)||(f.serve||'').toLowerCase().includes(q)||(f.id||'').includes(q)||akaHit(f,q)));
   $('#palette').innerHTML=(list.length?list.map(f=>{
     const mac=f.per100?'<span class="pcm num">'+f.kcal+' kcal · P '+r1(f.p)+' · C '+(f.cb!=null?r1(f.cb):'?')+' · F '+(f.ft!=null?r1(f.ft):'?')+' /100</span>':'<span class="pcm muted">'+(f.serve.length>28?f.serve.slice(0,26)+'…':f.serve)+'</span>';
     return '<div class="pchip'+(f.per100?' per100':'')+'" data-id="'+f.id+'" role="button" tabindex="0" title="'+esc(f.name)+' · '+esc(f.serve)+'"><span class="em">'+f.e+'</span><span class="pnm">'+esc(f.name.length>22?f.name.slice(0,20)+'…':f.name)+'</span>'+mac+'</div>';
@@ -2673,9 +2682,9 @@ function bindBag(el,re){el.querySelectorAll('[data-item]').forEach(b=>b.onclick=
 let logMeal=null;
 function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return;const g=G(),E=energy(p),d=today(g);
   if(!logMeal){const h=new Date().getHours();logMeal=h<10?'b':h<14?'l':h<17?'s':'d';}
-  const opts=Object.entries(GROUPS).map(([gk,gv])=>'<optgroup label="'+gv[1]+'">'+FOODS.filter(ageOK).filter(f=>f.g===gk).map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+kTag(f)+'</option>').join('')+'</optgroup>').join('');
+  const opts=Object.entries(GROUPS).map(([gk,gv])=>'<optgroup label="'+gv[1]+'">'+FOODS.filter(ageOK).filter(f=>f.g===gk).map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+kTag(f)+(f.indicative?' (≈ estimate)':'')+'</option>').join('')+'</optgroup>').join('');
   const byMeal=Object.keys(MEALS).map(m=>{const items=d.foods.map((x,i)=>Object.assign({i},x)).filter(x=>x.m===m);const k=items.reduce((a,x)=>a+F[x.f].kcal*x.q,0);
-    return '<div style="margin-top:10px"><div class="spread"><b>'+MEALS[m][2]+' '+MEALS[m][0]+'</b><span class="small muted num">'+(items.length?fE(k,1):'')+'</span></div>'+(items.length?items.map(x=>'<div class="logitem"><span>'+F[x.f].e+' '+(x.q!==1?fmtQ(x.q)+' × ':'')+esc(F[x.f].name)+' <span class="small muted num">'+eVal(F[x.f].kcal*x.q)+' '+eUnit()+'</span></span><button class="xbtn" data-del="'+x.i+'" aria-label="Remove">✕</button></div>').join(''):'<div class="small muted">Nothing yet</div>')+slotTools(g,d,m)+'</div>';}).join('');
+    return '<div style="margin-top:10px"><div class="spread"><b>'+MEALS[m][2]+' '+MEALS[m][0]+'</b><span class="small muted num">'+(items.length?fE(k,1):'')+'</span>'+(items.some(x=>F[x.f].indicative)?'<span class="small muted esthint"> includes estimates</span>':'')+'</div>'+(items.length?items.map(x=>'<div class="logitem"><span>'+F[x.f].e+' '+(x.q!==1?fmtQ(x.q)+' × ':'')+esc(F[x.f].name)+' <span class="small muted num">'+eVal(F[x.f].kcal*x.q)+' '+eUnit()+'</span>'+estTag(F[x.f])+'</span><button class="xbtn" data-del="'+x.i+'" aria-label="Remove">✕</button></div>').join(''):'<div class="small muted">Nothing yet</div>')+slotTools(g,d,m)+'</div>';}).join('');
   const tk=kcalOf(d),tgt=targetOf(p);
   el.innerHTML='<div class="card chart"><h3>📈 Fuel zone</h3>'+zoneChart(g,p)+'</div><div class="card"><div class="spread"><h3 style="margin:0">🍽️ Food</h3><span class="small muted">'+kdate(dkey()).toLocaleDateString('en',{weekday:'long',day:'numeric',month:'short'})+'</span></div>'+
    '<div class="chips" style="margin:10px 0">'+Object.entries(MEALS).map(([k,v])=>'<button class="chip'+(logMeal===k?' on':'')+'" data-meal="'+k+'">'+v[2]+' '+v[0]+'</button>').join('')+'</div>'+
@@ -2693,8 +2702,8 @@ function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return
    '<div class="card"><h3>🌙 Wrap up my day</h3><p class="small muted">At the end of the day, tap to see how your fuel went. A balanced day (within 10% of your target) earns XP. Low-fuel days never earn rewards.</p><button class="btn" id="wrapBtn">🌙 Wrap up today</button><div id="wrapMsg"></div></div>';
   el.querySelector('#logFood').value=el._lastFood||'eggs';let q=1;
   const rebuildLogFoods=()=>{const qq=($('#logSearch').value||'').toLowerCase().trim();const cur=$('#logFood').value;
-    const opts2=Object.entries(GROUPS).map(([gk,gv])=>{const items=FOODS.filter(ageOK).filter(f=>f.g===gk&&(!qq||f.name.toLowerCase().includes(qq)||(f.serve||'').toLowerCase().includes(qq)));if(!items.length)return '';return '<optgroup label="'+gv[1]+'">'+items.map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+(f.approx&&!hideOn()?' ~':'')+kTag(f)+'</option>').join('')+'</optgroup>';}).join('');
-    $('#logFood').innerHTML=opts2||'<option value="">No matches</option>';const sel=$('#logFood');const vals=[...sel.options].map(o=>o.value).filter(Boolean);sel.value=(cur&&vals.includes(cur))?cur:(vals[0]||'');const lr=$('#logResults');if(lr){const top=qq?vals.slice(0,6):[];lr.innerHTML=top.map(id=>'<button type="button" class="chip'+(id===sel.value?' on':'')+'" data-pick="'+id+'">'+F[id].e+' '+esc(F[id].name)+'</button>').join('');lr.style.display=top.length?'':'none';lr.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{sel.value=b.dataset.pick;lr.querySelectorAll('[data-pick]').forEach(x=>x.classList.toggle('on',x===b));});}
+    const opts2=Object.entries(GROUPS).map(([gk,gv])=>{const items=FOODS.filter(ageOK).filter(f=>f.g===gk&&(!qq||f.name.toLowerCase().includes(qq)||(f.serve||'').toLowerCase().includes(qq)||akaHit(f,qq)));if(!items.length)return '';return '<optgroup label="'+gv[1]+'">'+items.map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+(f.approx&&!hideOn()?' ~':'')+kTag(f)+(f.indicative?' (≈ estimate)':'')+'</option>').join('')+'</optgroup>';}).join('');
+    $('#logFood').innerHTML=opts2||'<option value="">No matches</option>';const sel=$('#logFood');const vals=[...sel.options].map(o=>o.value).filter(Boolean);sel.value=(cur&&vals.includes(cur))?cur:(vals[0]||'');const lr=$('#logResults');if(lr){const top=qq?vals.slice(0,6):[];lr.innerHTML=top.map(id=>'<button type="button" class="chip'+(id===sel.value?' on':'')+'" data-pick="'+id+'">'+F[id].e+' '+esc(F[id].name)+(F[id].indicative?' <span class="esttag" aria-label="estimate">≈ estimate</span>':'')+'</button>').join('');lr.style.display=top.length?'':'none';lr.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{sel.value=b.dataset.pick;lr.querySelectorAll('[data-pick]').forEach(x=>x.classList.toggle('on',x===b));});}
     const rq=$('#logReq');if(rq){rq.style.display=(!opts2&&qq)?'':'none';rq.innerHTML=(!opts2&&qq)?'<p class="small muted" style="margin:6px 0">No foods match "'+esc(qq)+'".</p><button type="button" class="btn sm" id="logReqBtn">📨 Request this food</button><div id="logReqBox" style="display:none;margin-top:8px"></div>':'';const rb=$('#logReqBtn');if(rb)rb.onclick=()=>openRequestIn('log',$('#logSearch').value.trim());}};
   const ls=$('#logSearch');if(ls)ls.oninput=rebuildLogFoods;
 
@@ -2834,7 +2843,7 @@ function drawShare(p,g){const cv=$('#shareCv');const c=cv.getContext('2d');const
 let deferredInstall=null;
 function renderSettings(){const el=$('#settingsBody');
   el.innerHTML='<div class="grid2"><div class="card"><h3>📏 Units</h3><div class="formgrid" style="grid-template-columns:1fr"><label class="f">Energy <select id="stE"><option value="both">kcal + kJ</option><option value="kcal">kcal only</option><option value="kJ">kJ only</option></select></label><label class="f">Weight <select id="stM"><option value="kg">kg</option><option value="lb">lb</option></select></label><label class="f">Height and distance <select id="stL"><option value="cm">cm and km</option><option value="ftin">ft/in and miles</option></select></label></div></div>'+
-   '<div class="card"><h3>🌏 Region food pack</h3><p class="small muted">Core foods are generic. A region pack adds local brands and favourites. More packs (e.g. US, UK) can be added later.</p><select id="stP">'+Object.entries(PACKS).map(([k,v])=>'<option value="'+k+'">'+esc(v.name)+'</option>').join('')+'</select><p class="small muted" id="stPinfo"></p></div>'+
+   '<div class="card"><h3>🌏 Region food pack</h3><p class="small muted">Core foods are generic. A region pack adds local favourites. More packs (e.g. US, UK) can be added later.</p><select id="stP">'+Object.entries(PACKS).map(([k,v])=>'<option value="'+k+'">'+esc(v.name)+'</option>').join('')+'</select><p class="small muted" id="stPinfo"></p></div>'+
    '<div class="card"><h3>🌗 Look and Walk Mode</h3><div class="formgrid" style="grid-template-columns:1fr"><label class="f">Theme <select id="stT"><option value="dark">Dark (default)</option><option value="light">Light</option></select></label><label class="f">Support resources region <select id="stR"><option value="nz">New Zealand</option><option value="au">Australia</option><option value="uk">United Kingdom</option><option value="us">United States</option><option value="ca">Canada</option><option value="other">Somewhere else</option></select></label><label class="f">Walk Mode sensitivity <select id="stW"><option value="low">Low</option><option value="med">Medium</option><option value="high">High</option></select></label></div>'+more('About Walk Mode','<p class="small muted" style="margin:0">Counts steps only while the app is open and the screen is on. Background sync needs a native app (future).</p>')+'</div>'+
    '<div class="card"><h3>🔊 Sound and privacy</h3><label class="row" style="font-weight:700;cursor:pointer"><input type="checkbox" id="stS"> Sound effects</label><label class="row" style="font-weight:700;cursor:pointer;margin-top:8px"><input type="checkbox" id="stH"> 🙈 Hide numbers (blur energy and weight figures)</label><label class="row" style="font-weight:700;cursor:pointer;margin-top:8px"><input type="checkbox" id="stQ" checked> Quiet mode (fewer toasts and reward pop-ups)</label><p class="small muted" style="margin:6px 0 0">Badges and level-ups stay earned; they show as a short toast instead of a full-screen pop-up. Weekly recap waits for you on Today.</p></div>'+
    '<div class="card"><h3>👤 This device</h3><p class="small muted">FuelQuest is meant for one person per phone. Your profile lives here.</p>'+(ensureMe()?'<div class="logitem"><span><span class="avatar sm">'+ensureMe().icon+'</span> <b>'+esc(ensureMe().name)+'</b></span><button class="btn sm alt" id="stEditMe">Edit profile</button></div>':'<button class="btn sm" id="stEditMe">Create my profile</button>')+more('Advanced: another profile on this device','<p class="small muted" style="margin:0 0 8px">Rare case (shared tablet). Extra local profiles are archived from the main flow; manage them in Energy Calc.</p><button class="btn sm alt" id="stMulti">Open Energy Calc profiles</button>')+'</div>'+'<div class="card"><h3>💾 Backup</h3><p class="small muted">All data lives only in this browser. Export a backup file now and then, or to move to a new phone.</p><div class="row"><button class="btn" id="stExp">⬇️ Export backup (JSON)</button><label class="btn alt" style="cursor:pointer">⬆️ Import backup<input type="file" id="stImp" accept="application/json,.json" class="sr"></label></div><p class="small muted">Storage keys: <code>'+NS+'*</code>, schema v'+SCHEMA+'. Updates keep your data.</p></div>'+
@@ -2856,6 +2865,8 @@ function renderSettings(){const el=$('#settingsBody');
 function init(){
   migrate();loadSettings();applyTheme();decorateTabs();buildFoods(S.pack);ensureMe();s2list=defaultS2();document.body.classList.toggle('hidenums',!!S.hide);applyUnitVisibility();
   initCalorie();initExplorer();initCalc();initWeight();initPlate();initWhen();initHabits();
+  document.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-est]');if(!t)return;e.stopPropagation();e.preventDefault();toast(EST_NOTE,true);},true);
+  document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.dataset&&e.target.dataset.est){e.preventDefault();toast(EST_NOTE,true);}});
   $('#hideNums').onchange=()=>{S.hide=$('#hideNums').checked;saveSettings();document.body.classList.toggle('hidenums',S.hide);if(typeof refreshGameViews==='function')refreshGameViews();renderPlan();};
   const homeCards=[['calorie','zap','Energy 101','Energy in vs out, kJ vs kcal, reading labels','#8b5cff'],['kitchen','kitchen','Food Lab','Tap foods, compare two, see 200 kcal side by side','#0fb5a0'],['plate','plate','Plate Builder','Drag foods onto a plate and save recipes','#ff7a1a'],['dex','dex','Creature Dex','Capture creatures with real habits','#2b8cf0'],['habits','swords','Squad','Link family and take down this week\'s boss','#ff4d6d'],['quiz','quiz','Quiz','10 questions. Stars and XP on the line','#d946ef']];
   $('#homeCards').innerHTML=homeCards.map(c=>'<button class="habit navcard" data-go="'+c[0]+'" style="--hc:'+c[4]+'"><div class="em">'+ic(c[1],26)+'</div><h3>'+c[2]+'</h3><p>'+c[3]+'</p></button>').join('');
