@@ -986,10 +986,10 @@ details.growbits ul{margin:8px 0 2px;padding-left:20px}
       <div class="formgrid">
         <label class="f">Name <input type="text" id="pName" required maxlength="20" placeholder="your name"></label>
         <label class="f">Icon <select id="pIcon"><option>🧑</option><option>🧔</option><option>👩</option><option>👨</option><option>👦</option><option>👧</option><option>🏉</option><option>🏐</option><option>⚽</option><option>🏀</option><option>🏊</option><option>🚴</option><option>🎮</option><option>🎨</option></select></label>
-        <label class="f">Age (years) <input type="number" id="pAge" min="3" max="100" step="1" required inputmode="numeric"></label>
+        <label class="f">Birth date <input type="date" id="pDob" required><span class="small muted" id="pDobAge"></span></label>
         <label class="f">Sex (for the formula) <select id="pSex"><option value="m">Male</option><option value="f">Female</option></select></label>
         <label class="f u-cm">Height (cm) <input type="number" id="pHt" min="90" max="230" step="0.5" inputmode="decimal"></label>
-        <label class="f u-ft">Height (ft + in) <span class="row" style="flex-wrap:nowrap"><input type="number" id="pFt" min="3" max="7" step="1" inputmode="numeric" placeholder="ft"><input type="number" id="pIn" min="0" max="11.9" step="0.5" inputmode="decimal" placeholder="in"></span></label>
+        <label class="f u-ft">Height (ft + in) <span class="row" style="flex-wrap:nowrap"><input type="number" id="pFt" min="3" max="7" step="1" inputmode="numeric" placeholder="ft"><input type="number" id="pIn" min="0" max="11.9" step="any" inputmode="decimal" placeholder="in"></span></label>
         <label class="f"><span>Weight (<span class="u-mass">kg</span>)</span> <input type="number" id="pWt" min="15" max="550" step="0.1" required inputmode="decimal"></label>
         <label class="f wide">Activity level <select id="pAct">
           <option value="1">🛋️ Mostly sitting, little exercise</option>
@@ -1268,7 +1268,10 @@ function buildFoods(packId){
   F={};FOODS.forEach(f=>F[f.id]=f);
   customFoods().forEach(c=>{if(c&&c.id&&!F[c.id])F[c.id]=Object.assign({},c,{custom:true,legacy:true});});
 }
-function ageYears(p){if(!p)return null;if(p.dob){const b=new Date(p.dob);if(!isNaN(b)){const n=new Date();let a=n.getFullYear()-b.getFullYear();if(n.getMonth()<b.getMonth()||(n.getMonth()===b.getMonth()&&n.getDate()<b.getDate()))a--;return a;}}const a=+p.age;return a>0?a:null;}
+function parseDob(d){const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(d||'');if(!m)return null;const y=+m[1],mo=+m[2],da=+m[3];const t=new Date(y,mo-1,da);return t.getFullYear()===y&&t.getMonth()===mo-1&&t.getDate()===da?{y,mo,da}:null;}
+function ageFromDob(d,now){const b=parseDob(d);if(!b)return null;const n=now||new Date();let a=n.getFullYear()-b.y;const nm=n.getMonth()+1,nd=n.getDate();if(nm<b.mo||(nm===b.mo&&nd<b.da))a--;return a>=0?a:null;}
+function ageYears(p,now){if(!p)return null;if(p.dob){const a=ageFromDob(p.dob,now);if(a!=null)return a;}const a=+p.age;return a>0?a:null;}
+function needsDob(p){return !!p&&!parseDob(p.dob);}
 function isAdultProfile(p){const a=ageYears(p);return a!=null&&a>=18;}
 function ageOK(f){return !!f&&(!f.adult||isAdultProfile(typeof curProfile==='function'?curProfile():null));}
 const libOK=id=>!!(F[id]&&!F[id].legacy&&ageOK(F[id]));
@@ -1386,6 +1389,11 @@ const RAIDS=[
 ];
 const SWAPS=[['🥤','💧','A fizzy drink','Water or sparkling water with lemon'],['🥨','🍿','A bag of chips','Plain popcorn, or cheese and crackers'],['🍫','🍌','Chocolate as an after-school snack','Fruit and yoghurt (keep the chocolate for after dinner)'],['🧃','🍊','A glass of juice','A whole orange or mandarin'],['⚡','🥛','An energy drink','Milk, water, and an earlier night'],['🍞','🌾','White toast','Wholemeal or grainy bread'],['🍟','🥔','Fries','Oven wedges or a baked potato'],['🥣','🥚','Sugary cereal','Wheat biscuits, oats, or eggs on toast'],['🍪','🧀','Biscuits after school','Cheese and crackers'],['🥧','🥪','A bakery pie for lunch','A filled roll or sushi (save the pie for the weekend)']];
 
+/* v12: Hide numbers helpers */
+function hideOn(){return typeof S!=='undefined'&&!!(S&&S.hide);}
+function kTag(f){return hideOn()?'':' ('+eVal(f.kcal)+' '+eUnit()+')';}
+function noNums(t){if(!hideOn())return t;return String(t).replace(/~?\s*\d[\d,.]*(\s*(to|-)\s*~?\d[\d,.]*)?\s*(kcal|kJ|cal)\b/gi,'some energy').replace(/~?\s*\d[\d,.]*(\s*(to|-)\s*~?\d[\d,.]*)?(?=\s+for the)/gi,'less');}
+
 /* =========================================================
    Storage (versioned keys: never rename existing keys; add
    migrations in migrate() when the schema changes)
@@ -1443,7 +1451,7 @@ const ACT_F=[1.2,1.375,1.55,1.725,1.9];
 function eer(age,m,ht,wt,act){const h=ht/100;const pa=m?[1,1.13,1.26,1.42,1.42][act-1]:[1,1.16,1.31,1.56,1.56][act-1];
   let v=m?88.5-61.9*age+pa*(26.7*wt+903*h):135.3-30.8*age+pa*(10*wt+934*h);return v+(age<=8?20:25);}
 function energy(p){
-  const age=+p.age,wt=+p.wt,ht=+p.ht,act=+p.act||3,m=p.sex==='m';const r={age,adult:age>=18,m};
+  const age=ageYears(p)||0,wt=+p.wt,ht=+p.ht,act=+p.act||3,m=p.sex==='m';const r={age,adult:age>=18,m};
   if(r.adult){r.bmr=10*wt+6.25*ht-5*age+(m?5:-161);r.maint=r.bmr*ACT_F[act-1];r.base=r.bmr*1.2;}
   else{r.maint=eer(age,m,ht,wt,act);r.base=eer(age,m,ht,wt,1);}
   r.leanFloor=r.adult?(m?1500:1200):1500;r.mode=age<16?'grow':'maint';
@@ -1650,7 +1658,7 @@ function normCdf(z){const t=1/(1+0.2316419*Math.abs(z));const d=0.39894228040143
 /* WHO cut-offs: thinness < -2 SD, overweight > +1 SD, obesity > +2 SD (calm labels in the UI) */
 function growthBand(z){return z<-2?'below':z<=1?'healthy':z<=2?'above':'wellabove';}
 /* months: birth month if stored, else age in whole years * 12 + 6 */
-function ageMonths(p){if(p&&p.birth&&/^\d{4}-\d{2}/.test(p.birth)){const [y,m]=p.birth.split('-').map(Number);const n=new Date();return (n.getFullYear()-y)*12+(n.getMonth()+1-m);}return Math.floor(+p.age||0)*12+6;}
+function ageMonths(p){if(p&&p.dob&&parseDob(p.dob)){const b=parseDob(p.dob),n=new Date();return (n.getFullYear()-b.y)*12+(n.getMonth()+1-b.mo)-(n.getDate()<b.da?1:0);}if(p&&p.birth&&/^\d{4}-\d{2}/.test(p.birth)){const [y,m]=p.birth.split('-').map(Number);const n=new Date();return (n.getFullYear()-y)*12+(n.getMonth()+1-m);}return Math.floor(+p.age||0)*12+6;}
 function teenWeight(sex,months,htCm,wtKg){const o=whoLMS(sex,months);const h2=Math.pow(htCm/100,2);
   const r={lms:o,lo:whoBmiAtZ(-2,o)*h2,hi:whoBmiAtZ(1,o)*h2,hi2:whoBmiAtZ(2,o)*h2};
   if(wtKg){r.bmi=wtKg/h2;r.z=whoZ(r.bmi,o);r.pct=normCdf(r.z)*100;r.band=growthBand(r.z);}
@@ -1782,28 +1790,30 @@ function renderSame200(){$('#s2pick').innerHTML=FOODS.filter(ageOK).filter(f=>f.
    3. Calculator + profiles
    ========================================================= */
 let editId=null;
-function initCalc(){
-  $('#pForm').onsubmit=e=>{e.preventDefault();const ht=readHeight('p');const wt=toKg(+$('#pWt').value);const age=+$('#pAge').value;
-    if(!$('#pName').value.trim()||!age||age<3||age>100){toast('Please add a name and an age from 3 to 100',true);return;}
+function dobBounds(){const n=new Date(),f=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');const mx=new Date(n.getFullYear()-3,n.getMonth(),n.getDate()),mn=new Date(n.getFullYear()-100,n.getMonth(),n.getDate());const el=$('#pDob');if(el){el.max=f(mx);el.min=f(mn);}}
+function dobHint(){const a=ageFromDob($('#pDob').value);$('#pDobAge').textContent=a!=null?'Age '+a:'';}
+function initCalc(){dobBounds();$('#pDob').oninput=dobHint;
+  $('#pForm').onsubmit=e=>{e.preventDefault();const ht=readHeight('p');const wt=toKg(+$('#pWt').value);const dob=$('#pDob').value;const age=ageFromDob(dob);
+    if(!$('#pName').value.trim()||age==null||age<3||age>100){toast('Please add a name and a birth date (age 3 to 100)',true);return;}
     if(ht<90||ht>230){toast('Height looks off; check the units',true);return;}if(wt<15||wt>250){toast('Weight looks off; check the units',true);return;}
-    const arr=profiles();const p={id:editId||('p'+Date.now().toString(36)),name:$('#pName').value.trim().slice(0,20),icon:$('#pIcon').value,age,sex:$('#pSex').value,ht:r1(ht),wt:r1(wt),act:+$('#pAct').value};
+    const arr=profiles();const p={id:editId||('p'+Date.now().toString(36)),name:$('#pName').value.trim().slice(0,20),icon:$('#pIcon').value,dob,age,sex:$('#pSex').value,ht:r1(ht),wt:r1(wt),act:+$('#pAct').value};
     const i=arr.findIndex(x=>x.id===p.id);if(i>=0)arr[i]=p;else arr.push(p);saveProfiles(arr);
     if(!curId()||i<0)store.set('current',p.id);_gid=null;
     toast(i>=0?'Profile updated':'Welcome, '+p.name+'! Pick a buddy on Today',true);resetForm();renderProfiles();sound('tick');};
   $('#pCancel').onclick=resetForm;
   $('#profiles').onclick=e=>{const b=e.target.closest('button[data-act]');if(!b)return;const id=b.dataset.id;const p=profiles().find(x=>x.id===id);
-    if(b.dataset.act==='edit'){editId=id;$('#pName').value=p.name;$('#pIcon').value=p.icon;$('#pAge').value=p.age;$('#pSex').value=p.sex;writeHeight('p',p.ht);$('#pWt').value=fromKg(p.wt);$('#pAct').value=p.act;$('#formTitle').textContent='✏️ Edit '+p.name;$('#pCancel').style.display='';$('#pForm').scrollIntoView({behavior:'smooth'});}
+    if(b.dataset.act==='edit'){editId=id;$('#pName').value=p.name;$('#pIcon').value=p.icon;$('#pDob').value=parseDob(p.dob)?p.dob:'';dobHint();$('#pSex').value=p.sex;writeHeight('p',p.ht);$('#pWt').value=fromKg(p.wt);$('#pAct').value=p.act;$('#formTitle').textContent='✏️ Edit '+p.name;$('#pCancel').style.display='';$('#pForm').scrollIntoView({behavior:'smooth'});}
     if(b.dataset.act==='del'){if(confirm('Delete '+p.name+' and their progress on this device?')){saveProfiles(profiles().filter(x=>x.id!==id));store.del('plan.'+id);store.del('game.'+id);if(curId()===id)store.set('current',(profiles()[0]||{}).id||null);_gid=null;renderProfiles();}}
     if(b.dataset.act==='use'){store.set('current',id);_gid=null;showTab('home');}};
 }
-function resetForm(){editId=null;$('#pForm').reset();$('#pAct').value='3';$('#formTitle').textContent=(profiles().length?'➕ Add another on this device':'➕ Create my profile');$('#pCancel').style.display='none';}
+function resetForm(){editId=null;$('#pForm').reset();dobHint();$('#pAct').value='3';$('#formTitle').textContent=(profiles().length?'➕ Add another on this device':'➕ Create my profile');$('#pCancel').style.display='none';}
 function renderProfiles(){applyUnitVisibility();const arr=profiles();
   if(!arr.length){$('#profiles').innerHTML='<div class="card empty">👆 No profile yet. Create yours above. This device is for you; family links in on Squad.</div>';return;}
   $('#profiles').innerHTML='<div class="grid2">'+arr.map(p=>{const r=energy(p);const maxT=4500;const fill=clamp(r.maint/maxT*100,5,100);
     const LS=leanState(p);const showMark=r.adult&&LS.on;const mark=showMark?'<div class="mark" style="bottom:'+(LS.target/maxT*100)+'%"><span>lean</span></div>':'';
     const split=[['Breakfast',.25,'#ff7a1a'],['Lunch',.3,'#38bdf8'],['Dinner',.3,'#8b5cff'],['Snacks',.15,'#19c9b0']].map(m=>'<div style="background:'+m[2]+'">'+m[0]+'<b class="num">'+eVal(r.maint*m[1])+'</b>'+eUnit()+'</div>').join('');
     const FW=F.weetbix||{kcal:205,name:'Wheat biscuit cereal'},FK=F.kiwi||{kcal:45},FP=F.pie||{kcal:525};const wb=r.maint/FW.kcal,kw=r.maint/FK.kcal,pie=r.maint/FP.kcal;
-    return '<div class="card profilecard"><div class="spread"><div class="row"><span class="avatar">'+p.icon+'</span><div><h3 style="margin:0">'+esc(p.name)+'</h3><div class="small muted num">'+p.age+' y, '+fLen(p.ht)+', '+fMass(p.wt)+', activity '+p.act+'/5</div></div></div><div class="row"><button class="btn sm" data-act="use" data-id="'+p.id+'">Use</button><button class="btn sm alt" data-act="edit" data-id="'+p.id+'">Edit</button><button class="btn sm alt" data-act="del" data-id="'+p.id+'" aria-label="Delete">Delete</button></div></div>'+
+    return '<div class="card profilecard"><div class="spread"><div class="row"><span class="avatar">'+p.icon+'</span><div><h3 style="margin:0">'+esc(p.name)+'</h3><div class="small muted num">'+(ageYears(p)!=null?ageYears(p)+' y':'age not set')+(needsDob(p)?' (add birth date)':'')+', '+fLen(p.ht)+', '+fMass(p.wt)+', activity '+p.act+'/5</div></div></div><div class="row"><button class="btn sm" data-act="use" data-id="'+p.id+'">Use</button><button class="btn sm alt" data-act="edit" data-id="'+p.id+'">Edit</button><button class="btn sm alt" data-act="del" data-id="'+p.id+'" aria-label="Delete">Delete</button></div></div>'+
      '<div class="tankwrap" style="margin-top:10px"><div class="tank"><div class="ticks"></div><div class="fuel" style="height:'+fill+'%"></div>'+mark+'</div><div style="flex:1;min-width:200px">'+targetCard(p,'calc')+'<div class="stat" style="margin-top:8px"><small>Protein guide</small><b class="num">~'+r.protein+' g/day</b><small>spread over meals, ~20 to 30 g each</small></div></div></div>'+
      '<div class="mealsplit">'+split+'</div><p class="small" style="margin:10px 0 0">🥣 That is about the same energy as <b class="num">'+r1(wb)+'</b> '+esc(FW.name)+' breakfasts, or <b class="num">'+Math.round(kw)+'</b> kiwifruit, or <b class="num">'+r1(pie)+'</b> bakery pies. (A real day mixes lots of foods, of course!)</p><div class="iconrow" aria-hidden="true">'+'🥣'.repeat(Math.min(20,Math.round(wb)))+'</div></div>';}).join('')+'</div>';}
 
@@ -1811,7 +1821,7 @@ function renderProfiles(){applyUnitVisibility();const arr=profiles();
    4. Healthy weight
    ========================================================= */
 function initWeight(){['wAge','wHt','wFt','wIn','wWt','wWaist'].forEach(id=>$('#'+id).oninput=renderWeight);$('#wSex').onchange=renderWeight;
-  $('#wPerson').onchange=()=>{const p=profiles().find(x=>x.id===$('#wPerson').value);if(p){$('#wAge').value=p.age;writeHeight('w',p.ht);$('#wWt').value=fromKg(p.wt);$('#wSex').value=p.sex==='f'?'f':'m';}renderWeight();};}
+  $('#wPerson').onchange=()=>{const p=profiles().find(x=>x.id===$('#wPerson').value);if(p){$('#wAge').value=ageYears(p)||'';writeHeight('w',p.ht);$('#wWt').value=fromKg(p.wt);$('#wSex').value=p.sex==='f'?'f':'m';}renderWeight();};}
 function fillWeightPeople(){applyUnitVisibility();const v=$('#wPerson').value;$('#wPerson').innerHTML='<option value="">Type my own</option>'+profiles().map(p=>'<option value="'+p.id+'">'+p.icon+' '+esc(p.name)+'</option>').join('');$('#wPerson').value=v;renderWeight();}
 const ord=n=>{const v=n%100;return n+((v>10&&v<14)?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));};
 const GROW_BITS='<details class="growbits"><summary>🌱 What matters most for growing bodies</summary><ul><li>🍽️ Regular meals with protein, carbs and plenty of fruit and veg</li><li>⚡ Enough fuel for school, sport and growth</li><li>🏃 Moving every day (about 60 minutes)</li><li>😴 8 to 10 hours of sleep</li><li>💬 Talking to a doctor if you have any worries</li></ul></details>';
@@ -1837,7 +1847,7 @@ function renderWeight(){const age=+$('#wAge').value,ht=readHeight('w'),wt=$('#wW
   if(!age){out.innerHTML='<div class="card empty">👆 Enter an age and height to start.</div>';return;}
   if(age<5){out.innerHTML='<div class="card kidbox"><div class="huge">🌱</div><h3>Little ones are checked differently</h3><p>Under 5, growth is tracked on special charts over time, not with a single number. Check with your Well Child / Plunket nurse or GP; they can show you how growth is going.</p>'+GROW_BITS+'</div>';return;}
   if(teen){if(!ht||ht<80){out.innerHTML='<div class="card empty">👆 Now enter a height.</div>';return;}
-    const sex=person?(person.sex==='f'?'f':'m'):$('#wSex').value;const months=person&&+person.age===age?ageMonths(person):Math.floor(age)*12+6;
+    const sex=person?(person.sex==='f'?'f':'m'):$('#wSex').value;const months=person&&ageYears(person)===age?ageMonths(person):Math.floor(age)*12+6;
     out.innerHTML=teenWeightHTML(age,months,sex,ht,wt);return;}
   if(!ht||ht<120){out.innerHTML='<div class="card empty">👆 Now enter a height.</div>';return;}
   const h=ht/100,lo=18.5*h*h,hi=24.9*h*h,gmin=15*h*h,gmax=35*h*h;const pos=w=>clamp((w-gmin)/(gmax-gmin)*100,0,100);
@@ -1848,6 +1858,12 @@ function renderWeight(){const age=+$('#wAge').value,ht=readHeight('w'),wt=$('#wW
    '<div class="gauge" style="--a:'+pos(lo)+'%;--b:'+pos(hi)+'%">'+needle+'<span class="tick" style="left:'+pos(lo)+'%">'+fMass(lo,0)+'</span><span class="tick" style="left:'+pos(hi)+'%">'+fMass(hi,0)+'</span></div>'+
    (status?'<p class="num">Your weight '+status+' for your height.</p>':'')+waistHtml+
    '<div class="callout">💡 <b>BMI is a rough guide, not a verdict.</b> Muscular people, like rugby players or anyone who lifts, often sit higher because muscle is dense. Waist size, fitness, energy, sleep and how you feel all matter too.</div></div>';}
+
+/* v12: one-time gentle prompt for legacy age-only profiles */
+function dobPromptDue(p){if(!p||!needsDob(p))return false;const s=store.get('dobPrompted',{})||{};return !s[p.id];}
+function maybeDobPrompt(){const p=(typeof profiles==='function')&&profiles().find(x=>x.id===curId());if(!dobPromptDue(p))return false;const s=store.get('dobPrompted',{})||{};s[p.id]=dkey();store.set('dobPrompted',s);
+  openModal('<div class="card" style="text-align:center"><div class="eyebrow">Quick update</div><h3>Add your birth date?</h3><p class="small">FuelQuest now works out your age from your birth date, so your plan stays right as you grow up. Your current age keeps working until you add it.</p><div class="row" style="justify-content:center"><button class="btn" id="dobGo">Add birth date</button><button class="btn alt" id="dobLater">Maybe later</button></div></div>');
+  const g=$('#dobGo'),l=$('#dobLater');if(g)g.onclick=()=>{closeModal();showTab('calc');const b=document.querySelector('#profiles button[data-act=edit][data-id="'+p.id+'"]');if(b)b.click();};if(l)l.onclick=()=>closeModal();return true;}
 
 /* =========================================================
    5. Build-a-plate
@@ -2121,15 +2137,15 @@ function zoneChart(g,p){const Z=zoneInfo(p);const days=[];for(let i=6;i>=0;i--){
   const mx=Math.max(Z.hi*1.3,...days.map(x=>x.v*1.08));const W=700,H=250,top=18,bot=36,left=54,ch=H-top-bot;const y=v=>top+ch-(v/mx)*ch;const id='z'+(++svgN);
   let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Daily energy intake against the healthy zone"><defs><linearGradient id="'+id+'g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b6ff3b"/><stop offset="1" stop-color="#4d7c0f"/></linearGradient><linearGradient id="'+id+'u" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb347"/><stop offset="1" stop-color="#c2410c"/></linearGradient><linearGradient id="'+id+'o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#6d28d9"/></linearGradient><linearGradient id="'+id+'m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#67e8f9"/><stop offset="1" stop-color="#0e7490"/></linearGradient></defs>';
   s+='<rect x="'+left+'" y="'+y(Z.hi)+'" width="'+(W-left)+'" height="'+(y(Z.lo)-y(Z.hi))+'" class="zoneband"/>';
-  s+='<line x1="'+left+'" x2="'+W+'" y1="'+y(Z.hi)+'" y2="'+y(Z.hi)+'" class="zl ceil"/>';let lab='<text x="'+(W-4)+'" y="'+(y(Z.hi)-5)+'" class="zt" text-anchor="end">CEILING +10% · '+nf(eVal(Z.hi))+'</text>';
+  s+='<line x1="'+left+'" x2="'+W+'" y1="'+y(Z.hi)+'" y2="'+y(Z.hi)+'" class="zl ceil"/>';let lab='<text x="'+(W-4)+'" y="'+(y(Z.hi)-5)+'" class="zt" text-anchor="end">CEILING +10%'+(hideOn()?'':' · '+nf(eVal(Z.hi)))+'</text>';
   s+='<line x1="'+left+'" x2="'+W+'" y1="'+y(Z.t)+'" y2="'+y(Z.t)+'" class="zl tgt"/>';
-  s+='<line x1="'+left+'" x2="'+W+'" y1="'+y(Z.lo)+'" y2="'+y(Z.lo)+'" class="zl flo"/>';lab+='<text x="'+(W-4)+'" y="'+(y(Z.lo)+13)+'" class="zt" text-anchor="end">FLOOR · '+nf(eVal(Z.lo))+'</text>';
-  s+='<line x1="'+left+'" x2="'+W+'" y1="'+y(Z.floor)+'" y2="'+y(Z.floor)+'" class="zl min"/>';lab+='<text x="'+(W-4)+'" y="'+(y(Z.floor)+13)+'" class="zt warn" text-anchor="end">FUEL-UP MINIMUM · '+nf(eVal(Z.floor))+'</text>';
-  [0,.25,.5,.75,1].forEach(f=>{s+='<text x="'+(left-6)+'" y="'+(y(mx*f)+4)+'" class="axis num" text-anchor="end">'+nf(eVal(mx*f))+'</text>';});
+  s+='<line x1="'+left+'" x2="'+W+'" y1="'+y(Z.lo)+'" y2="'+y(Z.lo)+'" class="zl flo"/>';lab+='<text x="'+(W-4)+'" y="'+(y(Z.lo)+13)+'" class="zt" text-anchor="end">FLOOR'+(hideOn()?'':' · '+nf(eVal(Z.lo)))+'</text>';
+  s+='<line x1="'+left+'" x2="'+W+'" y1="'+y(Z.floor)+'" y2="'+y(Z.floor)+'" class="zl min"/>';lab+='<text x="'+(W-4)+'" y="'+(y(Z.floor)+13)+'" class="zt warn" text-anchor="end">FUEL-UP MINIMUM'+(hideOn()?'':' · '+nf(eVal(Z.floor)))+'</text>';
+  [0,.25,.5,.75,1].forEach(f=>{s+='<text x="'+(left-6)+'" y="'+(y(mx*f)+4)+'" class="axis num" text-anchor="end">'+(hideOn()?'':nf(eVal(mx*f)))+'</text>';});
   days.forEach((x,i)=>{const cx=left+40+i*((W-left-60)/6);const h=x.v/mx*ch;const fillId=!x.has?'':x.v<Z.floor?id+'u':x.v<Z.lo?id+'m':x.v<=Z.hi?id+'g':id+'o';
     s+=x.has?'<rect x="'+(cx-15)+'" y="'+(top+ch-h)+'" width="30" height="'+h+'" rx="8" fill="url(#'+fillId+')"'+(i===6?' class="todaybar"':'')+'/>':'<rect x="'+(cx-15)+'" y="'+(top+ch-4)+'" width="30" height="4" rx="2" class="nobar"/>';
     s+='<text x="'+cx+'" y="'+(H-12)+'" class="axis lab" text-anchor="middle">'+(i===6?'Today':kdate(x.k).toLocaleDateString('en',{weekday:'short'}))+'</text>';});
-  return s+lab+'</svg><div class="legend" style="justify-content:center"><span><i style="background:#b6ff3b"></i>In the zone</span><span><i style="background:#67e8f9"></i>Just under</span><span><i style="background:#a78bfa"></i>Big fuel day</span><span><i style="background:#ff8a3d"></i>Below fuel-up minimum</span></div><p class="small muted" style="margin:6px 0 0">Green band = your active target ±10%, never below the floor ('+fE(Z.lo,1)+' to '+fE(Z.hi,1)+'). Days in the band earn XP when you wrap up. Days under the minimum get a fuel-up nudge, never a reward.</p>';}
+  return s+lab+'</svg><div class="legend" style="justify-content:center"><span><i style="background:#b6ff3b"></i>In the zone</span><span><i style="background:#67e8f9"></i>Just under</span><span><i style="background:#a78bfa"></i>Big fuel day</span><span><i style="background:#ff8a3d"></i>Below fuel-up minimum</span></div><p class="small muted" style="margin:6px 0 0">Green band = your active target ±10%, never below the floor'+(hideOn()?'':' ('+fE(Z.lo,1)+' to '+fE(Z.hi,1)+')')+'. Days in the band earn XP when you wrap up. Days under the minimum get a fuel-up nudge, never a reward.</p>';}
 
 /* ---------- target card + "How is this worked out?" ---------- */
 const ACT_NAMES=['Mostly sitting','Lightly active','Moderately active','Very active','Athlete level'];
@@ -2140,7 +2156,7 @@ function targetCard(p,ctx){const r=energy(p),LS=leanState(p);const allowed=LS.el
   if(!r.adult)h+='<p class="small" style="margin:8px 0 0">'+ic('leaf',14)+' Includes energy for growing, school and sport.'+(r.age<16?' Grow Strong mode: no deficit option.':ctx==='calc'?' Optional Lean Mode lives in My Plan.':'')+'</p>';
   else if(allowed&&!opted)h+='<p class="small muted" style="margin:8px 0 0">Optional Lean Mode is off. You can set it up in My Plan.</p>';
   return h+explainer(p,r,showG,ctx)+'</div>';}
-function explainer(p,r,showG,ctx){const LS=leanState(p);const act=+p.act||3;const wt=+p.wt,ht=+p.ht,age=+p.age;let steps=[];
+function explainer(p,r,showG,ctx){const LS=leanState(p);const act=+p.act||3;const wt=+p.wt,ht=+p.ht,age=ageYears(p)||0;let steps=[];
   if(r.adult){const a=10*wt,b=6.25*ht,c=5*age,k=r.m?5:-161;
     steps.push(['Resting energy (BMR)','The energy your body burns at total rest: heart, brain, breathing. We use the <b>Mifflin-St Jeor equation</b>:','<div class="eq"><div>BMR = 10 × weight + 6.25 × height − 5 × age '+(r.m?'+ 5':'− 161')+'</div><div class="eqn num">= 10 × '+r1(wt)+' + 6.25 × '+r1(ht)+' − 5 × '+age+' '+(r.m?'+ 5':'− 161')+'</div><div class="eqn num">= '+nf1(a)+' + '+nf1(b)+' − '+nf1(c)+' '+(r.m?'+ 5':'− 161')+' = <b>'+nf1(r.bmr)+' kcal</b></div></div><p class="small muted">Weight in kg, height in cm, age in years. The '+(r.m?'+5':'−161')+' is the '+(r.m?'male':'female')+' adjustment.</p>']);
     steps.push(['Activity multiplier','You picked <b>'+ACT_NAMES[act-1]+'</b>. Moving more means a bigger multiplier:','<div class="mults">'+ACT_F.map((f,i)=>'<span class="mult'+(i===act-1?' on':'')+'"><b>×'+f+'</b><small>'+ACT_NAMES[i]+'</small></span>').join('')+'</div>']);
@@ -2657,13 +2673,13 @@ function bindBag(el,re){el.querySelectorAll('[data-item]').forEach(b=>b.onclick=
 let logMeal=null;
 function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return;const g=G(),E=energy(p),d=today(g);
   if(!logMeal){const h=new Date().getHours();logMeal=h<10?'b':h<14?'l':h<17?'s':'d';}
-  const opts=Object.entries(GROUPS).map(([gk,gv])=>'<optgroup label="'+gv[1]+'">'+FOODS.filter(ageOK).filter(f=>f.g===gk).map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+' ('+eVal(f.kcal)+' '+eUnit()+')</option>').join('')+'</optgroup>').join('');
+  const opts=Object.entries(GROUPS).map(([gk,gv])=>'<optgroup label="'+gv[1]+'">'+FOODS.filter(ageOK).filter(f=>f.g===gk).map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+kTag(f)+'</option>').join('')+'</optgroup>').join('');
   const byMeal=Object.keys(MEALS).map(m=>{const items=d.foods.map((x,i)=>Object.assign({i},x)).filter(x=>x.m===m);const k=items.reduce((a,x)=>a+F[x.f].kcal*x.q,0);
     return '<div style="margin-top:10px"><div class="spread"><b>'+MEALS[m][2]+' '+MEALS[m][0]+'</b><span class="small muted num">'+(items.length?fE(k,1):'')+'</span></div>'+(items.length?items.map(x=>'<div class="logitem"><span>'+F[x.f].e+' '+(x.q!==1?fmtQ(x.q)+' × ':'')+esc(F[x.f].name)+' <span class="small muted num">'+eVal(F[x.f].kcal*x.q)+' '+eUnit()+'</span></span><button class="xbtn" data-del="'+x.i+'" aria-label="Remove">✕</button></div>').join(''):'<div class="small muted">Nothing yet</div>')+slotTools(g,d,m)+'</div>';}).join('');
   const tk=kcalOf(d),tgt=targetOf(p);
   el.innerHTML='<div class="card chart"><h3>📈 Fuel zone</h3>'+zoneChart(g,p)+'</div><div class="card"><div class="spread"><h3 style="margin:0">🍽️ Food</h3><span class="small muted">'+kdate(dkey()).toLocaleDateString('en',{weekday:'long',day:'numeric',month:'short'})+'</span></div>'+
    '<div class="chips" style="margin:10px 0">'+Object.entries(MEALS).map(([k,v])=>'<button class="chip'+(logMeal===k?' on':'')+'" data-meal="'+k+'">'+v[2]+' '+v[0]+'</button>').join('')+'</div>'+
-   usualsBox(g,logMeal)+'<div class="foodtools"><input type="search" id="logSearch" placeholder="Search foods…" autocomplete="off" style="flex:1;min-width:140px"><select id="logFood" style="flex:1.4;min-width:180px">'+opts+'</select></div><div id="logReq" style="display:none"></div><div class="row" style="margin-top:8px"><span class="counter"><button class="btn sm alt" data-q="-1">−</button><b id="logQ">1</b><button class="btn sm alt" data-q="1">+</button></span><button class="btn" id="logAdd">Add</button></div>'+
+   usualsBox(g,logMeal)+'<div class="foodtools"><input type="search" id="logSearch" placeholder="Search foods…" autocomplete="off" style="flex:1;min-width:140px"><select id="logFood" style="flex:1.4;min-width:180px">'+opts+'</select></div><div id="logResults" class="chips" style="display:none;margin:8px 0 0" aria-label="Matching foods, tap to select"></div><div id="logReq" style="display:none"></div><div class="row" style="margin-top:8px"><span class="counter"><button class="btn sm alt" data-q="-1">−</button><b id="logQ">1</b><button class="btn sm alt" data-q="1">+</button></span><button class="btn" id="logAdd">Add</button></div>'+
    suggestBox(g)+byMeal+'<div class="row" style="margin-top:12px;gap:10px"><div class="stat"><small>Energy in today</small><b class="num">'+fE(tk,1)+'</b><small class="num">target ~'+fE(tgt,1)+'</small></div><div class="stat"><small>Protein</small><b class="num">'+Math.round(proteinOf(d))+' g</b><small class="num">goal ~'+E.protein+' g</small></div></div></div>'+
    '<div class="card"><h3>📈 Habits</h3><div class="trackers">'+
     tracker('💧 Water','glasses (250 ml)',d.water+' / '+E.water,'water',d.water/E.water,'#2fa8ff',[[-1,'−'],[1,'+1']])+
@@ -2677,14 +2693,14 @@ function renderLog(){const el=$('#logBody');const p=needProfile(el);if(!p)return
    '<div class="card"><h3>🌙 Wrap up my day</h3><p class="small muted">At the end of the day, tap to see how your fuel went. A balanced day (within 10% of your target) earns XP. Low-fuel days never earn rewards.</p><button class="btn" id="wrapBtn">🌙 Wrap up today</button><div id="wrapMsg"></div></div>';
   el.querySelector('#logFood').value=el._lastFood||'eggs';let q=1;
   const rebuildLogFoods=()=>{const qq=($('#logSearch').value||'').toLowerCase().trim();const cur=$('#logFood').value;
-    const opts2=Object.entries(GROUPS).map(([gk,gv])=>{const items=FOODS.filter(ageOK).filter(f=>f.g===gk&&(!qq||f.name.toLowerCase().includes(qq)||(f.serve||'').toLowerCase().includes(qq)));if(!items.length)return '';return '<optgroup label="'+gv[1]+'">'+items.map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+(f.approx?' ~':'')+' ('+eVal(f.kcal)+' '+eUnit()+')</option>').join('')+'</optgroup>';}).join('');
-    $('#logFood').innerHTML=opts2||'<option value="">No matches</option>';if(cur&&F[cur])$('#logFood').value=cur;
+    const opts2=Object.entries(GROUPS).map(([gk,gv])=>{const items=FOODS.filter(ageOK).filter(f=>f.g===gk&&(!qq||f.name.toLowerCase().includes(qq)||(f.serve||'').toLowerCase().includes(qq)));if(!items.length)return '';return '<optgroup label="'+gv[1]+'">'+items.map(f=>'<option value="'+f.id+'">'+f.e+' '+esc(f.name)+(f.approx&&!hideOn()?' ~':'')+kTag(f)+'</option>').join('')+'</optgroup>';}).join('');
+    $('#logFood').innerHTML=opts2||'<option value="">No matches</option>';const sel=$('#logFood');const vals=[...sel.options].map(o=>o.value).filter(Boolean);sel.value=(cur&&vals.includes(cur))?cur:(vals[0]||'');const lr=$('#logResults');if(lr){const top=qq?vals.slice(0,6):[];lr.innerHTML=top.map(id=>'<button type="button" class="chip'+(id===sel.value?' on':'')+'" data-pick="'+id+'">'+F[id].e+' '+esc(F[id].name)+'</button>').join('');lr.style.display=top.length?'':'none';lr.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{sel.value=b.dataset.pick;lr.querySelectorAll('[data-pick]').forEach(x=>x.classList.toggle('on',x===b));});}
     const rq=$('#logReq');if(rq){rq.style.display=(!opts2&&qq)?'':'none';rq.innerHTML=(!opts2&&qq)?'<p class="small muted" style="margin:6px 0">No foods match "'+esc(qq)+'".</p><button type="button" class="btn sm" id="logReqBtn">📨 Request this food</button><div id="logReqBox" style="display:none;margin-top:8px"></div>':'';const rb=$('#logReqBtn');if(rb)rb.onclick=()=>openRequestIn('log',$('#logSearch').value.trim());}};
   const ls=$('#logSearch');if(ls)ls.oninput=rebuildLogFoods;
 
   el.querySelectorAll('[data-meal]').forEach(b=>b.onclick=()=>{logMeal=b.dataset.meal;renderLog();});
   el.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{q=clamp(q+(+b.dataset.q)*0.5,0.5,10);$('#logQ').textContent=fmtQ(q);});
-  $('#logAdd').onclick=()=>{const f=$('#logFood').value;if(!libOK(f))return;el._lastFood=f;d.foods.push({f,q,m:logMeal});mealXP(d,logMeal);sound('tick');saveG();evaluate();renderLog();};
+  $('#logAdd').onclick=()=>{const f=$('#logFood').value;if(!f||!libOK(f)){toast(($('#logSearch').value||'').trim()?'No matching food to add. Try another word or request it.':'Pick a food first',true);return;}el._lastFood=f;d.foods.push({f,q,m:logMeal});mealXP(d,logMeal);sound('tick');saveG();evaluate();renderLog();};
   el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{d.foods.splice(+b.dataset.del,1);saveG();renderLog();});
   el.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const k=b.dataset.tr,v=+b.dataset.v;if(k==='water')d.water=clamp(d.water+v,0,30);if(k==='fv')d.fvExtra=clamp((d.fvExtra||0)+v,-fvOf(d)+(d.fvExtra||0),20);if(k==='move')d.move=clamp(d.move+v,0,600);if(k==='sleep')d.sleep=clamp(d.sleep+v,0,16);sound('tick');saveG();evaluate();renderLog();});
   bindUsuals(el,g,d,renderLog);
@@ -2746,7 +2762,7 @@ function renderPlanStatic(){const kit=store.get('kitchen',{});
   $('#kitchenList').innerHTML=Object.entries(KITCHEN).map(([h,items])=>'<div class="mealtpl"><b>'+h+'</b>'+items.map(it=>'<label class="row small" style="margin:5px 0;cursor:pointer;flex-wrap:nowrap"><input type="checkbox" data-kit="'+esc(it)+'"'+(kit[it]?' checked':'')+'> '+esc(it)+'</label>').join('')+'</div>').join('');
   $('#kitchenList').querySelectorAll('[data-kit]').forEach(c=>c.onchange=()=>{const k=store.get('kitchen',{});k[c.dataset.kit]=c.checked;store.set('kitchen',k);sound('tick');});
   const extra=(PACKS[S.pack]||{}).takeaways||[];
-  $('#takeaways').innerHTML=TAKE.map(t=>'<div class="ta"><div class="row"><span class="big">'+t[0]+'</span><b>'+t[1]+'</b></div><div class="small" style="margin-top:4px">⚡ '+t[2]+'</div><div class="small muted" style="margin-top:4px">💡 '+t[3]+'</div></div>').join('')+extra.map(t=>'<div class="ta packta"><div class="row"><span class="big">'+t[0]+'</span><b>'+esc(t[1])+'</b> <span class="pill soft">'+esc(PACKS[S.pack].name)+' pack</span></div><div class="small" style="margin-top:4px">'+esc(t[2])+'</div></div>').join('');}
+  $('#takeaways').innerHTML=TAKE.map(t=>'<div class="ta"><div class="row"><span class="big">'+t[0]+'</span><b>'+t[1]+'</b></div><div class="small" style="margin-top:4px">⚡ '+noNums(t[2])+'</div><div class="small muted" style="margin-top:4px">💡 '+t[3]+'</div></div>').join('')+extra.map(t=>'<div class="ta packta"><div class="row"><span class="big">'+t[0]+'</span><b>'+esc(t[1])+'</b> <span class="pill soft">'+esc(PACKS[S.pack].name)+' pack</span></div><div class="small" style="margin-top:4px">'+esc(noNums(t[2]))+'</div></div>').join('');}
 
 /* =========================================================
    Family: raids + weekly summary/share code
@@ -2840,7 +2856,7 @@ function renderSettings(){const el=$('#settingsBody');
 function init(){
   migrate();loadSettings();applyTheme();decorateTabs();buildFoods(S.pack);ensureMe();s2list=defaultS2();document.body.classList.toggle('hidenums',!!S.hide);applyUnitVisibility();
   initCalorie();initExplorer();initCalc();initWeight();initPlate();initWhen();initHabits();
-  $('#hideNums').onchange=()=>{S.hide=$('#hideNums').checked;saveSettings();document.body.classList.toggle('hidenums',S.hide);};
+  $('#hideNums').onchange=()=>{S.hide=$('#hideNums').checked;saveSettings();document.body.classList.toggle('hidenums',S.hide);if(typeof refreshGameViews==='function')refreshGameViews();renderPlan();};
   const homeCards=[['calorie','zap','Energy 101','Energy in vs out, kJ vs kcal, reading labels','#8b5cff'],['kitchen','kitchen','Food Lab','Tap foods, compare two, see 200 kcal side by side','#0fb5a0'],['plate','plate','Plate Builder','Drag foods onto a plate and save recipes','#ff7a1a'],['dex','dex','Creature Dex','Capture creatures with real habits','#2b8cf0'],['habits','swords','Squad','Link family and take down this week\'s boss','#ff4d6d'],['quiz','quiz','Quiz','10 questions. Stars and XP on the line','#d946ef']];
   $('#homeCards').innerHTML=homeCards.map(c=>'<button class="habit navcard" data-go="'+c[0]+'" style="--hc:'+c[4]+'"><div class="em">'+ic(c[1],26)+'</div><h3>'+c[2]+'</h3><p>'+c[3]+'</p></button>').join('');
   $('#homeCards').onclick=e=>{const b=e.target.closest('[data-go]');if(b)showTab(b.dataset.go);};
@@ -2858,8 +2874,9 @@ function init(){
   decorateHeadings();if(window.MutationObserver)new MutationObserver(()=>decorateHeadings()).observe(document.body,{childList:true,subtree:true});
   showTab(location.hash.slice(1)||'home');
   if(G()){checkProgress();}
+  setTimeout(()=>{if(!modalOpen)maybeDobPrompt();},1200);
   if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
-  window.FQ={ageOK,isAdultProfile,ageYears,usualsOf,saveUsual,logUsual,renameUsual,deleteUsual,sameAsYesterday,usualSuggestion,dismissSuggestion,renderLog,teenWeight,whoLMS,whoZ,FOODDATA:()=>FOODDATA,refreshFoodData,foodRequests,requestText,requestPayload,sendFoodRequest,openRequestIn,pendingRequests,closestFoods,libOK,logFoodNow,addPlate,RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
+  window.FQ={ageFromDob,parseDob,needsDob,dobPromptDue,maybeDobPrompt,ageOK,isAdultProfile,ageYears,usualsOf,saveUsual,logUsual,renameUsual,deleteUsual,sameAsYesterday,usualSuggestion,dismissSuggestion,renderLog,teenWeight,whoLMS,whoZ,FOODDATA:()=>FOODDATA,refreshFoodData,foodRequests,requestText,requestPayload,sendFoodRequest,openRequestIn,pendingRequests,closestFoods,libOK,logFoodNow,addPlate,RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
 }
 function refreshFoodData(){return fetchFoodData().then(d=>{const changed=!FOODDATA||JSON.stringify(d)!==JSON.stringify(FOODDATA);if(!changed)return false;applyFoodData(d);buildFoods(S.pack);s2list=defaultS2();refreshGameViews();return true;}).catch(()=>false);}
 function boot(){const c=cachedFoodData();
