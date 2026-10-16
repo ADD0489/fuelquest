@@ -883,12 +883,12 @@ section.panel.slide-l{animation:slidel .28s ease}section.panel.slide-r{animation
 
 /* v21: power food zap (under 800 ms, off for reduced motion) */
 @keyframes pwrzap{0%{transform:scale(1)}18%{transform:scale(1.55) rotate(-8deg);box-shadow:0 0 14px #ffe680,0 0 26px #38bdf8}30%{opacity:.55}42%{opacity:1;transform:scale(1.2) rotate(6deg)}100%{transform:scale(1)}}
-@keyframes toastzap{0%{box-shadow:0 0 0 rgba(255,210,60,0)}20%{box-shadow:0 0 18px rgba(255,210,60,.9),0 0 30px rgba(56,189,248,.6)}35%{filter:brightness(1.4)}50%{filter:none}100%{box-shadow:0 0 0 rgba(255,210,60,0)}}
+@keyframes toastzap{0%{opacity:0}20%{opacity:1}35%{opacity:.4}50%{opacity:1}100%{opacity:0}}
 @keyframes spark{0%{opacity:1;transform:translate(-50%,-50%) scale(.3)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.8)}}
 .pwr.zap{animation:pwrzap .7s ease-out;position:relative}
 .pwr.zap::after{content:"";position:absolute;left:50%;top:50%;width:2.6em;height:2.6em;border-radius:50%;pointer-events:none;background:radial-gradient(circle,transparent 40%,rgba(255,226,90,.9) 42%,transparent 48%),conic-gradient(from 0deg,#ffe680 0 4%,transparent 4% 12.5%,#7dd3fc 12.5% 16.5%,transparent 16.5% 25%,#ffe680 25% 29%,transparent 29% 37.5%,#7dd3fc 37.5% 41.5%,transparent 41.5% 50%,#ffe680 50% 54%,transparent 54% 62.5%,#7dd3fc 62.5% 66.5%,transparent 66.5% 75%,#ffe680 75% 79%,transparent 79% 87.5%,#7dd3fc 87.5% 91.5%,transparent 91.5%);-webkit-mask:radial-gradient(circle,transparent 35%,#000 36%);mask:radial-gradient(circle,transparent 35%,#000 36%);animation:spark .6s ease-out forwards}
-.toast.zap{animation:toastzap .7s ease-out}
-@media (prefers-reduced-motion: reduce){.pwr.zap,.toast.zap{animation:none}.pwr.zap::after{display:none}}
+.toast.zap::after{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;box-shadow:0 0 18px rgba(255,210,60,.9),0 0 30px rgba(56,189,248,.6);opacity:0;animation:toastzap .7s ease-out}
+@media (prefers-reduced-motion: reduce){.pwr.zap,.toast.zap::after{animation:none}.pwr.zap::after{display:none}}
 
 /* v22 quick add heading */
 .qhead{display:flex;align-items:center;gap:6px;font-weight:800;margin:4px 0 4px;color:var(--ink)}.qhead .pwr{margin:0}.qhead .muted{font-weight:600}
@@ -912,6 +912,21 @@ main.swipeable>section.panel{-webkit-backface-visibility:hidden;backface-visibil
 main.swipeable>section.panel.active{will-change:transform;-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}
 /* v23: panels are their own block formatting context so child margins never collapse differently in the sliding (absolute) and landed (in-flow) states */
 main.swipeable>section.panel.active,main.swipeable>section.panel.swnb{display:flow-root}
+
+/* v24: native scroll-snap track; the document itself never scrolls */
+html.tracked,html.tracked body{height:100%;overflow:hidden;overscroll-behavior:none}
+html.tracked body{display:flex;flex-direction:column;height:100vh;height:100dvh}
+html.tracked header.hero{flex:0 0 auto;width:100%;max-width:1100px;min-width:0;box-sizing:border-box;align-self:center}
+html.tracked main.trackmain{width:100%}
+html.tracked main.trackmain{flex:1 1 auto;min-height:0;max-width:none;margin:0;padding:0;position:relative}
+.tabtrack{display:flex;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior:none;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-behavior:auto}
+.tabtrack::-webkit-scrollbar{display:none}
+.tabslot{flex:0 0 100%;width:100%;min-width:0;max-width:100%;height:100%;overflow-y:auto;overflow-x:hidden;scroll-snap-align:start;scroll-snap-stop:always;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;contain:layout paint}
+.tabslotin{max-width:1100px;margin:0 auto;padding:14px 14px 0}
+html.tracked section.panel.shown{display:flow-root}
+html.tracked section.panel.active{display:flow-root}
+.quickrow,.qtyrow,#groupChips{overscroll-behavior-x:contain}
+html.tracked main.swipeable{touch-action:auto;overflow-x:visible}
 </style>
 </head>
 <body>
@@ -1850,10 +1865,10 @@ const RESOURCE_TABS=new Set(['calorie','kitchen','calc','weight','when','quiz'])
 function showTab(id){if(!id||!document.getElementById(id)||!document.getElementById(id).classList.contains('panel'))id='log';
   if(id!=='log'&&typeof hideUndo==='function')hideUndo();
   if(typeof paintNav==='function')paintNav(id);
-  $$('section.panel').forEach(s=>{s.classList.toggle('active',s.id===id);s.classList.toggle('enter',s.id===id);});
+  const wasHere=document.getElementById(id).classList.contains('shown')&&typeof TRACK!=='undefined'&&TRACK;$$('section.panel').forEach(s=>{s.classList.toggle('active',s.id===id);s.classList.toggle('enter',s.id===id&&!(TRACK&&NAV_PARENT[id]===id&&wasHere));});if(typeof trackShow==='function')trackShow(id);
   if(RENDER[id])RENDER[id]();if(history.replaceState)history.replaceState(null,'','#'+id);
 }
-function refreshGameViews(){const a=$('section.panel.active');if(a&&RENDER[a.id])RENDER[a.id]();}
+function refreshGameViews(){const a=$('section.panel.active');if(a&&RENDER[a.id])RENDER[a.id]();if(typeof renderNeighbours==='function')renderNeighbours();}
 
 /* =========================================================
    1. What's a calorie
@@ -2812,7 +2827,7 @@ function setHide(v){S.hide=!!v;saveSettings();document.body.classList.toggle('hi
 function paintNav(id){const par=NAV_PARENT[id]||'log';$$('#bnav .bn').forEach(b=>{const on=b.dataset.nav===par;b.classList.toggle('on',on);b.setAttribute('aria-current',on?'page':'false');});}
 function initChrome(){
   $$('#bnav .bi').forEach(s=>{s.innerHTML=ic(s.dataset.ic,22);});
-  $('#bnav').onclick=e=>{const b=e.target.closest('.bn');if(!b)return;if(b.dataset.nav==='log')viewKey=null;showTab(b.dataset.nav);window.scrollTo(0,0);};
+  $('#bnav').onclick=e=>{const b=e.target.closest('.bn');if(!b)return;const same=NAV_ORDER[trackIdx]===b.dataset.nav&&TRACK;if(b.dataset.nav==='log')viewKey=null;showTab(b.dataset.nav);if(same||!TRACK)scrollActiveTop();};
   $('#hdrEye').onclick=()=>setHide(!hideOn());
   $('#hdrXP').onclick=()=>showTab('home');
   $('#hdrAv').onclick=()=>showTab('me');
@@ -3060,41 +3075,46 @@ function wholeCheck(d){const g=G();if(!g||!d||g.days[dkey()]!==d)return;d.wf=d.w
 /* ---------- v21: swipe between bottom tabs ---------- */
 const NAV_ORDER=['log','home','resources','me'];
 function swipeBlocked(el,root){for(let n=el;n&&n!==root;n=n.parentElement){if(n.matches&&n.matches('input,textarea,select,[contenteditable],canvas,[data-noswipe]'))return true;if(n.scrollWidth>n.clientWidth+4){const ox=getComputedStyle(n).overflowX;if(ox==='auto'||ox==='scroll')return true;}}return false;}
-const TAB_SCROLL={};
+/* ---------- v24: native scroll-snap track. 4 slots side by side, each its own vertical scroller.
+   The document never scrolls, so a tab switch cannot move the header, tab bar or page. ---------- */
+const TAB_SCROLL={};let TRACK=null,trackIdx=0,trackProg=0;
 function rmOK(){return matchMedia('(prefers-reduced-motion: reduce)').matches;}
 function tabOf(p){return NAV_PARENT[p&&p.id]||(p&&p.id)||'log';}
-function initSwipe(){const main=document.querySelector('main');if(!main||main._sw)return;main._sw=1;main.classList.add('swipeable');
-  let st=null,raf=0;
-  const reset=()=>{if(!st)return;[st.cur,st.L,st.R].forEach(p=>{if(!p)return;p.style.transform='';p.style.transition='';p.style.top='';p.style.left='';p.style.width='';p.classList.remove('swnb','swmove');});main.classList.remove('swiping');st=null;};
-  const paint=()=>{raf=0;if(!st||st.lock!=='h')return;let x=st.dx;const nb=x<0?st.R:st.L;if(!nb){x=x/(1+Math.abs(x)/(st.W*0.5))*0.5;}
-    st.x=x;st.cur.style.transform='translate3d('+x+'px,0,0)';if(st.L)st.L.style.transform='translate3d('+(x-st.W)+'px,0,0)';if(st.R)st.R.style.transform='translate3d('+(x+st.W)+'px,0,0)';};
-  const begin=()=>{const cur=$('section.panel.active');if(!cur){st=null;return;}const t=tabOf(cur);const i=NAV_ORDER.indexOf(t);if(i<0){st=null;return;}
-    const cr=cur.getBoundingClientRect();st.cur=cur;st.from=t;st.W=main.clientWidth||innerWidth;TAB_SCROLL[t]=scrollY;
-    const prep=id=>{if(!id)return null;const p=document.getElementById(id);if(!p)return null;if(RENDER[id])RENDER[id]();
-      p.classList.add('swnb','swmove');p.style.width=cur.offsetWidth+'px';p.style.left='0px';p.style.top='0px';const r0=p.getBoundingClientRect();
-      /* place it exactly where it will sit after commit + scroll restore, so the swap cannot jump */p.style.left=(cr.left-r0.left)+'px';const mx=Math.max(0,document.documentElement.scrollHeight-cur.offsetHeight+p.offsetHeight-innerHeight);TAB_SCROLL[id]=Math.min(TAB_SCROLL[id]||0,mx);/* clamp so the restore after commit cannot land elsewhere */
-      p.style.top=(cr.top+scrollY-TAB_SCROLL[id]-r0.top)+'px';return p;};
-    st.L=prep(NAV_ORDER[i-1]);st.R=prep(NAV_ORDER[i+1]);cur.classList.add('swmove');main.classList.add('swiping');};
-  main.addEventListener('touchstart',e=>{if(st&&st.anim)return;reset();if(e.touches.length!==1||modalOpen||document.querySelector('.modal.show,.modal.open')||swipeBlocked(e.target,main))return;
-    const t=e.touches[0];st={x0:t.clientX,y0:t.clientY,dx:0,lock:null,pts:[[t.clientX,performance.now()]]};},{passive:true});
-  main.addEventListener('touchmove',e=>{if(!st||st.anim)return;const t=e.touches[0];const dx=t.clientX-st.x0,dy=t.clientY-st.y0;
-    if(!st.lock){if(Math.hypot(dx,dy)<10)return;st.lock=Math.abs(dx)>Math.abs(dy)*1.2?'h':'v';if(st.lock==='v'){st=null;return;}st.x0=t.clientX;if(!rmOK())begin();if(!st)return;}
-    st.dx=t.clientX-st.x0;st.pts.push([t.clientX,performance.now()]);if(st.pts.length>6)st.pts.shift();if(st.cur&&!raf)raf=requestAnimationFrame(paint);},{passive:true});
-  const end=()=>{if(!st||st.anim)return;if(st.lock!=='h'){st=null;return;}
-    const p=st.pts,a=p[0],b=p[p.length-1];const v=b[1]>a[1]?(b[0]-a[0])/(b[1]-a[1]):0;/* px per ms */
-    const dir=st.dx<0?1:-1;const nb=dir>0?st.R:st.L;const commit=!!nb&&(Math.abs(st.dx)>0.35*(st.W||innerWidth)||(Math.abs(v)>0.45&&Math.sign(v)===-dir&&Math.abs(st.dx)>20));
-    if(rmOK()||!st.cur){const s0=st;st=null;if(commit||(!s0.cur&&Math.abs(s0.dx)>60&&Math.abs(v)>=0))swipeTab(dir,true);return;}
-    if(raf){cancelAnimationFrame(raf);raf=0;}st.anim=true;const W=st.W,tx=commit?-dir*W:0,ms=commit?Math.max(160,Math.min(260,Math.round((W-Math.abs(st.dx))/Math.max(Math.abs(v),1.2)))):220;
-    const tr='transform '+ms+'ms cubic-bezier(.22,.9,.3,1)';[st.cur,st.L,st.R].forEach(q=>{if(q)q.style.transition=tr;});
-    st.cur.style.transform='translate3d('+tx+'px,0,0)';if(st.L)st.L.style.transform='translate3d('+(tx-W)+'px,0,0)';if(st.R)st.R.style.transform='translate3d('+(tx+W)+'px,0,0)';
-    const s0=st;let done=false;const fin=()=>{if(done)return;done=true;s0.cur.removeEventListener('transitionend',onEnd);const to=commit?NAV_ORDER[NAV_ORDER.indexOf(s0.from)+dir]:null;st=s0;s0.anim=false;
-      /* same frame: swap classes, drop transforms, restore scroll. No re-render, no enter animation. */reset();if(to)commitTab(to);};
-    const onEnd=e=>{if(e.target===s0.cur&&e.propertyName==='transform')fin();};s0.cur.addEventListener('transitionend',onEnd);setTimeout(fin,ms+80);};
-  main.addEventListener('touchend',end,{passive:true});main.addEventListener('touchcancel',()=>{if(st&&!st.anim){st.dx=0;end();}},{passive:true});}
-/* commit without re-rendering the pane the user just watched slide in */
-function commitTab(id){if(id!=='log'&&typeof hideUndo==='function')hideUndo();if(id==='log')viewKey=null;paintNav(id);
-  $$('section.panel').forEach(s=>{s.classList.toggle('active',s.id===id);s.classList.remove('enter');});if(history.replaceState)history.replaceState(null,'','#'+id);window.scrollTo(0,TAB_SCROLL[id]||0);}
-function swipeTab(dir,instant){const a=$('section.panel.active');const cur=tabOf(a);const i=NAV_ORDER.indexOf(cur);const j=i+dir;if(i<0||j<0||j>=NAV_ORDER.length)return false;TAB_SCROLL[cur]=scrollY;const id=NAV_ORDER[j];if(RENDER[id])RENDER[id]();commitTab(id);return true;}
+function slotOf(id){return document.querySelector('.tabslot[data-slot="'+(NAV_PARENT[id]||'log')+'"]');}
+function activeSlot(){return document.querySelector('.tabslot[data-slot="'+NAV_ORDER[trackIdx]+'"]');}
+function initSwipe(){if(TRACK)return;const main=document.querySelector('main');if(!main)return;
+  main.classList.add('trackmain');document.documentElement.classList.add('tracked');
+  TRACK=document.createElement('div');TRACK.className='tabtrack';TRACK.id='track';
+  const foot=document.querySelector('body>footer');
+  NAV_ORDER.forEach((k,i)=>{const sl=document.createElement('div');sl.className='tabslot';sl.dataset.slot=k;sl.setAttribute('aria-label',k);const inn=document.createElement('div');inn.className='tabslotin';sl.appendChild(inn);TRACK.appendChild(sl);});
+  Array.from(main.querySelectorAll(':scope>section.panel')).forEach(p=>{const k=NAV_ORDER.includes(NAV_PARENT[p.id])?NAV_PARENT[p.id]:'me';TRACK.querySelector('.tabslot[data-slot="'+k+'"] .tabslotin').appendChild(p);});
+  Array.from(main.childNodes).forEach(n=>{if(n.nodeType===1)TRACK.querySelector('.tabslot[data-slot="log"] .tabslotin').insertBefore(n,TRACK.querySelector('.tabslot[data-slot="log"] .tabslotin').firstChild);});
+  main.appendChild(TRACK);
+  TRACK.querySelectorAll('.tabslot').forEach((sl,i)=>{const inn=sl.querySelector('.tabslotin');const sh=inn.querySelector('section.panel#'+NAV_ORDER[i])||inn.querySelector('section.panel');if(sh)sh.classList.add('shown');
+    if(foot){const f=i===0?foot:foot.cloneNode(true);inn.appendChild(f);}});
+  const a=$('section.panel.active');trackIdx=Math.max(0,NAV_ORDER.indexOf(tabOf(a)));
+  /* show the right slot before first paint, no animation */
+  requestAnimationFrame(()=>{TRACK.scrollLeft=trackIdx*TRACK.clientWidth;});
+  let t=null;const settle=()=>{t=null;if(trackProg)return;const W=TRACK.clientWidth||1;const i=Math.round(TRACK.scrollLeft/W);if(i!==trackIdx)commitTab(NAV_ORDER[i],true);};
+  TRACK.addEventListener('scroll',()=>{if(trackProg)return;const W=TRACK.clientWidth||1;const i=Math.round(TRACK.scrollLeft/W);paintNav(NAV_ORDER[i]);clearTimeout(t);t=setTimeout(settle,120);},{passive:true});
+  if('onscrollend' in window)TRACK.addEventListener('scrollend',()=>{clearTimeout(t);settle();},{passive:true});
+  addEventListener('resize',()=>{trackProg++;TRACK.scrollLeft=trackIdx*TRACK.clientWidth;requestAnimationFrame(()=>trackProg--);});
+  setTimeout(renderNeighbours,400);}
+/* keep the other slots fresh while idle so a swipe never re-renders mid-gesture */
+let nbT=null;function renderNeighbours(){clearTimeout(nbT);nbT=setTimeout(()=>{if(!TRACK)return;TRACK.querySelectorAll('section.panel.shown:not(.active)').forEach(p=>{if(!RENDER[p.id])return;const sl=p.closest('.tabslot'),y=sl?sl.scrollTop:0;try{RENDER[p.id]();}catch(e){}if(sl&&sl.scrollTop!==y)sl.scrollTop=y;});},250);}
+/* move the track to a slot (tab taps, programmatic). Instant, so it never slides through other tabs. */
+function trackShow(id){if(!TRACK)return;const k=NAV_PARENT[id]||'log';const i=NAV_ORDER.indexOf(k);const sl=slotOf(id);
+  if(sl)sl.querySelectorAll('section.panel').forEach(p=>p.classList.toggle('shown',p.id===id));
+  if(i>=0&&i!==trackIdx){trackIdx=i;trackProg++;TRACK.style.scrollSnapType='none';TRACK.scrollLeft=i*TRACK.clientWidth;requestAnimationFrame(()=>{TRACK.style.scrollSnapType='';TRACK.scrollLeft=i*TRACK.clientWidth;requestAnimationFrame(()=>trackProg--);});}
+  renderNeighbours();}
+/* swipe landed: just move the active marker. No re-render, no enter animation, no scroll change. */
+function commitTab(id,fromSwipe){const i=NAV_ORDER.indexOf(id);if(i<0)return;if(id!=='log'&&typeof hideUndo==='function')hideUndo();trackIdx=i;
+  const sl=slotOf(id);const p=(sl&&sl.querySelector('section.panel.shown'))||document.getElementById(id);
+  $$('section.panel.active').forEach(s=>{if(s!==p)s.classList.remove('active','enter');});if(p){p.classList.add('active');p.classList.remove('enter');}
+  paintNav(p?p.id:id);if(history.replaceState)history.replaceState(null,'','#'+(p?p.id:id));if(!fromSwipe&&TRACK){TRACK.scrollLeft=i*TRACK.clientWidth;}}
+function swipeTab(dir){const i=trackIdx+dir;if(i<0||i>=NAV_ORDER.length)return false;if(!TRACK){showTab(NAV_ORDER[i]);return true;}
+  const W=TRACK.clientWidth;TRACK.scrollTo({left:i*W,behavior:rmOK()?'auto':'smooth'});return true;}
+function scrollActiveTop(){const s=activeSlot();if(s)s.scrollTop=0;else window.scrollTo(0,0);}
 
 function pwrZap(id){try{if(navigator.vibrate)navigator.vibrate([12,40,18]);}catch(e){}
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
