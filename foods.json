@@ -1,5 +1,5 @@
 {
- "version": "2026.10.15-5",
+ "version": "2026.10.16-1",
  "note": "FuelQuest shared food library. Only the reviewer edits this file. Row format for core/packs: [id, name, serve, kcal, protein g, tag e/s/t, group P/F/Z/T, emoji, fullness 1-5, plate cat p/c/v/b/t/d, carbs g, fat g]. community[] entries are objects: {name, serve, kcal, p, cb, ft, cat, g, e, tag, verified:true, source:'NZ FOODfiles' or 'pack label'}. Values are researched by the reviewer, never copied from a request. Bump version on every change.",
  "core": [
   [
@@ -9523,6 +9523,52 @@
    "indicative": true,
    "source": "Indicative: recipe-based calc (NZ food composition data)",
    "ref": "Indicative: recipe-based calc (NZ Edmonds-style recipe, FOODfiles ingredients)"
+  },
+  {
+   "name": "Protein bar",
+   "serve": "1 bar (60 g)",
+   "kcal": 240,
+   "p": 21,
+   "cb": 9,
+   "ft": 9,
+   "cat": "p",
+   "g": "P",
+   "e": "🍫",
+   "tag": "s",
+   "full": 2,
+   "verified": false,
+   "indicative": true,
+   "source": "Indicative: typical NZ 60 g protein bar, values vary by brand",
+   "ref": "nz.openfoodfacts.org protein-bars; Musashi NZ Deluxe 60g and Protein Crisp 60g pack labels (accessed Oct 2026)",
+   "id": "proteinbar60g",
+   "aka": [
+    "protien bar",
+    "musashi"
+   ]
+  },
+  {
+   "name": "Dark chocolate (70% cocoa)",
+   "serve": "25 g (about 4 pieces)",
+   "kcal": 138,
+   "p": 2.4,
+   "cb": 9.1,
+   "ft": 9.8,
+   "cat": "t",
+   "g": "T",
+   "e": "🍫",
+   "tag": "t",
+   "full": 1,
+   "verified": true,
+   "source": "Retailer pack label",
+   "ref": "Cadbury NZ Old Gold Dark Chocolate 70% Cocoa 180 g label (cadbury.co.nz), accessed Oct 2026",
+   "id": "darkchoc70cocoa",
+   "aka": [
+    "cadbury",
+    "old gold",
+    "cadbury dark",
+    "cadbury 70",
+    "dark choc"
+   ]
   }
  ],
  "remap": {
