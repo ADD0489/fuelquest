@@ -1,5 +1,5 @@
 {
- "version": "2026.10.16-1",
+ "version": "2026.10.16-2",
  "note": "FuelQuest shared food library. Only the reviewer edits this file. Row format for core/packs: [id, name, serve, kcal, protein g, tag e/s/t, group P/F/Z/T, emoji, fullness 1-5, plate cat p/c/v/b/t/d, carbs g, fat g]. community[] entries are objects: {name, serve, kcal, p, cb, ft, cat, g, e, tag, verified:true, source:'NZ FOODfiles' or 'pack label'}. Values are researched by the reviewer, never copied from a request. Bump version on every change.",
  "core": [
   [
@@ -9568,6 +9568,29 @@
     "cadbury dark",
     "cadbury 70",
     "dark choc"
+   ]
+  },
+  {
+   "name": "Beef jerky",
+   "serve": "1 pack (50 g)",
+   "kcal": 131,
+   "p": 17,
+   "cb": 12,
+   "ft": 1.5,
+   "cat": "p",
+   "g": "P",
+   "e": "🥩",
+   "tag": "s",
+   "full": 2,
+   "verified": true,
+   "source": "Retailer pack label",
+   "ref": "Jack Link's Original Beef Jerky 50g NZ pack label (bargainchemist.co.nz), cross-checked with Woolworths Beef Jerky Original label, accessed Oct 2026",
+   "id": "beefjerky50g",
+   "aka": [
+    "jack links",
+    "jack link's",
+    "jerky",
+    "biltong"
    ]
   }
  ],

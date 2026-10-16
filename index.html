@@ -844,6 +844,25 @@ footer b{font-weight:700}
 
 /* v18: opaque tab bar so page content never shows through */
 .bnav{background:linear-gradient(var(--card),var(--card)),var(--bg)}
+.mealtog{width:100%;background:transparent;border:0;padding:6px 0;color:var(--ink);font:inherit;text-align:left;cursor:pointer;min-height:40px}
+.mh-r{display:inline-flex;align-items:center;gap:8px}.mchev{font-size:.9rem;opacity:.7;width:14px;text-align:center}
+.mealblk.collapsed{padding:2px 0}
+.qtyrow{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;margin:2px 0 8px}.qtyrow>span{margin-right:2px}.qtyrow .chip{min-width:34px;height:34px;padding:0 6px;margin:0;flex:0 0 auto}.qtyrow .qstep{width:34px;height:34px;min-width:34px;padding:0;flex:0 0 auto}
+.qtyrow .chip.on{background:#8b5cff;color:#fff;border-color:#8b5cff}
+.ringhero{padding:12px 14px}.rh{display:flex;align-items:center;gap:12px}.rings{flex:0 0 auto}
+.rings .ring{transition:stroke-dashoffset .6s ease,stroke .4s}
+.rlist{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.rrow{display:flex;align-items:center;gap:8px;min-height:40px}.rdot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.rtxt{flex:1;min-width:0;line-height:1.15}.rtxt small{display:block;font-size:.72rem}.rrow.done b{color:#3ddc84}.rrow.over b{color:#f2b544}
+.qbtn.rq{flex:0 0 auto;min-width:64px;min-height:40px;padding:6px 10px;display:inline-flex;align-items:center;justify-content:center;gap:4px;font-weight:800}
+.qbtn.rmore{width:100%;margin-top:8px;min-height:34px;font-size:.85rem;font-weight:700;padding:4px 10px;display:flex;justify-content:center}
+.allmsg{text-align:center;font-weight:800;color:#3ddc84;margin-top:6px}
+.ringhero.allclosed{box-shadow:0 0 0 2px rgba(61,220,132,.5),0 0 24px rgba(61,220,132,.35)}
+@keyframes ringpop{0%{filter:none;stroke-width:11}40%{filter:drop-shadow(0 0 6px #3ddc84);stroke-width:14}100%{filter:drop-shadow(0 0 2px #3ddc84);stroke-width:11}}
+.ring.pop{animation:ringpop .9s ease 2}.ring.done{filter:drop-shadow(0 0 2px rgba(61,220,132,.7))}
+@keyframes rowpop{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}.rrow.pop{animation:rowpop .6s ease}
+@keyframes bigpop{0%{transform:scale(1)}30%{transform:scale(1.03)}100%{transform:scale(1)}}.ringhero.bigpop{animation:bigpop .8s ease}
+@media (prefers-reduced-motion: reduce){.ring.pop,.rrow.pop,.ringhero.bigpop{animation:none}.rings .ring{transition:none}}
 </style>
 </head>
 <body>
@@ -2730,6 +2749,7 @@ const NAV_PARENT={log:'log',home:'home',dex:'home',badges:'home',habits:'home',r
 const EYE_SVG=on=>'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'+(on?'<path d="M3 3l18 18"/>':'')+'</svg>';
 function mealNow(){const h=new Date().getHours();return h<10?'b':h<14?'l':h<17?'s':'d';}
 let viewKey=null; /* null = today */
+const MEAL_OPEN={}; /* session-only expand state for Today meal sections */
 
 /* ---------- header + bottom nav ---------- */
 function paintChrome(){const p=curProfile(),g=p&&G();
@@ -2778,13 +2798,53 @@ function searchHay(f){if(f._hay)return f._hay;let ch='';CHAIN_RE.forEach(([re,w]
   return f._hay={words,txt:' '+words.join(' ')+' ',nm,compact:nrm(f.name+' '+(f.aka||[]).join(' ')+ch).replace(/ /g,'')};}
 function tokMatch(h,t){if(h.words.some(w=>w.startsWith(t)))return true;return (SYN[t]||[]).map(a=>nrm(a)).some(a=>{const s=a.split(' ').map(stem).join(' ');return h.txt.includes(' '+s+' ');});}
 function fsearch(q,n){let qn=nrm(q);if(!qn)return [];qn=qn.split(' ').map(w=>NICK[w]||w).join(' ');const toks=qn.split(' ').filter(w=>w&&w!=='and'&&w!=='with'&&w!=='a'&&w!=='the').map(stem);const cq=qn.replace(/ /g,'');
-  const out=[];FOODS.forEach(f=>{if(!ageOK(f)||f.legacy)return;const h=searchHay(f);let ok=toks.length&&toks.every(t=>tokMatch(h,t));if(!ok&&cq.length>=4&&h.compact.includes(cq))ok=true;if(!ok)return;
-    let sc=0;const nm=h.nm;if(nm===qn)sc+=100;if(nm.startsWith(qn))sc+=50;if((' '+nm).includes(' '+toks[0]))sc+=20;if(toks.every(t=>(' '+nm.split(' ').map(stem).join(' ')).includes(' '+t)))sc+=15;sc-=nm.length/10;if(f.per100)sc-=8;out.push([sc,f]);});
-  return out.sort((a,b)=>b[0]-a[0]).slice(0,n||30).map(x=>x[1]);}
+  const ph=toks.join(' ');const out=[];FOODS.forEach(f=>{if(!ageOK(f)||f.legacy)return;const h=searchHay(f);let ok=toks.length&&toks.every(t=>tokMatch(h,t));if(!ok&&cq.length>=4&&h.compact.includes(cq))ok=true;if(!ok)return;
+    out.push([relScore(f,ph,toks),f]);});
+  return out.sort((a,b)=>b[0]-a[0]||a[1].name.length-b[1].name.length).slice(0,n||30).map(x=>x[1]);}
+/* relevance: exact > head noun > starts with > whole word > word prefix > hidden/alias match */
+const PLANT_W=new Set(['oat','almond','soy','soya','rice','coconut','cashew','plant','pea','macadamia','hemp','vegan']);
+const FLAV_W=new Set(['chocolate','choc','flavoured','flavored','malt','strawberry','banana','caramel','vanilla','iced','coffee','latte','mocha','cappuccino','shake','milkshake','thick','hot','spiced','sweet','garlic','cheese','fruit','gingerbread']);
+const NONHEAD_W=new Set(['with','made','in','on','and','or']);
+function relWords(f){if(f._rw)return f._rw;const nm=nrm(f.name);const core=nrm(String(f.name).split(/[,(]/)[0]);const sw=x=>x.split(' ').filter(Boolean).map(stem);
+  return f._rw={all:sw(nm),core:sw(core),chain:CHAIN_RE.some(([re])=>re.test(f.name)||(f.shared&&re.test(f.source||'')))};}
+function relScore(f,ph,toks){const w=relWords(f);const P=ph.split(' ');const cs=w.core.join(' '),as=' '+w.all.join(' ')+' ';let sc;
+  const wordAt=arr=>{for(let i=0;i+P.length<=arr.length;i++)if(arr.slice(i,i+P.length).join(' ')===ph)return i;return -1;};
+  const ci=wordAt(w.core),ai=wordAt(w.all);
+  if(cs===ph)sc=1000;
+  else if(ci>0&&ci+P.length===w.core.length&&!NONHEAD_W.has(w.core[ci-1])&&!w.chain){const mods=w.core.slice(0,ci);sc=600;if(mods.some(x=>FLAV_W.has(x)))sc-=250;else if(mods.some(x=>PLANT_W.has(x)))sc-=150;}
+  else if(ci===0)sc=300;
+  else if(ai>=0)sc=250-Math.min(ai,10)*5+(f.cat==='d'?60:0);
+  else if(toks.every(t=>w.all.some(x=>x.startsWith(t))))sc=150;
+  else sc=50;
+  if(w.chain)sc-=30;else if(f.cat!=='t')sc+=40;
+  if(f.per100)sc-=40;if(f.indicative)sc-=3;
+  return sc-f.name.length/4;}
 
 /* ---------- recents ---------- */
 function recentFoods(g,n){const out=[],seen=new Set();const keys=Object.keys(g.days).sort().reverse().slice(0,21);for(const k of keys){const fs=(g.days[k].foods||[]).slice().reverse();for(const x of fs){const id=F[x.f]?F[x.f].id:null;if(!id||seen.has(id)||!libOK(id))continue;seen.add(id);out.push({f:id,q:x.q});if(out.length>=(n||8))return out;}}return out;}
 function kc(f,q){return hideOn()?'':'<span class="small muted num">'+eVal(f.kcal*(q||1))+' '+eUnit()+'</span>';}
+
+/* ---------- Today hero: activity-style rings (Fuel, Water, Move) ---------- */
+/* Fuel closes only inside the healthy band (never for being under); over the band = calm amber, no reward. */
+function ringState(p,d,E){const z=zoneAt(leanState(p));const k=kcalOf(d);const lo=Math.max(z.lo,z.floor||0);
+  const fuel={id:'f',lbl:'Fuel',col:'#ff8a3d',pct:clamp(k/lo,0,1),done:k>=lo&&k<=z.hi,over:k>z.hi,val:hideOn()?'':fE(k,1),tgt:hideOn()?(k>z.hi?'Past your band':'Fill the band'):'band '+fE(lo,1)+' to '+fE(z.hi,1)};
+  const water={id:'w',lbl:'Water',col:'#2fa8ff',pct:clamp(d.water/E.water,0,1),done:d.water>=E.water,val:d.water+'/'+E.water,tgt:'glasses'};
+  const move={id:'m',lbl:'Move',col:'#b46bff',pct:clamp(d.move/E.move,0,1),done:d.move>=E.move,val:d.move+'/'+E.move,tgt:'min'};
+  return [fuel,water,move];}
+const RING_GREEN='#3ddc84',RING_AMBER='#f2b544';
+function ringsSVG(R){const cx=60,cy=60,sw=11,gap=3;return '<svg class="rings" viewBox="0 0 120 120" width="132" height="132" aria-hidden="true">'+R.map((r,i)=>{const rad=54-i*(sw+gap);const C=2*Math.PI*rad;const col=r.done?RING_GREEN:r.over?RING_AMBER:r.col;const pc=r.over?1:r.pct;
+  return '<circle cx="'+cx+'" cy="'+cy+'" r="'+rad+'" fill="none" stroke="'+col+'" stroke-opacity=".18" stroke-width="'+sw+'"/><circle class="ring r-'+r.id+(r.done?' done':'')+'" data-ring="'+r.id+'" cx="'+cx+'" cy="'+cy+'" r="'+rad+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-linecap="round" stroke-dasharray="'+C.toFixed(1)+'" stroke-dashoffset="'+(C*(1-Math.max(pc,0.001))).toFixed(1)+'" transform="rotate(-90 60 60)"/>';}).join('')+
+  (R.every(r=>r.done)?'<text x="60" y="66" text-anchor="middle" font-size="20">🎉</text>':'')+'</svg>';}
+function ringsHero(p,d,E,isToday){const R=ringState(p,d,E);const all=R.every(r=>r.done);
+  const row=(r,btn)=>'<div class="rrow'+(r.done?' done':'')+(r.over?' over':'')+'" data-rrow="'+r.id+'"><i class="rdot" style="background:'+(r.done?RING_GREEN:r.over?RING_AMBER:r.col)+'"></i><span class="rtxt"><b>'+r.lbl+(r.done?' ✓':'')+'</b> <span class="num">'+r.val+'</span><small class="muted">'+r.tgt+'</small></span>'+(btn||'')+'</div>';
+  return '<div class="card todaycard ringhero'+(all?' allclosed':'')+'" id="fuelBar" role="img" aria-label="Rings: Fuel '+(R[0].done?'in band':R[0].over?'past band':'filling')+', water '+d.water+' of '+E.water+', move '+d.move+' of '+E.move+' minutes"><div class="rh">'+ringsSVG(R)+'<div class="rlist">'+
+   row(R[0])+row(R[1],isToday?'<button type="button" class="qbtn rq" id="qWater" aria-label="Add a glass of water">💧 +1</button>':'')+row(R[2],isToday?'<button type="button" class="qbtn rq" id="qMove" aria-label="Add 10 minutes of movement">🏃 +10</button>':'')+
+   '</div></div>'+(all?'<div class="allmsg">🎉 All rings closed</div>':'')+(d.foods.some(x=>F[x.f]&&F[x.f].indicative)?'<div class="small muted esthint">includes estimates</div>':'')+
+   (isToday?'<button type="button" class="qbtn more rmore" id="qMore" aria-label="More trackers: sleep, steps, fruit and veg, strength">⋯ More trackers</button>':'<p class="small muted" style="margin:8px 0 0">Past days are view only.</p>')+'</div>';}
+function ringCelebrate(d){const p=curProfile();if(!p)return;const R=ringState(p,d,energy(p));d.rings=d.rings||{};let changed=false;const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  R.forEach(r=>{if(r.done&&!d.rings[r.id]){d.rings[r.id]=1;changed=true;const el=document.querySelector('.ring.r-'+r.id),rw=document.querySelector('[data-rrow="'+r.id+'"]');if(!calm){if(el)el.classList.add('pop');if(rw)rw.classList.add('pop');}try{navigator.vibrate&&navigator.vibrate(30);}catch(e){}}});
+  if(R.every(r=>r.done)&&!d.rings.all){d.rings.all=1;changed=true;try{navigator.vibrate&&navigator.vibrate([40,60,40,60,80]);}catch(e){}if(!calm&&typeof confetti==='function')confetti(120);const h=document.querySelector('.ringhero');if(h&&!calm)h.classList.add('bigpop');}
+  if(changed)saveG();}
 
 /* ---------- Today (the log) ---------- */
 function fuelBarHTML(p,d,isToday){const LS=leanState(p);const z=zoneAt(LS);const k=kcalOf(d);const max=z.hi*1.25;const pct=v=>clamp(v/max*100,0,100);
@@ -2798,20 +2858,22 @@ function renderLog(){const el=$('#logBody');paintChrome();bindDaySwipe();if(!pro
   const quick=(usuals.length||rec.length)?'<div class="quickrow" id="quickRow" aria-label="Usuals and recents, tap to add">'+usuals.map(u=>'<button type="button" class="qchip usual" data-usual="'+u.id+'">⭐ '+esc(u.name)+'</button>').join('')+rec.map(r=>'<button type="button" class="qchip" data-recent="'+r.f+'" data-q="'+r.q+'">'+F[r.f].e+' '+esc(F[r.f].name)+'</button>').join('')+(usuals.length?'<button type="button" class="qchip ghost" id="usualManage">Manage</button>':'')+'</div>':'';
   const yAll=isToday&&!d.foods.length&&y&&(y.foods||[]).some(x=>libOK(x.f));
   const meals=Object.keys(MEALS).map(m=>{const items=d.foods.map((x,i)=>Object.assign({i},x)).filter(x=>x.m===m&&F[x.f]);const k=items.reduce((a,x)=>a+F[x.f].kcal*x.q,0);
-    return '<div class="mealblk" data-mealblk="'+m+'"><div class="spread mealhd"><b>'+MEALS[m][2]+' '+MEALS[m][0]+'</b><span class="small muted num">'+(items.length&&!hideOn()?fE(k,1):'')+'</span></div>'+
-     (items.length?items.map(x=>{const f=F[x.f];return '<button type="button" class="logitem tapitem" data-edit="'+x.i+'"'+(isToday?'':' disabled')+'><span>'+f.e+' '+(x.q!==1?fmtQ(x.q)+' × ':'')+esc(f.name)+' '+kc(f,x.q)+estTag(f)+'</span><span class="chev" aria-hidden="true">›</span></button>';}).join(''):'<div class="small muted empty-meal">Nothing yet</div>')+(isToday?slotTools(g,d,m):'')+'</div>';}).join('');
+    const open=!items.length||!!MEAL_OPEN[m];const col=items.length&&!open;
+    return '<div class="mealblk'+(col?' collapsed':'')+'" data-mealblk="'+m+'">'+(items.length?'<button type="button" class="spread mealhd mealtog" data-mtog="'+m+'" aria-expanded="'+(col?'false':'true')+'"><b>'+MEALS[m][2]+' '+MEALS[m][0]+'</b><span class="mh-r"><span class="small muted num">'+(hideOn()?items.length+' item'+(items.length===1?'':'s'):fE(k,1))+'</span><span class="mchev" aria-hidden="true">'+(col?'▸':'▾')+'</span></span></button>':'<div class="spread mealhd"><b>'+MEALS[m][2]+' '+MEALS[m][0]+'</b><span></span></div>')+
+     (col?'':(items.length?items.map(x=>{const f=F[x.f];return '<button type="button" class="logitem tapitem" data-edit="'+x.i+'"'+(isToday?'':' disabled')+'><span>'+f.e+' '+(x.q!==1?fmtQ(x.q)+' × ':'')+esc(f.name)+' '+kc(f,x.q)+estTag(f)+'</span><span class="chev" aria-hidden="true">›</span></button>';}).join(''):'<div class="small muted empty-meal">Nothing yet</div>')+(isToday?slotTools(g,d,m):''))+'</div>';}).join('');
   el.innerHTML='<div class="daynav"><button type="button" class="iconbtn" id="dayPrev" aria-label="Previous day">‹</button><b id="dayLbl">'+dateLbl+'</b><button type="button" class="iconbtn" id="dayNext" aria-label="Next day"'+(isToday?' disabled':'')+'>›</button></div>'+ymsg+
-   '<div class="card todaycard">'+fuelBarHTML(p,d,isToday)+
-   (isToday?'<div class="qbtns"><button type="button" class="qbtn" id="qWater">💧 <span>Water <b class="num">'+d.water+'</b>/'+E.water+'</span><em>+1</em></button><button type="button" class="qbtn" id="qMove">🏃 <span>Move <b class="num">'+d.move+'</b>/'+E.move+' min</span><em>+10</em></button><button type="button" class="qbtn more" id="qMore" aria-label="More trackers: sleep, steps, fruit and veg, strength">⋯</button></div>':'<p class="small muted" style="margin:8px 0 0">Past days are view only.</p>')+'</div>'+
-   (isToday?'<button type="button" class="addbar" id="addBar">'+ic('search',18)+'<span>Add food to '+MEALS[logMeal][0].toLowerCase()+'</span></button>'+quick+suggestBox(g)+(yAll?'<button type="button" class="btn alt wide" id="copyYday">↺ Copy yesterday</button>':''):'')+
+   ringsHero(p,d,E,isToday)+
+   (isToday?'<button type="button" class="addbar" id="addBar">'+ic('search',18)+'<span>Log food</span></button>'+quick+suggestBox(g)+(yAll?'<button type="button" class="btn alt wide" id="copyYday">↺ Copy yesterday</button>':''):'')+
    '<div class="card meals">'+meals+'</div>';
   const $e=s=>el.querySelector(s);
   $e('#dayPrev').onclick=()=>{viewKey=addDays(vk,-1);renderLog();};$e('#dayNext').onclick=()=>{const n=addDays(vk,1);viewKey=n>=tk?null:n;renderLog();};
+  el.querySelectorAll('[data-mtog]').forEach(b=>b.onclick=()=>{const m=b.dataset.mtog;MEAL_OPEN[m]=!MEAL_OPEN[m];renderLog();});
   const dx=$e('#dayMsgX');if(dx)dx.onclick=()=>{y.closeSeen=true;saveG();renderLog();};
   if(!isToday)return;
   $e('#qWater').onclick=()=>{d.water=clamp(d.water+1,0,30);autoCheckin();sound('tick');saveG();evaluate();renderLog();showUndo('Water +1 glass',()=>{const dd=today(G());dd.water=Math.max(0,dd.water-1);saveG();});};
   $e('#qMove').onclick=()=>{d.move=clamp(d.move+10,0,600);autoCheckin();sound('tick');saveG();evaluate();renderLog();showUndo('Move +10 min',()=>{const dd=today(G());dd.move=Math.max(0,dd.move-10);saveG();});};
   $e('#qMore').onclick=()=>openTrackers();
+  ringCelebrate(d);
   $e('#addBar').onclick=()=>openAddSheet(logMeal);
   el.querySelectorAll('[data-recent]').forEach(b=>b.onclick=()=>{addEntry(b.dataset.recent,+b.dataset.q||1,logMeal);renderLog();});
   {const mg=el.querySelector('#usualManage');if(mg)mg.onclick=()=>openManageUsuals(renderLog);}
@@ -2821,8 +2883,10 @@ function renderLog(){const el=$('#logBody');paintChrome();bindDaySwipe();if(!pro
 
 /* ---------- Add food sheet ---------- */
 function addRowHTML(f,q){return '<button type="button" class="addrow" data-add="'+f.id+'"'+(q?' data-q="'+q+'"':'')+'><span class="ar-e">'+f.e+'</span><span class="ar-t"><b>'+esc(f.name)+'</b><small class="muted">'+esc(f.serve||'')+'</small></span><span class="ar-k">'+kc(f,q||1)+estTag(f)+'</span><span class="ar-plus" aria-hidden="true">+</span></button>';}
-function openAddSheet(m){let meal=m||logMeal||mealNow();const g=G();if(!g){showTab('calc');return;}
-  openModal('<div class="addsheet"><h2 id="mTitle" style="margin:0 0 6px">Add food</h2><div class="chips" id="sheetMeals">'+Object.entries(MEALS).map(([k,v])=>'<button type="button" class="chip'+(k===meal?' on':'')+'" data-sm="'+k+'">'+v[2]+' '+v[0]+'</button>').join('')+'</div>'+
+const QTY_STEPS=[0.5,1,1.5,2,3];
+function openAddSheet(m){let meal=m||logMeal||mealNow();let qty=1,qtySet=false;const g=G();if(!g){showTab('calc');return;}
+  openModal('<div class="addsheet"><h2 id="mTitle" style="margin:0 0 6px">Log food</h2><div class="chips" id="sheetMeals">'+Object.entries(MEALS).map(([k,v])=>'<button type="button" class="chip'+(k===meal?' on':'')+'" data-sm="'+k+'">'+v[2]+' '+v[0]+'</button>').join('')+'</div>'+
+   '<div class="qtyrow" id="sheetQty" role="group" aria-label="Serves to add"><span class="small muted">Serves</span><button type="button" class="iconbtn qstep" data-qs="-1" aria-label="Fewer serves">−</button>'+QTY_STEPS.map(v=>'<button type="button" class="chip qv'+(v===1?' on':'')+'" data-qv="'+v+'">'+fmtQ(v)+'</button>').join('')+'<button type="button" class="iconbtn qstep" data-qs="1" aria-label="More serves">+</button></div>'+
    '<input type="search" id="sheetSearch" placeholder="Search foods, e.g. banana, maccas, weetbix" autocomplete="off" enterkeyhint="search" aria-label="Search foods">'+
    '<div id="sheetResults" class="addlist" aria-live="polite"></div><div id="logReqBox" style="display:none;margin-top:8px"></div>'+
    '<button type="button" class="btn alt wide" id="sheetBuild" style="margin-top:10px">'+ic('plate',16)+' Build a meal</button></div>');
@@ -2830,15 +2894,17 @@ function openAddSheet(m){let meal=m||logMeal||mealNow();const g=G();if(!g){showT
   const draw=()=>{const q=inp.value.trim();let h='';
     if(!q){const us=usualsOf(g).filter(u=>usualItemsOK(u).length);const rc=recentFoods(g,10);
       h=(us.length?'<div class="eyebrow">My usuals</div>'+us.map(u=>'<button type="button" class="addrow usual" data-usual="'+u.id+'"><span class="ar-e">⭐</span><span class="ar-t"><b>'+esc(u.name)+'</b><small class="muted">'+usualItemsOK(u).map(it=>F[it.f].e).join(' ')+'</small></span><span class="ar-plus" aria-hidden="true">+</span></button>').join(''):'')+
-        (rc.length?'<div class="eyebrow">Recent</div>'+rc.map(r=>addRowHTML(F[r.f],r.q)).join(''):'<p class="small muted">Type to search the library.</p>');}
+        (rc.length?'<div class="eyebrow">Recent</div>'+rc.map(r=>addRowHTML(F[r.f],qtySet?qty:r.q)).join(''):'<p class="small muted">Type to search the library.</p>');}
     else{const r=fsearch(q,30);
-      if(r.length)h=r.map(f=>addRowHTML(f)).join('');
-      else{const c=closestFoods(q,5);h='<p class="small muted">No exact match for "'+esc(q)+'".'+(c.length?' Closest foods:':'')+'</p>'+c.map(f=>addRowHTML(f)).join('')+'<button type="button" class="btn sm" id="logReqBtn">📨 Request "'+esc(q.slice(0,40))+'"</button>';}}
+      if(r.length)h=r.map(f=>addRowHTML(f,qty)).join('');
+      else{const c=closestFoods(q,5);h='<p class="small muted">No exact match for "'+esc(q)+'".'+(c.length?' Closest foods:':'')+'</p>'+c.map(f=>addRowHTML(f,qty)).join('')+'<button type="button" class="btn sm" id="logReqBtn">📨 Request "'+esc(q.slice(0,40))+'"</button>';}}
     res.innerHTML=h;const rb=$('#logReqBtn');if(rb)rb.onclick=()=>openRequestIn('log',inp.value.trim());};
-  inp.oninput=draw;draw();setTimeout(()=>{try{inp.focus();}catch(e){}},30);
+  inp.oninput=()=>{const rb=$('#logReqBox');if(rb){rb.style.display='none';rb.innerHTML='';}draw();};draw();setTimeout(()=>{try{inp.focus();}catch(e){}},30);
+  const paintQty=()=>{$$('#sheetQty .qv').forEach(c=>c.classList.toggle('on',+c.dataset.qv===qty));const lbl=$('#sheetQty .qcur');if(lbl)lbl.remove();if(!QTY_STEPS.includes(qty))$('#sheetQty [data-qs="1"]').insertAdjacentHTML('beforebegin','<b class="chip on qcur">'+fmtQ(qty)+'</b>');draw();};
+  $('#sheetQty').onclick=e=>{const v=e.target.closest('[data-qv]'),st=e.target.closest('[data-qs]');if(v)qty=+v.dataset.qv;else if(st)qty=clamp(qty+0.5*(+st.dataset.qs),0.5,10);else return;qtySet=true;paintQty();};
   $('#sheetMeals').onclick=e=>{const b=e.target.closest('[data-sm]');if(!b)return;meal=b.dataset.sm;logMeal=meal;$$('#sheetMeals .chip').forEach(c=>c.classList.toggle('on',c===b));};
   res.onclick=e=>{if(e.target.closest('[data-est]'))return;const u=e.target.closest('[data-usual]');if(u){const r=logUsual(u.dataset.usual,meal);if(r.ok){autoCheckin();sound('tick');const n=r.n;showUndo('Added '+n+' food'+(n===1?'':'s')+' to '+MEALS[meal][0].toLowerCase(),()=>{const dd=today(G());dd.foods.splice(dd.foods.length-n,n);saveG();});}logMeal=meal;closeModal();return;}
-    const a=e.target.closest('[data-add]');if(!a)return;logMeal=meal;addEntry(a.dataset.add,+a.dataset.q||1,meal);closeModal();};
+    const a=e.target.closest('[data-add]');if(!a)return;logMeal=meal;addEntry(a.dataset.add,qtySet?qty:(+a.dataset.q||1),meal);closeModal();};
   $('#sheetBuild').onclick=()=>{closeModal();showTab('plate');const pm=$('#plMeal');if(pm){pm.value=meal;pm.dispatchEvent(new Event('change'));}};}
 
 /* ---------- edit an item ---------- */
