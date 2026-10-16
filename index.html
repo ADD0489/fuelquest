@@ -927,6 +927,38 @@ html.tracked section.panel.shown{display:flow-root}
 html.tracked section.panel.active{display:flow-root}
 .quickrow,.qtyrow,#groupChips{overscroll-behavior-x:contain}
 html.tracked main.swipeable{touch-action:auto;overflow-x:visible}
+
+/* v25: serving pop-up (bottom sheet) */
+.spov{position:fixed;inset:0;z-index:400;display:flex;align-items:flex-end;justify-content:center;background:rgba(3,5,12,0);transition:background .2s;touch-action:none;overscroll-behavior:contain}
+.spov.open{background:rgba(3,5,12,.6)}
+.spsheet{width:100%;max-width:520px;background:linear-gradient(var(--sheet),var(--sheet)),var(--bg);border:1px solid var(--line);border-bottom:0;border-radius:24px 24px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.5);
+ padding:10px max(20px,env(safe-area-inset-right)) calc(22px + env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left));transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);max-height:88vh;overflow:auto}
+.spov.open .spsheet{transform:translateY(0)}
+.spgrab{width:44px;height:5px;border-radius:3px;background:var(--line);opacity:.9;margin:0 auto 12px}
+.sphead{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+.spe{font-size:2.8rem;line-height:1}
+.spt h2{margin:0;font-size:1.3rem;line-height:1.2}
+.spt .pwr{font-size:1.15rem;display:inline-block}
+.pwrtxt{color:#ffd23c}
+.spstep{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:14px 0 10px}
+.spbig{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);background:var(--card);color:var(--ink);font-size:2rem;font-weight:800;line-height:1;cursor:pointer;flex:0 0 auto}
+.spbig:active{transform:scale(.94)}.spbig:disabled{opacity:.35}
+.spq{flex:1;text-align:center;display:flex;flex-direction:column;gap:2px}.spq b{font-size:1.7rem}
+.sppicks{display:flex;gap:8px;justify-content:center;margin:4px 0 12px}
+.sppicks .chip{flex:1;justify-content:center;margin:0}
+.sppicks .chip.on,.spmeals .chip.on{background:#8b5cff;color:#fff;border-color:#8b5cff}
+.spmeals{flex-wrap:nowrap;overflow-x:auto;margin-bottom:12px;touch-action:pan-x}
+.spmeals .chip{flex:0 0 auto}
+.spadd{min-height:56px;font-size:1.15rem;font-weight:800}
+.spsheet .estnote{margin:6px 0}
+@media (min-width:640px){.spov{align-items:center}.spsheet{border-radius:24px;border-bottom:1px solid var(--line)}}
+@media (prefers-reduced-motion: reduce){.spsheet,.spov{transition:none}}
+/* v25b: compact meal picker, 2-line name clamp */
+.spmeals{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;overflow:visible;flex-wrap:wrap}
+.spmeals .chip{margin:0;padding:0 4px;justify-content:center;font-size:.85rem;white-space:nowrap;min-width:0;overflow:hidden}
+.spt{min-width:0;flex:1}
+.spt h2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.spbolt{font-size:1.3rem;flex:0 0 auto;align-self:flex-start;margin-top:4px}
 </style>
 </head>
 <body>
@@ -1913,7 +1945,7 @@ function initExplorer(){
   $('#flAddBtn').onclick=()=>openRequestIn('fl');
   $('#foodGrid').onclick=e=>{const aq=e.target.closest('[data-addq]');if(aq){openRequestIn('fl',aq.dataset.addq);$('#flCustomWrap').scrollIntoView({block:'start',behavior:'smooth'});return;}const t=e.target.closest('.ftile');if(!t)return;const id=t.dataset.id;
     if(exMode==='compare'){if(cmpSel.includes(id))cmpSel=cmpSel.filter(x=>x!==id);else{cmpSel.push(id);if(cmpSel.length>2)cmpSel.shift();}renderExplorer();$('#cmpPanel').scrollIntoView({behavior:'smooth',block:'nearest'});}
-    else foodCard(id);};
+    else if(G()&&libOK(id))openServe(id,{info:true,onAdd:()=>{}});else foodCard(id);};
   const s2=$('#s2pick');s2.onchange=null;$('#s2add').onclick=()=>{if(!s2list.includes(s2.value))s2list.push(s2.value);renderSame200();};
   $('#s2reset').onclick=()=>{s2list=defaultS2();renderSame200();};
 }
@@ -2922,7 +2954,7 @@ function renderLog(){const el=$('#logBody');paintChrome();bindDaySwipe();if(!pro
   const y=g.days[addDays(tk,-1)];const ymsg=isToday&&y&&y.closeMsg&&!y.closeSeen?'<div class="msgbox info daymsg" id="dayMsg"><span>'+esc(y.closeMsg)+'</span><button type="button" class="xbtn" id="dayMsgX" aria-label="Dismiss">✕</button></div>':'';
   const usuals=isToday?usualsOf(g).filter(u=>usualItemsOK(u).length):[];
   const pq=isToday?powerQuick(g,8):[];
-  const quick=(usuals.length?'<div class="qhead small">⭐ My usuals</div><div class="quickrow" id="usualRow" aria-label="My usuals, tap to add">'+usuals.map(u=>'<button type="button" class="qchip usual" data-usual="'+u.id+'">⭐ '+esc(u.name)+'</button>').join('')+'<button type="button" class="qchip ghost" id="usualManage">Manage</button></div>':'')+(pq.length?'<div class="pwrcard" id="pwrCard"><div class="qhead small"><span class="pwr" aria-hidden="true">⚡</span> Quick add power foods <span class="muted">· one tap to log</span></div><div class="quickrow" id="quickRow" aria-label="Quick add power foods, tap to log">'+pq.map(r=>'<button type="button" class="qchip" data-recent="'+r.f+'" data-q="'+r.q+'">'+F[r.f].e+' '+esc(F[r.f].name)+pwrTag(F[r.f])+'</button>').join('')+'</div></div>':'');
+  const quick=(usuals.length?'<div class="qhead small">⭐ My usuals</div><div class="quickrow" id="usualRow" aria-label="My usuals, tap to add">'+usuals.map(u=>'<button type="button" class="qchip usual" data-usual="'+u.id+'">⭐ '+esc(u.name)+'</button>').join('')+'<button type="button" class="qchip ghost" id="usualManage">Manage</button></div>':'')+(pq.length?'<div class="pwrcard" id="pwrCard"><div class="qhead small"><span class="pwr" aria-hidden="true">⚡</span> Quick add power foods <span class="muted">· tap to log</span></div><div class="quickrow" id="quickRow" aria-label="Quick add power foods, tap to log">'+pq.map(r=>'<button type="button" class="qchip" data-recent="'+r.f+'" data-q="'+r.q+'">'+F[r.f].e+' '+esc(F[r.f].name)+pwrTag(F[r.f])+'</button>').join('')+'</div></div>':'');
   const yAll=isToday&&!d.foods.length&&y&&(y.foods||[]).some(x=>libOK(x.f));
   const meals=Object.keys(MEALS).map(m=>{const items=d.foods.map((x,i)=>Object.assign({i},x)).filter(x=>x.m===m&&F[x.f]);const k=items.reduce((a,x)=>a+F[x.f].kcal*x.q,0);
     const open=!items.length||!!MEAL_OPEN[m];const col=items.length&&!open;
@@ -2942,7 +2974,7 @@ function renderLog(){const el=$('#logBody');paintChrome();bindDaySwipe();if(!pro
   $e('#qMore').onclick=()=>openTrackers();
   ringCelebrate(d);
   $e('#addBar').onclick=()=>openAddSheet(logMeal);
-  el.querySelectorAll('[data-recent]').forEach(b=>b.onclick=()=>{addEntry(b.dataset.recent,+b.dataset.q||1,logMeal);renderLog();});
+  el.querySelectorAll('[data-recent]').forEach(b=>b.onclick=()=>openServe(b.dataset.recent,{q:+b.dataset.q||1,meal:logMeal}));
   {const mg=el.querySelector('#usualManage');if(mg)mg.onclick=()=>openManageUsuals(renderLog);}
   el.querySelectorAll('[data-edit]').forEach(b=>b.onclick=e=>{if(e.target.closest('[data-est]'))return;openEditItem(+b.dataset.edit);});
   const cy=$e('#copyYday');if(cy)cy.onclick=()=>{let n=0;Object.keys(MEALS).forEach(m=>{n+=sameAsYesterday(m);});if(n){autoCheckin();showUndo('Copied yesterday ('+n+' food'+(n===1?'':'s')+')',()=>{const dd=today(G());dd.foods.splice(dd.foods.length-n,n);saveG();});}renderLog();};
@@ -2951,9 +2983,8 @@ function renderLog(){const el=$('#logBody');paintChrome();bindDaySwipe();if(!pro
 /* ---------- Add food sheet ---------- */
 function addRowHTML(f,q){return '<button type="button" class="addrow" data-add="'+f.id+'"'+(q?' data-q="'+q+'"':'')+'><span class="ar-e">'+f.e+'</span><span class="ar-t"><b>'+esc(f.name)+pwrTag(f)+'</b><small class="muted">'+esc(f.serve||'')+'</small></span><span class="ar-k">'+kc(f,q||1)+estTag(f)+'</span><span class="ar-plus" aria-hidden="true">+</span></button>';}
 const QTY_STEPS=[0.5,1,1.5,2,3];
-function openAddSheet(m){let meal=m||logMeal||mealNow();let qty=1,qtySet=false;const g=G();if(!g){showTab('calc');return;}
+function openAddSheet(m){let meal=m||logMeal||mealNow();const g=G();if(!g){showTab('calc');return;}
   openModal('<div class="addsheet"><h2 id="mTitle" style="margin:0 0 6px">Log food</h2><div class="chips" id="sheetMeals">'+Object.entries(MEALS).map(([k,v])=>'<button type="button" class="chip'+(k===meal?' on':'')+'" data-sm="'+k+'">'+v[2]+' '+v[0]+'</button>').join('')+'</div>'+
-   '<div class="qtyrow" id="sheetQty" role="group" aria-label="Serves to add"><span class="small muted">Serves</span><button type="button" class="iconbtn qstep" data-qs="-1" aria-label="Fewer serves">−</button>'+QTY_STEPS.map(v=>'<button type="button" class="chip qv'+(v===1?' on':'')+'" data-qv="'+v+'">'+fmtQ(v)+'</button>').join('')+'<button type="button" class="iconbtn qstep" data-qs="1" aria-label="More serves">+</button></div>'+
    '<input type="search" id="sheetSearch" placeholder="Search foods, e.g. banana, maccas, weetbix" autocomplete="off" enterkeyhint="search" aria-label="Search foods">'+'<p class="small muted pwrkey" style="margin:0 0 4px"><span class="pwr" aria-hidden="true">⚡</span> Power food: whole food, bonus XP, up to 3 a day</p>'+
    '<div id="sheetResults" class="addlist" aria-live="polite"></div><div id="logReqBox" style="display:none;margin-top:8px"></div>'+
    '<button type="button" class="btn alt wide" id="sheetBuild" style="margin-top:10px">'+ic('plate',16)+' Build a meal</button></div>');
@@ -2961,17 +2992,15 @@ function openAddSheet(m){let meal=m||logMeal||mealNow();let qty=1,qtySet=false;c
   const draw=()=>{const q=inp.value.trim();let h='';
     if(!q){const us=usualsOf(g).filter(u=>usualItemsOK(u).length);const rc=recentFoods(g,10);
       h=(us.length?'<div class="eyebrow">My usuals</div>'+us.map(u=>'<button type="button" class="addrow usual" data-usual="'+u.id+'"><span class="ar-e">⭐</span><span class="ar-t"><b>'+esc(u.name)+'</b><small class="muted">'+usualItemsOK(u).map(it=>F[it.f].e).join(' ')+'</small></span><span class="ar-plus" aria-hidden="true">+</span></button>').join(''):'')+
-        (rc.length?'<div class="eyebrow">Recent</div>'+rc.map(r=>addRowHTML(F[r.f],qtySet?qty:r.q)).join(''):'<p class="small muted">Type to search the library.</p>');}
+        (rc.length?'<div class="eyebrow">Recent</div>'+rc.map(r=>addRowHTML(F[r.f],r.q)).join(''):'<p class="small muted">Type to search the library.</p>');}
     else{const r=fsearch(q,30);
-      if(r.length)h=r.map(f=>addRowHTML(f,qty)).join('');
-      else{const c=closestFoods(q,5);h='<p class="small muted">No exact match for "'+esc(q)+'".'+(c.length?' Closest foods:':'')+'</p>'+c.map(f=>addRowHTML(f,qty)).join('')+'<button type="button" class="btn sm" id="logReqBtn">📨 Request "'+esc(q.slice(0,40))+'"</button>';}}
+      if(r.length)h=r.map(f=>addRowHTML(f)).join('');
+      else{const c=closestFoods(q,5);h='<p class="small muted">No exact match for "'+esc(q)+'".'+(c.length?' Closest foods:':'')+'</p>'+c.map(f=>addRowHTML(f)).join('')+'<button type="button" class="btn sm" id="logReqBtn">📨 Request "'+esc(q.slice(0,40))+'"</button>';}}
     res.innerHTML=h;const rb=$('#logReqBtn');if(rb)rb.onclick=()=>openRequestIn('log',inp.value.trim());};
   inp.oninput=()=>{const rb=$('#logReqBox');if(rb){rb.style.display='none';rb.innerHTML='';}draw();};draw();setTimeout(()=>{try{inp.focus();}catch(e){}},30);
-  const paintQty=()=>{$$('#sheetQty .qv').forEach(c=>c.classList.toggle('on',+c.dataset.qv===qty));const lbl=$('#sheetQty .qcur');if(lbl)lbl.remove();if(!QTY_STEPS.includes(qty))$('#sheetQty [data-qs="1"]').insertAdjacentHTML('beforebegin','<b class="chip on qcur">'+fmtQ(qty)+'</b>');draw();};
-  $('#sheetQty').onclick=e=>{const v=e.target.closest('[data-qv]'),st=e.target.closest('[data-qs]');if(v)qty=+v.dataset.qv;else if(st)qty=clamp(qty+0.5*(+st.dataset.qs),0.5,10);else return;qtySet=true;paintQty();};
   $('#sheetMeals').onclick=e=>{const b=e.target.closest('[data-sm]');if(!b)return;meal=b.dataset.sm;logMeal=meal;$$('#sheetMeals .chip').forEach(c=>c.classList.toggle('on',c===b));};
   res.onclick=e=>{if(e.target.closest('[data-est]'))return;const u=e.target.closest('[data-usual]');if(u){const r=logUsual(u.dataset.usual,meal);if(r.ok){autoCheckin();sound('tick');const n=r.n;showUndo('Added '+n+' food'+(n===1?'':'s')+' to '+MEALS[meal][0].toLowerCase(),()=>{const dd=today(G());dd.foods.splice(dd.foods.length-n,n);saveG();});}logMeal=meal;closeModal();return;}
-    const a=e.target.closest('[data-add]');if(!a)return;logMeal=meal;addEntry(a.dataset.add,qtySet?qty:(+a.dataset.q||1),meal);closeModal();};
+    const a=e.target.closest('[data-add]');if(!a)return;logMeal=meal;openServe(a.dataset.add,{q:+a.dataset.q||1,meal,onAdd:()=>{closeModal();}});};
   $('#sheetBuild').onclick=()=>{closeModal();showTab('plate');const pm=$('#plMeal');if(pm){pm.value=meal;pm.dispatchEvent(new Event('change'));}};}
 
 /* ---------- edit an item ---------- */
@@ -3128,6 +3157,47 @@ function powerQuick(g,n){const ok=id=>F[id]&&F[id].whole&&libOK(id)&&ageOK(F[id]
   const rq={};recentFoods(g,40).forEach(r=>{if(rq[r.f]==null)rq[r.f]=r.q;});
   Object.keys(cnt).sort((a,b)=>(cnt[b]-cnt[a])||(last[b]>last[a]?1:-1)).forEach(id=>{if(out.length<n&&!seen.has(id)){seen.add(id);out.push({f:id,q:rq[id]||1});}});
   PQ_DEFAULTS.forEach(id=>{if(out.length<n&&ok(id)&&!seen.has(id)){seen.add(id);out.push({f:id,q:1});}});return out;}
+
+/* ---------- v25: serving pop-up (tap any food, pick amount, one Add) ---------- */
+const SP_SERVES=[0.5,1,2],SP_GRAMS=[50,100,150,200];
+function spUnit(f){return /ml/i.test(f.serve||'')?' ml':' g';}
+function spLabel(f,q){return f.per100?Math.round(q*100)+spUnit(f):fmtQ(q)+' serve'+(q<=1?'':'s');}
+function openServe(id,opts){opts=opts||{};const f=F[id];if(!f||!libOK(id))return;const g=G();if(!g){showTab('calc');return;}
+  let q=opts.q>0?opts.q:1;let meal=opts.meal||logMeal||mealNow();const step=f.per100?0.25:0.5,minQ=f.per100?0.25:0.5,maxQ=f.per100?20:10;
+  q=clamp(Math.round(q/step)*step,minQ,maxQ);
+  let ov=document.getElementById('servePop');if(ov)ov.remove();
+  ov=document.createElement('div');ov.id='servePop';ov.className='spov';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-labelledby','spTitle');
+  const picks=f.per100?SP_GRAMS.map(x=>[x/100,x+spUnit(f)]):SP_SERVES.map(x=>[x,x===0.5?'Half':fmtQ(x)]);
+  ov.innerHTML='<div class="spsheet" id="spSheet"><div class="spgrab" aria-hidden="true"></div>'+
+   '<div class="sphead"><span class="spe">'+f.e+'</span><div class="spt"><h2 id="spTitle">'+esc(f.name)+'</h2><div class="small muted">'+esc(f.serve||'')+(f.whole?' · <b class="pwrtxt">Power food</b>, bonus XP':'')+'</div></div>'+(f.whole?'<span class="pwr spbolt" aria-label="power food">⚡</span>':'')+'</div>'+
+   (f.indicative?'<p class="small estnote">≈ '+EST_NOTE+'</p>':'')+
+   '<div class="spstep"><button type="button" class="spbig" id="spMinus" aria-label="Less">−</button><div class="spq"><b id="spQ" class="num"></b><span id="spK" class="small muted num"></span></div><button type="button" class="spbig" id="spPlus" aria-label="More">+</button></div>'+
+   '<div class="sppicks" id="spPicks">'+picks.map(p=>'<button type="button" class="chip" data-spq="'+p[0]+'">'+p[1]+'</button>').join('')+'</div>'+
+   '<div class="chips spmeals" id="spMeals">'+Object.entries(MEALS).map(([k,v])=>'<button type="button" class="chip'+(k===meal?' on':'')+'" data-spm="'+k+'" aria-label="'+v[0]+'">'+v[2]+' '+({b:'Brekkie',l:'Lunch',d:'Dinner',s:'Snack'}[k]||v[0])+'</button>').join('')+'</div>'+
+   '<button type="button" class="btn wide spadd" id="spAdd"></button>'+
+   (opts.info?'<button type="button" class="btn alt wide sm" id="spInfo" style="margin-top:8px">More about this food</button>':'')+'</div>';
+  document.body.appendChild(ov);
+  const $s=s=>ov.querySelector(s);
+  const draw=()=>{$s('#spQ').textContent=spLabel(f,q);const m=foodQty(id,f.per100?q*100:q);
+    $s('#spK').textContent=(hideOn()?'':eVal(m.kcal)+' '+eUnit()+' · ')+r1(m.p)+' g protein';
+    ov.querySelectorAll('[data-spq]').forEach(c=>c.classList.toggle('on',Math.abs(+c.dataset.spq-q)<1e-6));
+    $s('#spMinus').disabled=q<=minQ;$s('#spPlus').disabled=q>=maxQ;
+    $s('#spAdd').textContent='Add to '+MEALS[meal][0].toLowerCase();};
+  const close=()=>{ov.classList.remove('open');setTimeout(()=>ov.remove(),220);};
+  $s('#spMinus').onclick=()=>{q=clamp(q-step,minQ,maxQ);draw();};$s('#spPlus').onclick=()=>{q=clamp(q+step,minQ,maxQ);draw();};
+  $s('#spPicks').onclick=e=>{const c=e.target.closest('[data-spq]');if(!c)return;q=+c.dataset.spq;draw();};
+  $s('#spMeals').onclick=e=>{const b=e.target.closest('[data-spm]');if(!b)return;meal=b.dataset.spm;ov.querySelectorAll('#spMeals .chip').forEach(c=>c.classList.toggle('on',c===b));draw();};
+  $s('#spAdd').onclick=()=>{logMeal=meal;const ok=addEntry(id,q,meal);if(ok)autoCheckin();close();if(opts.onAdd)opts.onAdd();else if(typeof renderLog==='function'&&document.getElementById('logBody'))renderLog();};
+  if($s('#spInfo'))$s('#spInfo').onclick=()=>{close();foodCard(id);};
+  ov.onclick=e=>{if(e.target===ov)close();};
+  /* swipe down to close */
+  const sh=$s('#spSheet');let y0=null,dy=0;
+  sh.addEventListener('touchstart',e=>{if(e.target.closest('.sppicks,.spmeals'))return;y0=e.touches[0].clientY;dy=0;sh.style.transition='none';},{passive:true});
+  sh.addEventListener('touchmove',e=>{if(y0==null)return;dy=Math.max(0,e.touches[0].clientY-y0);sh.style.transform='translateY('+dy+'px)';},{passive:true});
+  sh.addEventListener('touchend',()=>{if(y0==null)return;y0=null;sh.style.transition='';if(dy>80)close();else sh.style.transform='';},{passive:true});
+  ov._close=close;draw();requestAnimationFrame(()=>{ov.classList.add('open');if(f.whole)setTimeout(()=>{const z=$s('.sphead .pwr');if(z&&!matchMedia('(prefers-reduced-motion: reduce)').matches){z.classList.add('zap');setTimeout(()=>z.classList.remove('zap'),760);}},180);});
+  return ov;}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const o=document.getElementById('servePop');if(o&&o._close){o._close();e.stopImmediatePropagation();}}},true);
 
 /* =========================================================
    Single-device profile (one person per phone by default)
