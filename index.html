@@ -959,6 +959,10 @@ html.tracked main.swipeable{touch-action:auto;overflow-x:visible}
 .spt{min-width:0;flex:1}
 .spt h2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
 .spbolt{font-size:1.3rem;flex:0 0 auto;align-self:flex-start;margin-top:4px}
+
+/* v26: every tab's scroll content clears the fixed tab bar (+ safe area + margin) */
+html.tracked .tabslotin{padding-bottom:calc(var(--bnavh,calc(74px + env(safe-area-inset-bottom))) + 28px)}
+html.tracked .tabslotin>footer{padding-bottom:8px}
 </style>
 </head>
 <body>
@@ -3127,7 +3131,8 @@ function initSwipe(){if(TRACK)return;const main=document.querySelector('main');i
   let t=null;const settle=()=>{t=null;if(trackProg)return;const W=TRACK.clientWidth||1;const i=Math.round(TRACK.scrollLeft/W);if(i!==trackIdx)commitTab(NAV_ORDER[i],true);};
   TRACK.addEventListener('scroll',()=>{if(trackProg)return;const W=TRACK.clientWidth||1;const i=Math.round(TRACK.scrollLeft/W);paintNav(NAV_ORDER[i]);clearTimeout(t);t=setTimeout(settle,120);},{passive:true});
   if('onscrollend' in window)TRACK.addEventListener('scrollend',()=>{clearTimeout(t);settle();},{passive:true});
-  addEventListener('resize',()=>{trackProg++;TRACK.scrollLeft=trackIdx*TRACK.clientWidth;requestAnimationFrame(()=>trackProg--);});
+  const bnh=()=>{const b=document.getElementById('bnav');if(b)document.documentElement.style.setProperty('--bnavh',Math.ceil(b.getBoundingClientRect().height)+'px');};bnh();setTimeout(bnh,300);
+  addEventListener('resize',()=>{bnh();trackProg++;TRACK.scrollLeft=trackIdx*TRACK.clientWidth;requestAnimationFrame(()=>trackProg--);});
   setTimeout(renderNeighbours,400);}
 /* keep the other slots fresh while idle so a swipe never re-renders mid-gesture */
 let nbT=null;function renderNeighbours(){clearTimeout(nbT);nbT=setTimeout(()=>{if(!TRACK)return;TRACK.querySelectorAll('section.panel.shown:not(.active)').forEach(p=>{if(!RENDER[p.id])return;const sl=p.closest('.tabslot'),y=sl?sl.scrollTop:0;try{RENDER[p.id]();}catch(e){}if(sl&&sl.scrollTop!==y)sl.scrollTop=y;});},250);}
