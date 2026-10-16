@@ -963,6 +963,16 @@ html.tracked main.swipeable{touch-action:auto;overflow-x:visible}
 /* v26: every tab's scroll content clears the fixed tab bar (+ safe area + margin) */
 html.tracked .tabslotin{padding-bottom:calc(var(--bnavh,calc(74px + env(safe-area-inset-bottom))) + 28px)}
 html.tracked .tabslotin>footer{padding-bottom:8px}
+
+/* v27: bigger, belt-and-braces clearance + readable disclaimer on iOS */
+html.tracked .tabslotin{padding-bottom:max(calc(var(--bnavh,0px) + 40px),calc(90px + env(safe-area-inset-bottom) + 40px))}
+footer{color:var(--muted);opacity:1;overflow:visible}
+footer .fdisc{display:inline;color:var(--muted);-webkit-text-fill-color:currentColor;opacity:1;font-size:inherit;font-weight:500}
+[data-theme=dark] footer .fdisc,:root footer .fdisc{color:#b4bdd9}
+[data-theme=light] footer .fdisc{color:#4a5270}
+footer b{-webkit-text-fill-color:currentColor}
+/* v27: pin the app shell to the real visible viewport (iOS standalone 100vh/dvh can exceed the screen, pushing each tab's scroll end below the tab bar) */
+html.tracked body{position:fixed;inset:0;height:auto;width:100%}
 </style>
 </head>
 <body>
@@ -1393,7 +1403,7 @@ html.tracked .tabslotin>footer{padding-bottom:8px}
 </main>
 <footer>
   <b>Numbers are approximate; for personal medical advice see your GP or a registered dietitian.</b><br>
-  Energy values are typical figures per serve and vary by brand and recipe. FuelQuest is made for families everywhere. ⚡
+  <span class="fdisc">Energy values are typical figures per serve and vary by brand and recipe. FuelQuest is made for families everywhere. ⚡</span>
 </footer>
 
 <nav class="bnav" id="bnav" aria-label="Main">
@@ -3131,7 +3141,7 @@ function initSwipe(){if(TRACK)return;const main=document.querySelector('main');i
   let t=null;const settle=()=>{t=null;if(trackProg)return;const W=TRACK.clientWidth||1;const i=Math.round(TRACK.scrollLeft/W);if(i!==trackIdx)commitTab(NAV_ORDER[i],true);};
   TRACK.addEventListener('scroll',()=>{if(trackProg)return;const W=TRACK.clientWidth||1;const i=Math.round(TRACK.scrollLeft/W);paintNav(NAV_ORDER[i]);clearTimeout(t);t=setTimeout(settle,120);},{passive:true});
   if('onscrollend' in window)TRACK.addEventListener('scrollend',()=>{clearTimeout(t);settle();},{passive:true});
-  const bnh=()=>{const b=document.getElementById('bnav');if(b)document.documentElement.style.setProperty('--bnavh',Math.ceil(b.getBoundingClientRect().height)+'px');};bnh();setTimeout(bnh,300);
+  const bnh=()=>{const b=document.getElementById('bnav');if(b)document.documentElement.style.setProperty('--bnavh',Math.ceil(b.getBoundingClientRect().height)+'px');};bnh();setTimeout(bnh,300);setTimeout(bnh,1500);try{const b0=document.getElementById('bnav');if(b0&&window.ResizeObserver)new ResizeObserver(bnh).observe(b0);}catch(e){}addEventListener('orientationchange',()=>setTimeout(bnh,300));
   addEventListener('resize',()=>{bnh();trackProg++;TRACK.scrollLeft=trackIdx*TRACK.clientWidth;requestAnimationFrame(()=>trackProg--);});
   setTimeout(renderNeighbours,400);}
 /* keep the other slots fresh while idle so a swipe never re-renders mid-gesture */
