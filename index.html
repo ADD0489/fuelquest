@@ -29,7 +29,8 @@ nav.tabs::-webkit-scrollbar{display:none}
 .tab.active{background:var(--grape);color:#fff}
 main{max-width:1100px;margin:0 auto;padding:14px}
 section.panel{display:none}
-section.panel.active{display:block;animation:fade .3s}
+section.panel.active{display:block}
+section.panel.active.enter{animation:fade .3s}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 h2{font-size:clamp(1.45rem,4.5vw,2.1rem);margin:8px 0 2px;line-height:1.2}
 h3{margin:2px 0 8px;font-size:1.15rem}
@@ -900,6 +901,17 @@ section.panel.swmove{will-change:transform;backface-visibility:hidden}
 main.swiping{pointer-events:none}
 body.noanim section.panel.active{animation:none}
 @media (prefers-reduced-motion: reduce){section.panel.swnb{display:none}}
+
+/* v23: quick add power foods card */
+.pwrcard{margin:4px 0 12px;padding:8px 10px 2px;border-radius:18px;border:1.5px solid #ffd23c;background:linear-gradient(135deg,rgba(255,210,60,.12),rgba(255,159,28,.05));box-shadow:0 0 10px rgba(255,210,60,.28),inset 0 0 8px rgba(255,210,60,.08)}
+.pwrcard .qhead{margin:0 0 6px}.pwrcard .quickrow{padding-bottom:8px}
+[data-theme=light] .pwrcard{background:linear-gradient(135deg,rgba(255,200,40,.16),rgba(255,159,28,.06));box-shadow:0 0 8px rgba(255,170,0,.25)}
+
+/* v23: seamless swipe landing (no post-snap pulse) */
+main.swipeable>section.panel{-webkit-backface-visibility:hidden;backface-visibility:hidden;-webkit-transform-style:flat;transform-style:flat}
+main.swipeable>section.panel.active{will-change:transform;-webkit-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}
+/* v23: panels are their own block formatting context so child margins never collapse differently in the sliding (absolute) and landed (in-flow) states */
+main.swipeable>section.panel.active,main.swipeable>section.panel.swnb{display:flow-root}
 </style>
 </head>
 <body>
@@ -1838,7 +1850,7 @@ const RESOURCE_TABS=new Set(['calorie','kitchen','calc','weight','when','quiz'])
 function showTab(id){if(!id||!document.getElementById(id)||!document.getElementById(id).classList.contains('panel'))id='log';
   if(id!=='log'&&typeof hideUndo==='function')hideUndo();
   if(typeof paintNav==='function')paintNav(id);
-  $$('section.panel').forEach(s=>s.classList.toggle('active',s.id===id));
+  $$('section.panel').forEach(s=>{s.classList.toggle('active',s.id===id);s.classList.toggle('enter',s.id===id);});
   if(RENDER[id])RENDER[id]();if(history.replaceState)history.replaceState(null,'','#'+id);
 }
 function refreshGameViews(){const a=$('section.panel.active');if(a&&RENDER[a.id])RENDER[a.id]();}
@@ -2895,7 +2907,7 @@ function renderLog(){const el=$('#logBody');paintChrome();bindDaySwipe();if(!pro
   const y=g.days[addDays(tk,-1)];const ymsg=isToday&&y&&y.closeMsg&&!y.closeSeen?'<div class="msgbox info daymsg" id="dayMsg"><span>'+esc(y.closeMsg)+'</span><button type="button" class="xbtn" id="dayMsgX" aria-label="Dismiss">✕</button></div>':'';
   const usuals=isToday?usualsOf(g).filter(u=>usualItemsOK(u).length):[];
   const pq=isToday?powerQuick(g,8):[];
-  const quick=(usuals.length?'<div class="qhead small">⭐ My usuals</div><div class="quickrow" id="usualRow" aria-label="My usuals, tap to add">'+usuals.map(u=>'<button type="button" class="qchip usual" data-usual="'+u.id+'">⭐ '+esc(u.name)+'</button>').join('')+'<button type="button" class="qchip ghost" id="usualManage">Manage</button></div>':'')+(pq.length?'<div class="qhead small"><span class="pwr" aria-hidden="true">⚡</span> Quick add power foods <span class="muted">· one tap to log</span></div><div class="quickrow" id="quickRow" aria-label="Quick add power foods, tap to log">'+pq.map(r=>'<button type="button" class="qchip" data-recent="'+r.f+'" data-q="'+r.q+'">'+F[r.f].e+' '+esc(F[r.f].name)+pwrTag(F[r.f])+'</button>').join('')+'</div>':'');
+  const quick=(usuals.length?'<div class="qhead small">⭐ My usuals</div><div class="quickrow" id="usualRow" aria-label="My usuals, tap to add">'+usuals.map(u=>'<button type="button" class="qchip usual" data-usual="'+u.id+'">⭐ '+esc(u.name)+'</button>').join('')+'<button type="button" class="qchip ghost" id="usualManage">Manage</button></div>':'')+(pq.length?'<div class="pwrcard" id="pwrCard"><div class="qhead small"><span class="pwr" aria-hidden="true">⚡</span> Quick add power foods <span class="muted">· one tap to log</span></div><div class="quickrow" id="quickRow" aria-label="Quick add power foods, tap to log">'+pq.map(r=>'<button type="button" class="qchip" data-recent="'+r.f+'" data-q="'+r.q+'">'+F[r.f].e+' '+esc(F[r.f].name)+pwrTag(F[r.f])+'</button>').join('')+'</div></div>':'');
   const yAll=isToday&&!d.foods.length&&y&&(y.foods||[]).some(x=>libOK(x.f));
   const meals=Object.keys(MEALS).map(m=>{const items=d.foods.map((x,i)=>Object.assign({i},x)).filter(x=>x.m===m&&F[x.f]);const k=items.reduce((a,x)=>a+F[x.f].kcal*x.q,0);
     const open=!items.length||!!MEAL_OPEN[m];const col=items.length&&!open;
@@ -3057,9 +3069,11 @@ function initSwipe(){const main=document.querySelector('main');if(!main||main._s
   const paint=()=>{raf=0;if(!st||st.lock!=='h')return;let x=st.dx;const nb=x<0?st.R:st.L;if(!nb){x=x/(1+Math.abs(x)/(st.W*0.5))*0.5;}
     st.x=x;st.cur.style.transform='translate3d('+x+'px,0,0)';if(st.L)st.L.style.transform='translate3d('+(x-st.W)+'px,0,0)';if(st.R)st.R.style.transform='translate3d('+(x+st.W)+'px,0,0)';};
   const begin=()=>{const cur=$('section.panel.active');if(!cur){st=null;return;}const t=tabOf(cur);const i=NAV_ORDER.indexOf(t);if(i<0){st=null;return;}
-    st.cur=cur;st.from=t;st.W=main.clientWidth||innerWidth;TAB_SCROLL[t]=scrollY;
+    const cr=cur.getBoundingClientRect();st.cur=cur;st.from=t;st.W=main.clientWidth||innerWidth;TAB_SCROLL[t]=scrollY;
     const prep=id=>{if(!id)return null;const p=document.getElementById(id);if(!p)return null;if(RENDER[id])RENDER[id]();
-      p.style.left=cur.offsetLeft+'px';p.style.width=cur.offsetWidth+'px';p.style.top=(cur.offsetTop+scrollY-(TAB_SCROLL[id]||0))+'px';p.classList.add('swnb','swmove');return p;};
+      p.classList.add('swnb','swmove');p.style.width=cur.offsetWidth+'px';p.style.left='0px';p.style.top='0px';const r0=p.getBoundingClientRect();
+      /* place it exactly where it will sit after commit + scroll restore, so the swap cannot jump */p.style.left=(cr.left-r0.left)+'px';const mx=Math.max(0,document.documentElement.scrollHeight-cur.offsetHeight+p.offsetHeight-innerHeight);TAB_SCROLL[id]=Math.min(TAB_SCROLL[id]||0,mx);/* clamp so the restore after commit cannot land elsewhere */
+      p.style.top=(cr.top+scrollY-TAB_SCROLL[id]-r0.top)+'px';return p;};
     st.L=prep(NAV_ORDER[i-1]);st.R=prep(NAV_ORDER[i+1]);cur.classList.add('swmove');main.classList.add('swiping');};
   main.addEventListener('touchstart',e=>{if(st&&st.anim)return;reset();if(e.touches.length!==1||modalOpen||document.querySelector('.modal.show,.modal.open')||swipeBlocked(e.target,main))return;
     const t=e.touches[0];st={x0:t.clientX,y0:t.clientY,dx:0,lock:null,pts:[[t.clientX,performance.now()]]};},{passive:true});
@@ -3073,12 +3087,13 @@ function initSwipe(){const main=document.querySelector('main');if(!main||main._s
     if(raf){cancelAnimationFrame(raf);raf=0;}st.anim=true;const W=st.W,tx=commit?-dir*W:0,ms=commit?Math.max(160,Math.min(260,Math.round((W-Math.abs(st.dx))/Math.max(Math.abs(v),1.2)))):220;
     const tr='transform '+ms+'ms cubic-bezier(.22,.9,.3,1)';[st.cur,st.L,st.R].forEach(q=>{if(q)q.style.transition=tr;});
     st.cur.style.transform='translate3d('+tx+'px,0,0)';if(st.L)st.L.style.transform='translate3d('+(tx-W)+'px,0,0)';if(st.R)st.R.style.transform='translate3d('+(tx+W)+'px,0,0)';
-    const s0=st;setTimeout(()=>{const to=commit?NAV_ORDER[NAV_ORDER.indexOf(s0.from)+dir]:null;st=s0;s0.anim=false;
-      if(to){document.body.classList.add('noanim');reset();commitTab(to);requestAnimationFrame(()=>document.body.classList.remove('noanim'));}else reset();},ms+20);};
+    const s0=st;let done=false;const fin=()=>{if(done)return;done=true;s0.cur.removeEventListener('transitionend',onEnd);const to=commit?NAV_ORDER[NAV_ORDER.indexOf(s0.from)+dir]:null;st=s0;s0.anim=false;
+      /* same frame: swap classes, drop transforms, restore scroll. No re-render, no enter animation. */reset();if(to)commitTab(to);};
+    const onEnd=e=>{if(e.target===s0.cur&&e.propertyName==='transform')fin();};s0.cur.addEventListener('transitionend',onEnd);setTimeout(fin,ms+80);};
   main.addEventListener('touchend',end,{passive:true});main.addEventListener('touchcancel',()=>{if(st&&!st.anim){st.dx=0;end();}},{passive:true});}
 /* commit without re-rendering the pane the user just watched slide in */
 function commitTab(id){if(id!=='log'&&typeof hideUndo==='function')hideUndo();if(id==='log')viewKey=null;paintNav(id);
-  $$('section.panel').forEach(s=>s.classList.toggle('active',s.id===id));if(history.replaceState)history.replaceState(null,'','#'+id);window.scrollTo(0,TAB_SCROLL[id]||0);}
+  $$('section.panel').forEach(s=>{s.classList.toggle('active',s.id===id);s.classList.remove('enter');});if(history.replaceState)history.replaceState(null,'','#'+id);window.scrollTo(0,TAB_SCROLL[id]||0);}
 function swipeTab(dir,instant){const a=$('section.panel.active');const cur=tabOf(a);const i=NAV_ORDER.indexOf(cur);const j=i+dir;if(i<0||j<0||j>=NAV_ORDER.length)return false;TAB_SCROLL[cur]=scrollY;const id=NAV_ORDER[j];if(RENDER[id])RENDER[id]();commitTab(id);return true;}
 
 function pwrZap(id){try{if(navigator.vibrate)navigator.vibrate([12,40,18]);}catch(e){}
