@@ -888,6 +888,18 @@ section.panel.slide-l{animation:slidel .28s ease}section.panel.slide-r{animation
 .pwr.zap::after{content:"";position:absolute;left:50%;top:50%;width:2.6em;height:2.6em;border-radius:50%;pointer-events:none;background:radial-gradient(circle,transparent 40%,rgba(255,226,90,.9) 42%,transparent 48%),conic-gradient(from 0deg,#ffe680 0 4%,transparent 4% 12.5%,#7dd3fc 12.5% 16.5%,transparent 16.5% 25%,#ffe680 25% 29%,transparent 29% 37.5%,#7dd3fc 37.5% 41.5%,transparent 41.5% 50%,#ffe680 50% 54%,transparent 54% 62.5%,#7dd3fc 62.5% 66.5%,transparent 66.5% 75%,#ffe680 75% 79%,transparent 79% 87.5%,#7dd3fc 87.5% 91.5%,transparent 91.5%);-webkit-mask:radial-gradient(circle,transparent 35%,#000 36%);mask:radial-gradient(circle,transparent 35%,#000 36%);animation:spark .6s ease-out forwards}
 .toast.zap{animation:toastzap .7s ease-out}
 @media (prefers-reduced-motion: reduce){.pwr.zap,.toast.zap{animation:none}.pwr.zap::after{display:none}}
+
+/* v22 quick add heading */
+.qhead{display:flex;align-items:center;gap:6px;font-weight:800;margin:4px 0 4px;color:var(--ink)}.qhead .pwr{margin:0}.qhead .muted{font-weight:600}
+
+/* v22: follow-the-finger tab swipe */
+main.swipeable{position:relative;touch-action:pan-y;overflow-x:clip}
+.quickrow,.qtyrow,#sheetMeals,#groupChips,[data-noswipe]{touch-action:pan-x pan-y}
+section.panel.swnb{display:block;position:absolute;margin:0;animation:none}
+section.panel.swmove{will-change:transform;backface-visibility:hidden}
+main.swiping{pointer-events:none}
+body.noanim section.panel.active{animation:none}
+@media (prefers-reduced-motion: reduce){section.panel.swnb{display:none}}
 </style>
 </head>
 <body>
@@ -2881,8 +2893,9 @@ function renderLog(){const el=$('#logBody');paintChrome();bindDaySwipe();if(!pro
   if(!logMeal)logMeal=mealNow();const tk=dkey();const vk=viewKey&&viewKey<tk?viewKey:tk;const isToday=vk===tk;const d=isToday?today(g):(g.days[vk]||newDay());
   const dateLbl=isToday?'Today':kdate(vk).toLocaleDateString('en',{weekday:'long',day:'numeric',month:'short'});
   const y=g.days[addDays(tk,-1)];const ymsg=isToday&&y&&y.closeMsg&&!y.closeSeen?'<div class="msgbox info daymsg" id="dayMsg"><span>'+esc(y.closeMsg)+'</span><button type="button" class="xbtn" id="dayMsgX" aria-label="Dismiss">✕</button></div>':'';
-  const usuals=isToday?usualsOf(g).filter(u=>usualItemsOK(u).length):[];const rec=isToday?recentFoods(g,8):[];
-  const quick=(usuals.length||rec.length)?'<div class="quickrow" id="quickRow" aria-label="Usuals and recents, tap to add">'+usuals.map(u=>'<button type="button" class="qchip usual" data-usual="'+u.id+'">⭐ '+esc(u.name)+'</button>').join('')+rec.map(r=>'<button type="button" class="qchip" data-recent="'+r.f+'" data-q="'+r.q+'">'+F[r.f].e+' '+esc(F[r.f].name)+pwrTag(F[r.f])+'</button>').join('')+(usuals.length?'<button type="button" class="qchip ghost" id="usualManage">Manage</button>':'')+'</div>':'';
+  const usuals=isToday?usualsOf(g).filter(u=>usualItemsOK(u).length):[];
+  const pq=isToday?powerQuick(g,8):[];
+  const quick=(usuals.length?'<div class="qhead small">⭐ My usuals</div><div class="quickrow" id="usualRow" aria-label="My usuals, tap to add">'+usuals.map(u=>'<button type="button" class="qchip usual" data-usual="'+u.id+'">⭐ '+esc(u.name)+'</button>').join('')+'<button type="button" class="qchip ghost" id="usualManage">Manage</button></div>':'')+(pq.length?'<div class="qhead small"><span class="pwr" aria-hidden="true">⚡</span> Quick add power foods <span class="muted">· one tap to log</span></div><div class="quickrow" id="quickRow" aria-label="Quick add power foods, tap to log">'+pq.map(r=>'<button type="button" class="qchip" data-recent="'+r.f+'" data-q="'+r.q+'">'+F[r.f].e+' '+esc(F[r.f].name)+pwrTag(F[r.f])+'</button>').join('')+'</div>':'');
   const yAll=isToday&&!d.foods.length&&y&&(y.foods||[]).some(x=>libOK(x.f));
   const meals=Object.keys(MEALS).map(m=>{const items=d.foods.map((x,i)=>Object.assign({i},x)).filter(x=>x.m===m&&F[x.f]);const k=items.reduce((a,x)=>a+F[x.f].kcal*x.q,0);
     const open=!items.length||!!MEAL_OPEN[m];const col=items.length&&!open;
@@ -3018,7 +3031,7 @@ function recapMsgHTML(p,g){const lw=addDays(weekKey(),-7);let n=0,band=0;const E
   if(!n)return '';return '<div class="card recapmsg"><div class="eyebrow">'+ic('award',14)+' Last week</div><p style="margin:4px 0 0">You showed up on <b>'+n+' of 7 days</b>'+(band?' and '+band+' landed in your fuel band':'')+'. '+(n>=5?'That is real consistency. Keep it rolling.':n>=3?'Solid start. One more day this week is a win.':'Every day you log counts. Fresh week, fresh page.')+'</p></div>';}
 
 /* ---------- day swipe on Today ---------- */
-function bindDaySwipe(){const el=$('#logBody');if(!el||el._sw)return;el._sw=1;let x0=null,y0=null;
+function bindDaySwipe(){return;/* v22: removed, conflicted with tab swipe; use the day arrows */const el=$('#logBody');if(!el||el._sw)return;el._sw=1;let x0=null,y0=null;
   el.addEventListener('touchstart',e=>{if(modalOpen)return;const t=e.touches[0];x0=t.clientX;y0=t.clientY;},{passive:true});
   el.addEventListener('touchend',e=>{if(x0==null)return;const t=e.changedTouches[0];const dx=t.clientX-x0,dy=t.clientY-y0;x0=null;if(Math.abs(dx)<70||Math.abs(dy)>50)return;if(e.target.closest('.quickrow'))return;const b=$(dx>0?'#dayPrev':'#dayNext');if(b&&!b.disabled)b.click();},{passive:true});}
 function setLogMeal(m){if(MEALS[m])logMeal=m;}
@@ -3035,18 +3048,51 @@ function wholeCheck(d){const g=G();if(!g||!d||g.days[dkey()]!==d)return;d.wf=d.w
 /* ---------- v21: swipe between bottom tabs ---------- */
 const NAV_ORDER=['log','home','resources','me'];
 function swipeBlocked(el,root){for(let n=el;n&&n!==root;n=n.parentElement){if(n.matches&&n.matches('input,textarea,select,[contenteditable],canvas,[data-noswipe]'))return true;if(n.scrollWidth>n.clientWidth+4){const ox=getComputedStyle(n).overflowX;if(ox==='auto'||ox==='scroll')return true;}}return false;}
-function initSwipe(){let sx=0,sy=0,t0=0,ok=false;const main=document.querySelector('main');if(!main||main._sw)return;main._sw=1;
-  main.addEventListener('touchstart',e=>{if(e.touches.length!==1||document.querySelector('.modal.show,.modal.open,.modal[open]')){ok=false;return;}const t=e.touches[0];sx=t.clientX;sy=t.clientY;t0=Date.now();ok=!swipeBlocked(e.target,main);},{passive:true});
-  main.addEventListener('touchend',e=>{if(!ok)return;ok=false;const t=e.changedTouches[0];const dx=t.clientX-sx,dy=t.clientY-sy;
-    if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*2||Date.now()-t0>800)return;swipeTab(dx<0?1:-1);},{passive:true});}
-function swipeTab(dir){const a=$('section.panel.active');const cur=NAV_PARENT[a&&a.id]||(a&&a.id)||'log';const i=NAV_ORDER.indexOf(cur);const j=i+dir;if(i<0||j<0||j>=NAV_ORDER.length)return false;
-  const id=NAV_ORDER[j];if(id==='log')viewKey=null;showTab(id);window.scrollTo(0,0);
-  const p=document.getElementById(id);if(p&&!matchMedia('(prefers-reduced-motion: reduce)').matches){p.classList.remove('slide-l','slide-r');void p.offsetWidth;p.classList.add(dir>0?'slide-l':'slide-r');setTimeout(()=>p.classList.remove('slide-l','slide-r'),320);}return true;}
+const TAB_SCROLL={};
+function rmOK(){return matchMedia('(prefers-reduced-motion: reduce)').matches;}
+function tabOf(p){return NAV_PARENT[p&&p.id]||(p&&p.id)||'log';}
+function initSwipe(){const main=document.querySelector('main');if(!main||main._sw)return;main._sw=1;main.classList.add('swipeable');
+  let st=null,raf=0;
+  const reset=()=>{if(!st)return;[st.cur,st.L,st.R].forEach(p=>{if(!p)return;p.style.transform='';p.style.transition='';p.style.top='';p.style.left='';p.style.width='';p.classList.remove('swnb','swmove');});main.classList.remove('swiping');st=null;};
+  const paint=()=>{raf=0;if(!st||st.lock!=='h')return;let x=st.dx;const nb=x<0?st.R:st.L;if(!nb){x=x/(1+Math.abs(x)/(st.W*0.5))*0.5;}
+    st.x=x;st.cur.style.transform='translate3d('+x+'px,0,0)';if(st.L)st.L.style.transform='translate3d('+(x-st.W)+'px,0,0)';if(st.R)st.R.style.transform='translate3d('+(x+st.W)+'px,0,0)';};
+  const begin=()=>{const cur=$('section.panel.active');if(!cur){st=null;return;}const t=tabOf(cur);const i=NAV_ORDER.indexOf(t);if(i<0){st=null;return;}
+    st.cur=cur;st.from=t;st.W=main.clientWidth||innerWidth;TAB_SCROLL[t]=scrollY;
+    const prep=id=>{if(!id)return null;const p=document.getElementById(id);if(!p)return null;if(RENDER[id])RENDER[id]();
+      p.style.left=cur.offsetLeft+'px';p.style.width=cur.offsetWidth+'px';p.style.top=(cur.offsetTop+scrollY-(TAB_SCROLL[id]||0))+'px';p.classList.add('swnb','swmove');return p;};
+    st.L=prep(NAV_ORDER[i-1]);st.R=prep(NAV_ORDER[i+1]);cur.classList.add('swmove');main.classList.add('swiping');};
+  main.addEventListener('touchstart',e=>{if(st&&st.anim)return;reset();if(e.touches.length!==1||modalOpen||document.querySelector('.modal.show,.modal.open')||swipeBlocked(e.target,main))return;
+    const t=e.touches[0];st={x0:t.clientX,y0:t.clientY,dx:0,lock:null,pts:[[t.clientX,performance.now()]]};},{passive:true});
+  main.addEventListener('touchmove',e=>{if(!st||st.anim)return;const t=e.touches[0];const dx=t.clientX-st.x0,dy=t.clientY-st.y0;
+    if(!st.lock){if(Math.hypot(dx,dy)<10)return;st.lock=Math.abs(dx)>Math.abs(dy)*1.2?'h':'v';if(st.lock==='v'){st=null;return;}st.x0=t.clientX;if(!rmOK())begin();if(!st)return;}
+    st.dx=t.clientX-st.x0;st.pts.push([t.clientX,performance.now()]);if(st.pts.length>6)st.pts.shift();if(st.cur&&!raf)raf=requestAnimationFrame(paint);},{passive:true});
+  const end=()=>{if(!st||st.anim)return;if(st.lock!=='h'){st=null;return;}
+    const p=st.pts,a=p[0],b=p[p.length-1];const v=b[1]>a[1]?(b[0]-a[0])/(b[1]-a[1]):0;/* px per ms */
+    const dir=st.dx<0?1:-1;const nb=dir>0?st.R:st.L;const commit=!!nb&&(Math.abs(st.dx)>0.35*(st.W||innerWidth)||(Math.abs(v)>0.45&&Math.sign(v)===-dir&&Math.abs(st.dx)>20));
+    if(rmOK()||!st.cur){const s0=st;st=null;if(commit||(!s0.cur&&Math.abs(s0.dx)>60&&Math.abs(v)>=0))swipeTab(dir,true);return;}
+    if(raf){cancelAnimationFrame(raf);raf=0;}st.anim=true;const W=st.W,tx=commit?-dir*W:0,ms=commit?Math.max(160,Math.min(260,Math.round((W-Math.abs(st.dx))/Math.max(Math.abs(v),1.2)))):220;
+    const tr='transform '+ms+'ms cubic-bezier(.22,.9,.3,1)';[st.cur,st.L,st.R].forEach(q=>{if(q)q.style.transition=tr;});
+    st.cur.style.transform='translate3d('+tx+'px,0,0)';if(st.L)st.L.style.transform='translate3d('+(tx-W)+'px,0,0)';if(st.R)st.R.style.transform='translate3d('+(tx+W)+'px,0,0)';
+    const s0=st;setTimeout(()=>{const to=commit?NAV_ORDER[NAV_ORDER.indexOf(s0.from)+dir]:null;st=s0;s0.anim=false;
+      if(to){document.body.classList.add('noanim');reset();commitTab(to);requestAnimationFrame(()=>document.body.classList.remove('noanim'));}else reset();},ms+20);};
+  main.addEventListener('touchend',end,{passive:true});main.addEventListener('touchcancel',()=>{if(st&&!st.anim){st.dx=0;end();}},{passive:true});}
+/* commit without re-rendering the pane the user just watched slide in */
+function commitTab(id){if(id!=='log'&&typeof hideUndo==='function')hideUndo();if(id==='log')viewKey=null;paintNav(id);
+  $$('section.panel').forEach(s=>s.classList.toggle('active',s.id===id));if(history.replaceState)history.replaceState(null,'','#'+id);window.scrollTo(0,TAB_SCROLL[id]||0);}
+function swipeTab(dir,instant){const a=$('section.panel.active');const cur=tabOf(a);const i=NAV_ORDER.indexOf(cur);const j=i+dir;if(i<0||j<0||j>=NAV_ORDER.length)return false;TAB_SCROLL[cur]=scrollY;const id=NAV_ORDER[j];if(RENDER[id])RENDER[id]();commitTab(id);return true;}
 
 function pwrZap(id){try{if(navigator.vibrate)navigator.vibrate([12,40,18]);}catch(e){}
   if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const els=[$('#toast')].concat(Array.from(document.querySelectorAll('[data-add="'+id+'"] .pwr,[data-recent="'+id+'"] .pwr'))).filter(Boolean);
   els.forEach(el=>{el.classList.remove('zap');void el.offsetWidth;el.classList.add('zap');setTimeout(()=>el.classList.remove('zap'),760);});}
+
+/* v22: quick add row offers power (whole) foods only: recent/frequent first, then defaults */
+const PQ_DEFAULTS=['banana','apple','eggs','kiwi','yog','s_orange','carrot','s_almonds','s_blueberries','s_kiwifruitgold'];
+function powerQuick(g,n){const ok=id=>F[id]&&F[id].whole&&libOK(id)&&ageOK(F[id]);const out=[],seen=new Set();
+  const cnt={},last={};Object.keys(g.days||{}).sort().slice(-30).forEach(k=>(g.days[k].foods||[]).forEach(x=>{if(!ok(x.f))return;cnt[x.f]=(cnt[x.f]||0)+1;last[x.f]=k;}));
+  const rq={};recentFoods(g,40).forEach(r=>{if(rq[r.f]==null)rq[r.f]=r.q;});
+  Object.keys(cnt).sort((a,b)=>(cnt[b]-cnt[a])||(last[b]>last[a]?1:-1)).forEach(id=>{if(out.length<n&&!seen.has(id)){seen.add(id);out.push({f:id,q:rq[id]||1});}});
+  PQ_DEFAULTS.forEach(id=>{if(out.length<n&&ok(id)&&!seen.has(id)){seen.add(id);out.push({f:id,q:1});}});return out;}
 
 /* =========================================================
    Single-device profile (one person per phone by default)
@@ -3245,7 +3291,7 @@ function init(){
   if(G()){checkProgress();}
   setTimeout(()=>{if(!modalOpen)maybeDobPrompt();},1200);
   if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
-  window.FQ={swipeTab,swipeBlocked,wholeCheck,setLogMeal,fsearch,openAddSheet,openEditItem,openTrackers,openWaiting,renderMe,setHide,autoCloseDays,recentFoods,PARKED,ageFromDob,parseDob,needsDob,dobPromptDue,maybeDobPrompt,ageOK,isAdultProfile,ageYears,usualsOf,saveUsual,logUsual,renameUsual,deleteUsual,sameAsYesterday,usualSuggestion,dismissSuggestion,renderLog,teenWeight,whoLMS,whoZ,FOODDATA:()=>FOODDATA,refreshFoodData,foodRequests,requestText,requestPayload,sendFoodRequest,openRequestIn,pendingRequests,closestFoods,libOK,logFoodNow,addPlate,RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
+  window.FQ={powerQuick,swipeTab,swipeBlocked,wholeCheck,setLogMeal,fsearch,openAddSheet,openEditItem,openTrackers,openWaiting,renderMe,setHide,autoCloseDays,recentFoods,PARKED,ageFromDob,parseDob,needsDob,dobPromptDue,maybeDobPrompt,ageOK,isAdultProfile,ageYears,usualsOf,saveUsual,logUsual,renameUsual,deleteUsual,sameAsYesterday,usualSuggestion,dismissSuggestion,renderLog,teenWeight,whoLMS,whoZ,FOODDATA:()=>FOODDATA,refreshFoodData,foodRequests,requestText,requestPayload,sendFoodRequest,openRequestIn,pendingRequests,closestFoods,libOK,logFoodNow,addPlate,RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
 }
 function refreshFoodData(){return fetchFoodData().then(d=>{const changed=!FOODDATA||JSON.stringify(d)!==JSON.stringify(FOODDATA);if(!changed)return false;applyFoodData(d);buildFoods(S.pack);s2list=defaultS2();refreshGameViews();return true;}).catch(()=>false);}
 function boot(){const c=cachedFoodData();
