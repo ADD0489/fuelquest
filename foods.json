@@ -1,5 +1,5 @@
 {
- "version": "2026.10.16-3",
+ "version": "2026.10.20-1",
  "note": "FuelQuest shared food library. Only the reviewer edits this file. Row format for core/packs: [id, name, serve, kcal, protein g, tag e/s/t, group P/F/Z/T, emoji, fullness 1-5, plate cat p/c/v/b/t/d, carbs g, fat g]. community[] entries are objects: {name, serve, kcal, p, cb, ft, cat, g, e, tag, verified:true, source:'NZ FOODfiles' or 'pack label'}. Values are researched by the reviewer, never copied from a request. Bump version on every change.",
  "core": [
   [
@@ -9591,6 +9591,101 @@
     "jack link's",
     "jerky",
     "biltong"
+   ]
+  },
+  {
+   "name": "Bliss ball",
+   "serve": "3 balls (33 g)",
+   "kcal": 143,
+   "p": 2.9,
+   "cb": 16,
+   "ft": 6.6,
+   "cat": "t",
+   "g": "T",
+   "e": "🟤",
+   "tag": "s",
+   "full": 2,
+   "verified": true,
+   "source": "Retailer pack label",
+   "ref": "Tom & Luke Salted Caramel Snackaballs NZ pack label (newworld.co.nz), fibre and kcal cross-checked with Deal First, accessed Oct 2026",
+   "id": "tomlukesnackaballs33g",
+   "aka": [
+    "bliss ball",
+    "bliss balls",
+    "tom and luke",
+    "tom & luke",
+    "snackaballs",
+    "snackaball",
+    "energy balls"
+   ]
+  },
+  {
+   "name": "Hot cocoa (unsweetened, water + splash of milk)",
+   "serve": "1 mug (1½ tsp cocoa, water, 30 ml milk)",
+   "kcal": 31,
+   "p": 1.8,
+   "cb": 2.2,
+   "ft": 1.5,
+   "cat": "d",
+   "g": "T",
+   "e": "☕",
+   "tag": "e",
+   "full": 1,
+   "verified": true,
+   "source": "Calculated from ingredients",
+   "ref": "Calculated from typical cocoa powder, milk/cream and sugar nutrition values",
+   "id": "hotcocoawatermilk",
+   "aka": [
+    "hot cocoa",
+    "cocoa drink",
+    "bournville"
+   ]
+  },
+  {
+   "name": "Hot cocoa (unsweetened, water + splash of cream)",
+   "serve": "1 mug (1½ tsp cocoa, water, 30 ml cream)",
+   "kcal": 117,
+   "p": 1.4,
+   "cb": 1.6,
+   "ft": 11.7,
+   "cat": "d",
+   "g": "T",
+   "e": "☕",
+   "tag": "s",
+   "full": 1,
+   "verified": true,
+   "source": "Calculated from ingredients",
+   "ref": "Calculated from typical cocoa powder, milk/cream and sugar nutrition values",
+   "id": "hotcocoawatercream",
+   "aka": [
+    "hot cocoa",
+    "cocoa drink",
+    "bournville"
+   ]
+  },
+  {
+   "name": "Sugar (white)",
+   "serve": "1 tsp (4 g)",
+   "kcal": 16,
+   "p": 0,
+   "cb": 4.2,
+   "ft": 0,
+   "cat": "t",
+   "g": "P",
+   "e": "🧂",
+   "tag": "s",
+   "full": 0,
+   "verified": true,
+   "source": "Calculated from ingredients",
+   "ref": "White sugar 400 kcal per 100 g (matches core White sugar entry), 1 tsp = 4 g",
+   "id": "sugar1tsp",
+   "aka": [
+    "sugar",
+    "white sugar",
+    "teaspoon sugar",
+    "tsp sugar",
+    "sugar in tea",
+    "sugar in coffee"
    ]
   }
  ],
