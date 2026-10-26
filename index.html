@@ -855,8 +855,8 @@ footer b{font-weight:700}
 .rlist{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
 .rrow{display:flex;align-items:center;gap:8px;min-height:40px}.rdot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
 .rtxt{flex:1;min-width:0;line-height:1.15}.rtxt small{display:block;font-size:.72rem}.rrow.done b{color:#3ddc84}.rrow.over b{color:#f2b544}
-.qbtn.rq{flex:0 0 auto;min-width:64px;min-height:40px;padding:6px 10px;display:inline-flex;align-items:center;justify-content:center;gap:4px;font-weight:800}
-.qbtn.rmore{width:100%;margin-top:8px;min-height:34px;font-size:.85rem;font-weight:700;padding:4px 10px;display:flex;justify-content:center}
+.qbtn.rq{flex:0 0 auto;min-width:64px;min-height:44px;padding:6px 10px;display:inline-flex;align-items:center;justify-content:center;gap:4px;font-weight:800}
+.qbtn.rmore{width:100%;margin-top:8px;min-height:44px;font-size:.85rem;font-weight:700;padding:4px 10px;display:flex;justify-content:center}
 .allmsg{text-align:center;font-weight:800;color:#3ddc84;margin-top:6px}
 .ringhero.allclosed{box-shadow:0 0 0 2px rgba(61,220,132,.5),0 0 24px rgba(61,220,132,.35)}
 @keyframes ringpop{0%{filter:none;stroke-width:11}40%{filter:drop-shadow(0 0 6px #3ddc84);stroke-width:14}100%{filter:drop-shadow(0 0 2px #3ddc84);stroke-width:11}}
@@ -871,7 +871,8 @@ main{padding-bottom:18px}
 section.panel{padding-left:max(4px,env(safe-area-inset-left));padding-right:max(4px,env(safe-area-inset-right))}
 footer{padding:10px 18px calc(84px + env(safe-area-inset-bottom))}
 .bnav{height:auto;min-height:66px;padding:4px 0 calc(8px + env(safe-area-inset-bottom))}
-.toast{bottom:calc(140px + env(safe-area-inset-bottom))}
+.toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+body:has(.undobar.show) .toast{bottom:calc(140px + env(safe-area-inset-bottom))}
 .undobar{bottom:calc(84px + env(safe-area-inset-bottom))}
 @keyframes slidel{from{transform:translateX(40px);opacity:.3}to{transform:none;opacity:1}}
 @keyframes slider{from{transform:translateX(-40px);opacity:.3}to{transform:none;opacity:1}}
@@ -961,7 +962,7 @@ html.tracked main.swipeable{touch-action:auto;overflow-x:visible}
 .spbolt{font-size:1.3rem;flex:0 0 auto;align-self:flex-start;margin-top:4px}
 
 /* v26: every tab's scroll content clears the fixed tab bar (+ safe area + margin) */
-html.tracked .tabslotin{padding-bottom:calc(var(--bnavh,calc(74px + env(safe-area-inset-bottom))) + 28px)}
+html.tracked .tabslotin{padding-bottom:calc(var(--bnavh,calc(74px + env(safe-area-inset-bottom))) + 92px)}
 html.tracked .tabslotin>footer{padding-bottom:8px}
 
 /* v27: bigger, belt-and-braces clearance + readable disclaimer on iOS */
@@ -973,6 +974,27 @@ footer .fdisc{display:inline;color:var(--muted);-webkit-text-fill-color:currentC
 footer b{-webkit-text-fill-color:currentColor}
 /* v27: pin the app shell to the real visible viewport (iOS standalone 100vh/dvh can exceed the screen, pushing each tab's scroll end below the tab bar) */
 html.tracked body{position:fixed;inset:0;height:auto;width:100%}
+
+/* v28: layered disclosure, calm streaks, 44px tap targets */
+.explain .exq{padding:0 12px 6px}.explain .exq p{margin:4px 0 8px;font-size:.95rem}
+.explain .fullver{margin:0 8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.explain .fullver>summary{padding:12px 14px;text-transform:none;letter-spacing:0;font-size:.9rem;min-height:44px}
+.explain .fullver>summary::after{transform:none}.explain .fullver[open]>summary::after{transform:rotate(45deg)}
+.explain .fullver .steps{padding:0 8px 8px}.explain .fullver .steps li{grid-template-columns:28px 1fr;gap:8px}
+.keyidea{border-left:4px solid var(--teal)}.keyidea ol{margin:6px 0 0;padding-left:20px}.keyidea li{margin:4px 0}
+.streaknote{margin:8px 0 0}
+details.more>summary{min-height:44px}
+.btn.sm,.chip,.resback{min-height:44px}
+input[type=checkbox]{width:22px;height:22px;flex:none}
+label.row.small:has(>input[type=checkbox]){min-height:44px;align-items:center}
+input[type=range]{min-height:44px}
+select,input[type=number],input[type=text],input[type=date]{min-height:44px}
+
+/* v28b: full-width explainer on the Me tab calculator; 44px Energy 101 rows */
+.tcard.explainwide{margin-top:10px}.tcard.explainwide .explain{margin-top:0}
+.nip tr.click td{height:44px;padding-top:0;padding-bottom:0}
+
+.toast.up{bottom:auto!important;top:calc(66px + env(safe-area-inset-top))}
 </style>
 </head>
 <body>
@@ -1040,6 +1062,13 @@ html.tracked body{position:fixed;inset:0;height:auto;width:100%}
   <button type="button" class="btn sm alt resback" onclick="showTab('resources')">← Learn</button>
   <h2>⚡ What's a calorie?</h2>
   <p class="lead soft">kcal and kJ measure food energy, like litres measure petrol.</p>
+  <div class="card keyidea"><h3>💡 In 30 seconds</h3>
+    <ol class="small">
+      <li>Food gives you energy; your body and your moving use it.</li>
+      <li>Most of it just keeps you alive and growing, so needing lots of fuel is normal.</li>
+      <li>kJ and kcal are the same thing in two units. Play with the sliders, then dig deeper below.</li>
+    </ol>
+  </div>
   <div class="grid2">
     <div class="card">
       <h3>Energy in 🍽️ vs energy out 🏃</h3>
@@ -1113,13 +1142,15 @@ html.tracked body{position:fixed;inset:0;height:auto;width:100%}
       <p class="small" id="nipTotal" style="margin:6px 0 0"></p>
     </div>
   </div>
-  <div class="card">
-    <h3>Per serve vs per 100 g: the 2-second rule ✌️</h3>
+  <details class="more" id="perServe"><summary><span>Per serve vs per 100 g: the 2-second rule ✌️</span></summary><div class="morebody">
+<div class="card">
+    
     <div class="grid2">
       <div><span class="big">🥄</span><p><b>Per serving</b> tells you what you actually eat, <i>if</i> you eat the serving size on the pack. Check it: a "serve" of chips might be way smaller than the bag!</p></div>
       <div><span class="big">⚖️</span><p><b>Per 100 g</b> lets you compare two products fairly, like two cereals or two yoghurts, because the amount is the same. Lower sugar and sodium, higher fibre and protein per 100 g usually wins for everyday foods.</p></div>
     </div>
   </div>
+  </div></details>
 </section>
 
 <!-- 2. KIWI KITCHEN -->
@@ -1187,9 +1218,11 @@ html.tracked body{position:fixed;inset:0;height:auto;width:100%}
     </form>
   </div>
   <div id="profiles"></div>
+  <details class="more" id="howItWorksMore"><summary><span>How the numbers work (technical)</span></summary><div class="morebody">
   <div class="card small muted">
     <b>How it works:</b> Adults (18+) use the Mifflin-St Jeor equation for resting energy (BMR) × an activity factor (1.2, 1.375, 1.55, 1.725 or 1.9). Under-18s use the US Institute of Medicine Estimated Energy Requirement (EER) equations, the same basis used for the Australia/NZ Nutrient Reference Values, which include energy for growth. This page shows under-18s energy and protein guides only, never weight-loss targets (16 and 17 year olds can opt in to a gentle target in My Plan). All results are estimates; real needs vary by 10% or more.
   </div>
+  </div></details>
 </section>
 
 <!-- MY PLAN -->
@@ -1200,17 +1233,18 @@ html.tracked body{position:fixed;inset:0;height:auto;width:100%}
     <label class="row small" style="font-weight:800;cursor:pointer"><input type="checkbox" id="hideNums"> 🙈 Hide my numbers</label>
   </div>
   <div id="planBody"></div>
-  <div class="card">
+  <details class="more" id="kitchenMore"><summary><span>🍳 Our kitchen: staples to keep handy</span></summary><div class="morebody"><div class="card">
     <h3>🍳 Our kitchen: staples to keep handy</h3>
     <p class="small muted">A shared list for the whole house. Tick what you've got; untick when it runs out.</p>
     <div class="grid3" id="kitchenList"></div>
     <p class="small" style="margin-top:10px">💡 <b>Make it easy for everyone:</b> fruit bowl on the bench, chopped veg at eye level in the fridge, a jug of cold water on the table, and treats in a cupboard rather than on the bench.</p>
   </div>
-  <div class="card">
+  </div></details>
+  <details class="more" id="takeawayMore"><summary><span>🍟 Takeaway guide: takeaways fit too</span></summary><div class="morebody"><div class="card">
     <h3>🍟 Takeaway guide: takeaways fit too</h3>
     <p class="small muted">Approximate energy for a typical order, plus easy tweaks. No guilt, just good info.</p>
     <div class="grid2" id="takeaways"></div>
-  </div>
+  </div></div></details>
 </section>
 
 <!-- 4. WEIGHT -->
@@ -1294,11 +1328,19 @@ html.tracked body{position:fixed;inset:0;height:auto;width:100%}
   <button type="button" class="btn sm alt resback" onclick="showTab('resources')">← Learn</button>
   <h2>⏰ When to eat what</h2>
   <p class="lead soft">A typical day. Tap a stop for tips.</p>
+  <div class="card keyidea"><h3>💡 In 30 seconds</h3>
+    <ol class="small">
+      <li>Eat regularly through the day, with protein at each meal.</li>
+      <li>Put carbs around training; drink water when you are thirsty.</li>
+      <li>Treats are fine, ideally with a meal. Tap any stop below for tips.</li>
+    </ol>
+  </div>
   <div class="grid2">
     <div class="card">
       <div class="tl" id="timeline"></div>
     </div>
     <div>
+      <details class="more" id="trainEarly"><summary><span>🏋️ Training early, before breakfast? Read the full tips</span></summary><div class="morebody">
       <div class="card dadnote">
         <h3>🏋️ Training early, before breakfast?</h3>
         <p>Some of us like to train first thing on an empty stomach ("fasted"). That's fine for lots of adults. A few tips to get the most from it:</p>
@@ -1310,6 +1352,7 @@ html.tracked body{position:fixed;inset:0;height:auto;width:100%}
           <li>🧒 Under 18 and training early? Have a small snack first (banana, toast, a glass of milk); growing bodies need the fuel.</li>
         </ul>
       </div>
+      </div></details>
       <div class="card">
         <h3>🌟 The big ideas</h3>
         <ul>
@@ -1537,7 +1580,7 @@ const CREATURES=[
 ].map(a=>({id:a[0],name:a[1],el:a[2],r:a[3],col:a[4],shape:a[5],bio:a[6],how:a[7]}));
 const CR={};CREATURES.forEach(c=>CR[c.id]=c);
 const EGGS={2:{km:2,pool:[['bubbloon',4],['crumbkin',4],['glimmoth',2],['splashlet',1],['sproutle',1],['gustling',1]],col:'#9be38a'},5:{km:5,pool:[['glimmoth',4],['frostfin',3],['puddlepup',2],['zephyrix',2],['switcheroo',2]],col:'#ffd166'},10:{km:10,pool:[['frostfin',3],['thunderbun',3],['prismallow',3],['galecrest',2],['aurorox',1]],col:'#c39bff'}};
-const ITEMS={shield:['🛡️','Streak Shield','Protects your streaks if you miss one day. Used automatically.'],boost:['⚡','XP Boost','Doubles XP for the rest of today. Tap to activate.'],charm:['🍀','Lucky Charm','Your next egg hatch is one rarity tier luckier. Used automatically.'],incense:['🔔','Encounter Bell','Ring it to meet a random creature from the wild.']};
+const ITEMS={shield:['🛡️','Rest-day Shield','A rest day is part of training. If you miss a day or two, a shield keeps your streak going. It covers up to 2 missed days in a row, you can hold 2, and it is used automatically at most twice in any week.'],boost:['⚡','XP Boost','Doubles XP for the rest of today. Tap to activate.'],charm:['🍀','Lucky Charm','Your next egg hatch is one rarity tier luckier. Used automatically.'],incense:['🔔','Encounter Bell','Ring it to meet a random creature from the wild.']};
 
 const BADGES=[
 ['first_log','📝','First Log','Log your first food',s=>s.logs>=1],
@@ -1681,8 +1724,11 @@ function mealsWithVeg(d){const s=new Set();d.foods.forEach(x=>{if(F[x.f]&&F[x.f]
    ========================================================= */
 function newGame(){return {xp:0,buddy:null,stage:1,days:{},streaks:{},items:{shield:1,boost:1,charm:0,incense:1},boostDay:null,dex:{},eggs:[{tier:2,prog:0,got:dkey()}],hatched:0,recipes:[],balancedPlates:0,explored:[],quizBest:0,quizDone:false,swaps:0,flags:{},research:{},researchDone:0,raids:0,raidWeeks:{},tasksTotal:0,allTasks:false,badges:{},pending:[]};}
 let _g=null,_gid=null;
-function G(){const id=curId();if(!id)return null;if(_gid!==id){_g=Object.assign(newGame(),store.get('game.'+id,{}));_gid=id;}return _g;}
-function gameOf(id){return Object.assign(newGame(),store.get('game.'+id,{}));}
+const SHIELD_MAX=2,SHIELD_RUN=2,SHIELD_PER_WEEK=2;
+/* v28: held shields are capped at 2; older saves that hold more are clamped down. Streaks are never touched by the clamp. */
+function clampShields(g){g.items=Object.assign({},g.items||{});g.items.shield=Math.min(SHIELD_MAX,Math.max(0,g.items.shield||0));if(g.combo&&g.combo.shields>SHIELD_MAX)g.combo.shields=SHIELD_MAX;if(!Array.isArray(g.shieldUses))g.shieldUses=[];return g;}
+function G(){const id=curId();if(!id)return null;if(_gid!==id){_g=clampShields(Object.assign(newGame(),store.get('game.'+id,{})));_gid=id;}return _g;}
+function gameOf(id){return clampShields(Object.assign(newGame(),store.get('game.'+id,{})));}
 function saveG(){if(_g&&_gid)store.set('game.'+_gid,_g);}
 function today(g){g=g||G();const k=dkey();if(!g.days[k])g.days[k]=newDay();return g.days[k];}
 const XP_RULES={checkin:[10,1],meal:[10,4],protein:[25,1],water:[20,1],fv:[20,1],move:[20,1],steps:[15,1],strength:[20,1],sleep:[20,1],recipe:[30,1],swap:[15,2],quiz:[50,1],range:[30,1],task:[15,3],alltasks:[20,1],raid:[100,1],research:[0,9],plate:[10,1],catch:[0,99],weighin:[15,1],wellbeing:[25,1],pb:[20,1],fuelup:[20,1]};
@@ -1698,17 +1744,33 @@ function award(key,label,amt){
   if(n>=rule[1])return false;d.xp[key]=n+1;addXP(amt||rule[0],label);return true;
 }
 /* streaks with shields */
+/* Rest shields (v28 limits): cover at most 2 missed days in a row, hold at most 2, at most 2 shields used in any 7 days.
+   One lapse is charged once: the check-in streak and the habit streak share the charge made earlier the same day. */
+function shieldUsesIn7(g,t){return (g.shieldUses||[]).filter(u=>{const n=diffDays(u,t);return n>=0&&n<=6;}).length;}
+function shieldCoverPlan(g,missed,t){
+  /* returns {ok,extra}: extra = shields still to charge for this streak (0 when the same-day charge already covers it) */
+  if(missed<=0)return {ok:true,extra:0};
+  if(missed>SHIELD_RUN)return {ok:false,extra:0};
+  const lc=g.lapseCharge&&g.lapseCharge.t===t?g.lapseCharge.n:0;
+  const extra=Math.max(0,missed-lc);
+  if(extra===0)return {ok:true,extra:0};
+  if((g.items.shield||0)<extra)return {ok:false,extra};
+  if(shieldUsesIn7(g,t)+extra>SHIELD_PER_WEEK)return {ok:false,extra};
+  return {ok:true,extra};
+}
 function bumpStreak(name){
   const g=G();const s=g.streaks[name]||(g.streaks[name]={count:0,last:null,best:0});const t=dkey();
   if(s.last===t)return {same:true};let restarted=false,used=0;
   if(s.last){const gap=diffDays(s.last,t)-1;
     if(gap<=0)s.count++;
-    else if(gap<=(g.items.shield||0)){g.items.shield-=gap;used=gap;s.count++;toast('🛡️ Streak Shield saved your '+name+' streak!',true);}
-    else{s.count=1;restarted=true;}}
+    else{const pl=shieldCoverPlan(g,gap,t);
+      if(pl.ok){if(pl.extra>0){g.items.shield-=pl.extra;g.shieldUses=(g.shieldUses||[]).filter(u=>{const n=diffDays(u,t);return n>=0&&n<=6;});for(let i=0;i<pl.extra;i++)g.shieldUses.push(t);g.lapseCharge={t,n:Math.max(gap,(g.lapseCharge&&g.lapseCharge.t===t)?g.lapseCharge.n:0)};used=pl.extra;}
+        s.count++;toast('🛡️ Rest day covered. Your '+name+' streak is safe.',true);}
+      else{s.count=1;restarted=true;if(s.best>1)setTimeout(()=>toast('🌱 Fresh start. Your best run of '+s.best+' days stays on your record.',true),400);}}}
   else s.count=1;
   s.last=t;s.best=Math.max(s.best,s.count);saveG();return {restarted,used,count:s.count};
 }
-function streakNow(name,g){g=g||G();const s=g&&g.streaks[name];if(!s||!s.last)return 0;const gap=diffDays(s.last,dkey());if(gap<=1)return s.count;if(gap-1<=(g.items.shield||0))return s.count;return 0;}
+function streakNow(name,g){g=g||G();const s=g&&g.streaks[name];if(!s||!s.last)return 0;const t=dkey();const gap=diffDays(s.last,t);if(gap<=1)return s.count;return shieldCoverPlan(g,gap-1,t).ok?s.count:0;}
 
 /* stats for badges / creatures */
 function statsOf(g,E){
@@ -1800,7 +1862,7 @@ function checkResearch(){
   const w=weekDays(g,wk);
   R.steps.forEach((st,i)=>{if(!g.research.claimed[i]&&(i===0||g.research.claimed[i-1])&&st[1](w,E)>=st[2]){g.research.claimed[i]=true;
     if(i===0)addXP(50,'Research step 1');
-    if(i===1){g.items.shield=Math.min(3,(g.items.shield||0)+1);if(!PARKED)g.items.boost=(g.items.boost||0)+1;addXP(50,PARKED?'Research step 2: 🛡️':'Research step 2: 🛡️ + ⚡');}
+    if(i===1){g.items.shield=Math.min(SHIELD_MAX,(g.items.shield||0)+1);if(!PARKED)g.items.boost=(g.items.boost||0)+1;addXP(50,PARKED?'Research step 2: 🛡️':'Research step 2: 🛡️ + ⚡');}
     if(i===2){g.researchDone=(g.researchDone||0)+1;addXP(100,'Special Research complete!');giveEgg(5,'(research reward)');wildEncounter(1);}
   }});saveG();
 }
@@ -1809,7 +1871,7 @@ function checkIn(){
   const g=G();const d=today(g);if(d.checkin)return;d.checkin=true;d.checkinAt=new Date().toTimeString().slice(0,5);
   if(new Date().getHours()<7)g.flags.early=true;
   const r=bumpStreak('checkin');if(r.restarted)g.flags.tide=true;
-  if(r.count&&r.count%7===0){g.items.shield=Math.min(3,(g.items.shield||0)+1);giveEgg(5,'(7-day streak!)');}
+  if(r.count&&r.count%7===0){g.items.shield=Math.min(SHIELD_MAX,(g.items.shield||0)+1);giveEgg(5,'(7-day streak!)');}
   award('checkin','Daily check-in');sound('tick');evaluate();
 }
 /* wrap up the day: reward a sensible range, never undereating */
@@ -1833,7 +1895,11 @@ function confetti(n){n=Math.min(70,Math.round((n||60)*0.4));const c=document.cre
   const P=Array.from({length:n},()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*9,vy:-Math.random()*10-4,s:Math.random()*4+3,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*6,vr:(Math.random()-.5)*.3}));
   const t0=performance.now();(function f(t){ctx.clearRect(0,0,W,H);P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.globalAlpha=Math.max(0,1-(t-t0)/1800);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/6,p.s,p.s/3);ctx.restore();});if(t-t0<1800)requestAnimationFrame(f);else c.remove();})(t0);}
 let toastT=null;
-function toast(m,force){if(!force&&(S.quietRewards!==false))return;const t=$('#toast');if(!t)return;t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+function toast(m,force){if(!force&&(S.quietRewards!==false))return;const t=$('#toast');if(!t)return;t.classList.remove('up');t.textContent=m;t.classList.add('show');toastClear(t);clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);}
+/* v28c: on short Today screens the toast would sit on top of the 'Checked in' bar or the streak tiles. If so, show it at the top instead. */
+function toastClear(t){try{const cs=getComputedStyle(t),bot=parseFloat(cs.bottom)||0,h=t.offsetHeight||44,top=window.innerHeight-bot-h,bt=top+h;
+  const hit=[...document.querySelectorAll('#today .msgbox,#today .statrow')].some(e=>{if(!e.offsetParent)return false;const r=e.getBoundingClientRect();return r.height>0&&r.bottom>0&&r.top<window.innerHeight&&!(bt<=r.top-4||top>=r.bottom+4);});
+  if(hit)t.classList.add('up');}catch(e){}}
 
 /* WHO 2007 Growth Reference, BMI-for-age 5 to 19 years, LMS by month 61..228.
    Generated by data/who/make_whobmi.py from the official WHO expanded tables
@@ -1872,8 +1938,8 @@ function teenWeight(sex,months,htCm,wtKg){const o=whoLMS(sex,months);const h2=Ma
    Original creature art (SVG composites)
    ========================================================= */
 /* creatureSVG lives in js6.js */
-function buddyArt(g,size,mood){const st=STARTERS[g.buddy];return creatureSVG({starter:true,stage:g.stage||1,col:st.col[0],col2:st.col[1],belly:st.belly,shape:st.shape,decor:{sprig:'leaf',dewby:'wave',embit:'fire'}[g.buddy],el:st.el,mood,size,label:st.names[(g.stage||1)-1]});}
-function crArt(c,size,sil){return creatureSVG({col:c.col,shape:c.shape,size,sil,r:c.r,label:c.name});}
+function buddyArt(g,size,mood){const st=STARTERS[g.buddy];return creatureSVG({starter:true,stage:g.stage||1,col:st.col[0],col2:st.col[1],belly:st.belly,shape:st.shape,decor:{sprig:'leaf',dewby:'wave',embit:'fire'}[g.buddy],el:st.el,mood,size,label:st.names[(g.stage||1)-1],face:starterFace(g.buddy,g.stage||1)});}
+function crArt(c,size,sil){return creatureSVG({col:c.col,shape:c.shape,size,sil,r:c.r,label:c.name,face:CREATURE_FACES[c.id]||FACE_DEFAULT});}
 
 /* =========================================================
    Modal + reward queue
@@ -2021,7 +2087,7 @@ function renderProfiles(){applyUnitVisibility();const arr=profiles();
     const split=[['Breakfast',.25,'#ff7a1a'],['Lunch',.3,'#38bdf8'],['Dinner',.3,'#8b5cff'],['Snacks',.15,'#19c9b0']].map(m=>'<div style="background:'+m[2]+'">'+m[0]+'<b class="num">'+eVal(r.maint*m[1])+'</b>'+eUnit()+'</div>').join('');
     const FW=F.weetbix||{kcal:205,name:'Wheat biscuit cereal'},FK=F.kiwi||{kcal:45},FP=F.pie||{kcal:525};const wb=r.maint/FW.kcal,kw=r.maint/FK.kcal,pie=r.maint/FP.kcal;
     return '<div class="card profilecard"><div class="spread"><div class="row"><span class="avatar">'+p.icon+'</span><div><h3 style="margin:0">'+esc(p.name)+'</h3><div class="small muted num">'+(ageYears(p)!=null?ageYears(p)+' y':'age not set')+(needsDob(p)?' (add birth date)':'')+', '+fLen(p.ht)+', '+fMass(p.wt)+', activity '+p.act+'/5</div></div></div><div class="row"><button class="btn sm" data-act="use" data-id="'+p.id+'">Use</button><button class="btn sm alt" data-act="edit" data-id="'+p.id+'">Edit</button><button class="btn sm alt" data-act="del" data-id="'+p.id+'" aria-label="Delete">Delete</button></div></div>'+
-     '<div class="tankwrap" style="margin-top:10px"><div class="tank"><div class="ticks"></div><div class="fuel" style="height:'+fill+'%"></div>'+mark+'</div><div style="flex:1;min-width:200px">'+targetCard(p,'calc')+'<div class="stat" style="margin-top:8px"><small>Protein guide</small><b class="num">~'+r.protein+' g/day</b><small>spread over meals, ~20 to 30 g each</small></div></div></div>'+
+     '<div class="tankwrap" style="margin-top:10px"><div class="tank"><div class="ticks"></div><div class="fuel" style="height:'+fill+'%"></div>'+mark+'</div><div style="flex:1;min-width:200px">'+targetCard(p,'calc',true)+'<div class="stat" style="margin-top:8px"><small>Protein guide</small><b class="num">~'+r.protein+' g/day</b><small>spread over meals, ~20 to 30 g each</small></div></div></div>'+'<div class="tcard explainwide">'+explainerOnly(p,'calc')+'</div>'+
      '<div class="mealsplit">'+split+'</div><p class="small" style="margin:10px 0 0">🥣 That is about the same energy as <b class="num">'+r1(wb)+'</b> '+esc(FW.name)+' breakfasts, or <b class="num">'+Math.round(kw)+'</b> kiwifruit, or <b class="num">'+r1(pie)+'</b> bakery pies. (A real day mixes lots of foods, of course!)</p><div class="iconrow" aria-hidden="true">'+'🥣'.repeat(Math.min(20,Math.round(wb)))+'</div></div>';}).join('')+'</div>';}
 
 /* =========================================================
@@ -2285,6 +2351,62 @@ let svgN=0;
 function shade(hex,amt){let c=hex.replace('#','');if(c.length===3)c=c.split('').map(x=>x+x).join('');const n=parseInt(c,16);let r=(n>>16)+amt,g=((n>>8)&255)+amt,b=(n&255)+amt;r=clamp(r,0,255);g=clamp(g,0,255);b=clamp(b,0,255);return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
 const BODY={blob:'M60 30 L88 42 L96 74 L76 102 L44 102 L24 74 L32 42 Z',drop:'M60 10 L88 58 L86 86 L68 104 L52 104 L34 86 L32 58 Z',flame:'M60 6 L70 30 L84 20 L82 46 L96 52 L88 80 L72 104 L48 104 L32 80 L24 52 L38 46 L36 20 L50 30 Z',square:'M38 34 L82 34 L98 56 L92 96 L70 106 L50 106 L28 96 L22 56 Z',pod:'M10 74 L34 52 L86 52 L110 74 L86 96 L34 96 Z',star:null};
 function starPath(){let d='';for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?19:48;d+=(i?'L':'M')+(60+r*Math.cos(a)).toFixed(1)+' '+(68+r*Math.sin(a)).toFixed(1)+' ';}return d+'Z';}
+
+/* ---------- creature faces (v28c): softer, and each one different ---------- */
+const FACE_DEFAULT=['round','smile'];
+const FK='#05070d';
+function _hl(x,y,r){return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#fff"/>';}
+const FACE_EYES={
+  round:()=>[46,74].map(x=>'<ellipse cx="'+x+'" cy="63" rx="8.5" ry="7.5" fill="'+FK+'"/>'+_hl(x+2.6,60.6,2.8)).join(''),
+  wide:()=>[46,74].map((x,i)=>'<circle cx="'+x+'" cy="63" r="9.4" fill="#fff" stroke="'+FK+'" stroke-width="1.6"/><circle cx="'+(x+(i?-.6:.6))+'" cy="61.6" r="4.6" fill="'+FK+'"/>'+_hl(x+1.8,59.8,1.5)).join(''),
+  cross:()=>[46,74].map((x,i)=>'<circle cx="'+x+'" cy="63" r="8.6" fill="#fff" stroke="'+FK+'" stroke-width="1.6"/><circle cx="'+(x+(i?-3.6:3.6))+'" cy="64.4" r="3.7" fill="'+FK+'"/>'+_hl(x+(i?-2.6:4.6),63,1.1)).join(''),
+  stern:()=>[46,74].map(x=>'<rect x="'+(x-7)+'" y="59" width="14" height="9.5" rx="3.2" fill="'+FK+'"/>'+_hl(x+2.2,62,1.8)).join('')+'<path d="M37 54 L55 54 M65 54 L83 54" stroke="'+FK+'" stroke-width="3" stroke-linecap="round"/>',
+  fun:()=>'<ellipse cx="46" cy="63" rx="8.5" ry="7.8" fill="'+FK+'"/>'+_hl(48.6,60.4,2.9)+'<path d="M66 65 Q74 56 82 65" stroke="'+FK+'" stroke-width="3.2" fill="none" stroke-linecap="round"/>',
+  suspicious:()=>[46,74].map(x=>'<path d="M'+(x-8.6)+' 61 A8.6 6.6 0 0 0 '+(x+8.6)+' 61 Z" fill="#fff" stroke="'+FK+'" stroke-width="1.5" stroke-linejoin="round"/><circle cx="'+(x+4.2)+'" cy="63.8" r="2.7" fill="'+FK+'"/><path d="M'+(x-9.4)+' 61 L'+(x+9.4)+' 61" stroke="'+FK+'" stroke-width="3" stroke-linecap="round"/>').join('')+'<path d="M65 53.5 Q74 49 83 54" stroke="'+FK+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+  sly:()=>[46,74].map(x=>'<path d="M'+(x-8.5)+' 61.5 A8.5 7.3 0 0 0 '+(x+8.5)+' 61.5 Z" fill="'+FK+'"/>'+_hl(x+2.4,64,1.7)+'<path d="M'+(x-9.4)+' 61.5 L'+(x+9.4)+' 61.5" stroke="'+FK+'" stroke-width="3" stroke-linecap="round"/>').join('')+'<path d="M38 55 Q46 52.5 54 55" stroke="'+FK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+  sleepy:()=>[46,74].map(x=>'<path d="M'+(x-8)+' 63.5 A8 6 0 0 0 '+(x+8)+' 63.5 Z" fill="'+FK+'"/>'+_hl(x+2,66.2,1.4)+'<path d="M'+(x-9)+' 63.5 L'+(x+9)+' 63.5" stroke="'+FK+'" stroke-width="2.6" stroke-linecap="round"/>').join(''),
+  closed:()=>'<path d="M37.5 65 Q46 56.5 54.5 65 M65.5 65 Q74 56.5 82.5 65" stroke="'+FK+'" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="38" cy="72" r="4" fill="#ff8fa3" opacity=".4"/><circle cx="82" cy="72" r="4" fill="#ff8fa3" opacity=".4"/>',
+  sparkle:()=>[46,74].map(x=>'<ellipse cx="'+x+'" cy="63" rx="8.8" ry="9" fill="'+FK+'"/>'+_hl(x+2.8,59.6,3.2)+_hl(x-2.6,66.6,1.6)).join(''),
+  beady:()=>[46,74].map(x=>'<circle cx="'+x+'" cy="64" r="4.6" fill="'+FK+'"/>'+_hl(x+1.2,62.8,1)).join(''),
+  glasses:()=>[46,74].map(x=>'<circle cx="'+x+'" cy="63" r="9.6" fill="#fff" fill-opacity=".85" stroke="'+FK+'" stroke-width="2.2"/><circle cx="'+(x+.6)+'" cy="63.6" r="3.5" fill="'+FK+'"/>'+_hl(x+1.8,62.4,1.1)).join('')+'<path d="M55.6 63 L64.4 63" stroke="'+FK+'" stroke-width="2.2"/>'
+};
+const FACE_MOUTHS={
+  smile:()=>'<path d="M52 82 Q60 88 68 82" stroke="'+FK+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+  grin:()=>'<path d="M50 80 Q60 94 70 80 Z" fill="'+FK+'" stroke="'+FK+'" stroke-width="1.6" stroke-linejoin="round"/><path d="M55 87.6 Q60 83.6 65 87.6 Q60 91.4 55 87.6Z" fill="#ff7a90"/>',
+  tongue:()=>'<path d="M52 81 Q60 87 68 81" stroke="'+FK+'" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M58 84.4 L58 88.6 Q62 92.4 66 88.6 L66 83.6 Z" fill="#ff7a90" stroke="'+FK+'" stroke-width="1.2" stroke-linejoin="round"/>',
+  flat:()=>'<path d="M53 83.5 Q56 85 60 84.4 Q64 85 67 83.5" stroke="'+FK+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+  smirk:()=>'<path d="M53 84.4 Q62 86 68 80.4" stroke="'+FK+'" stroke-width="2.6" fill="none" stroke-linecap="round"/>',
+  o:()=>'<ellipse cx="60" cy="85" rx="3.3" ry="3.9" fill="'+FK+'"/>',
+  tiny:()=>'<path d="M56 83 Q60 86.4 64 83" stroke="'+FK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+  cat:()=>'<path d="M52 82 Q56 87.4 60 82 Q64 87.4 68 82" stroke="'+FK+'" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  tooth:()=>'<path d="M51 81 Q60 90 69 81" stroke="'+FK+'" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M57.6 84.6 L57.6 88.6 L62.4 88.6 L62.4 84.8 Z" fill="#fff" stroke="'+FK+'" stroke-width="1.4" stroke-linejoin="round"/>',
+  wavy:()=>'<path d="M51 83 Q55.5 79 60 83 T69 83" stroke="'+FK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+};
+function faceSVG(face,mood){
+  let eye=face[0],mouth=face[1];
+  if(mood==='sleepy'){eye='closed';}
+  if(mood==='happy'&&mouth==='smile')mouth='grin';
+  return '<g class="face" data-eyes="'+eye+'" data-mouth="'+mouth+'">'+FACE_EYES[eye]()+FACE_MOUTHS[mouth]()+'</g>';
+}
+/* personalities: matched to what each creature is about */
+const STARTER_FACES={
+  sprig:[['round','smile'],['round','smile'],['round','smile']],            /* Vyrn: gentle and kind, soft round eyes all the way up */
+  dewby:[['wide','o'],['fun','tongue'],['sleepy','tiny']],                /* Hydrax: curious, then cheeky winker, then calm deep-sea sage */
+  embit:[['cross','tongue'],['sly','smirk'],['stern','tiny']]             /* Cinderix: goofy, then smirking, then stern but friendly */
+};
+const CREATURE_FACES={
+  splashlet:['fun','tongue'],puddlepup:['sparkle','grin'],tidewhirl:['stern','flat'],
+  sproutle:['wide','smile'],peapodle:['beady','cat'],bloomhorn:['sly','smirk'],
+  pebblor:['beady','flat'],boulderoo:['stern','flat'],granitusk:['sleepy','tiny'],
+  gustling:['cross','o'],zephyrix:['fun','grin'],galecrest:['suspicious','smirk'],
+  lunalo:['sleepy','tiny'],dozzle:['closed','smile'],nocturnox:['stern','tiny'],
+  chefling:['fun','grin'],saucewyrm:['cross','wavy'],gourmole:['sly','smile'],
+  eggbert:['beady','tooth'],mooscle:['stern','smile'],quizzle:['wide','o'],professorb:['glasses','smile'],
+  kindle:['fun','tongue'],blazewing:['sly','grin'],solarion:['closed','tiny'],
+  switcheroo:['cross','smirk'],bubbloon:['sparkle','o'],crumbkin:['suspicious','cat'],glimmoth:['wide','tiny'],
+  frostfin:['suspicious','flat'],thunderbun:['sly','tooth'],prismallow:['fun','smile'],aurorox:['sparkle','tiny'],vigoroo:['stern','grin']
+};
+function starterFace(k,stage){return (STARTER_FACES[k]||STARTER_FACES.sprig)[Math.max(0,Math.min(2,(stage||1)-1))];}
 function creatureSVG(o){
   const id='c'+(++svgN);const sil=!!o.sil;const col=o.col,dark=o.col2||shade(col,-70),lite=shade(col,60);const stage=o.stage||2;const mood=o.mood||'ok';const sh=o.shape;const sc=o.starter?[0,.8,.9,1][stage]:.95;
   const body=sh==='star'?starPath():(BODY[sh]||BODY.blob);const silF='#060912';const fill=sil?silF:'url(#'+id+'b)';const seed=hash(o.label||'x');const R=rng(seed);
@@ -2312,13 +2434,8 @@ function creatureSVG(o){
   if(!sil){s+='<path d="M60 32 L32 44 L28 70 L60 60 Z" fill="#fff" opacity=".13"/>';
     s+='<path d="M46 76 L60 70 L74 76 L70 96 L50 96 Z" fill="rgba(0,0,0,.18)" stroke="'+lite+'" stroke-opacity=".35" stroke-width="1"/>';
     if(o.starter&&stage>=2)s+='<path d="M26 62 L14 52 L22 72 Z M94 62 L106 52 L98 72 Z" fill="'+dark+'" stroke="'+lite+'" stroke-width="1"/>';
-    // eyes
-    const iris=o.starter?'#fff':lite;
-    if(mood==='sleepy')s+='<path d="M39 64 L55 66 M81 64 L65 66" stroke="#05070d" stroke-width="3.5" stroke-linecap="round"/>';
-    else{const nar=mood==='happy'?2.5:0;s+='<path d="M37 '+(56+nar)+' L56 62 L53 69 L40 67 Z M83 '+(56+nar)+' L64 62 L67 69 L80 67 Z" fill="#05070d"/>';
-      s+='<g filter="url(#'+id+'e)"><path d="M47 '+(61+nar/2)+' L51 63 L48 67 L45 64Z M73 '+(61+nar/2)+' L69 63 L72 67 L75 64Z" fill="'+iris+'"/></g>';}
-    if(mood==='happy')s+='<path d="M50 81 L60 86 L71 79" stroke="#05070d" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M54 83 L56 88 L58 84Z" fill="#fff"/>';
-    else s+='<path d="M53 83 L67 83" stroke="#05070d" stroke-width="2.4" stroke-linecap="round"/>';}
+    // face: each creature has its own personality (v28c)
+    s+=faceSVG(o.face||FACE_DEFAULT,mood);}
   s+='<path d="M40 101 L52 101 L48 110 Z M68 101 L80 101 L72 110 Z" fill="'+(sil?silF:dark)+'"/>';
   return s+'</g></svg>';
 }
@@ -2355,13 +2472,14 @@ function zoneChart(g,p){const Z=zoneInfo(p);const days=[];for(let i=6;i>=0;i--){
 
 /* ---------- target card + "How is this worked out?" ---------- */
 const ACT_NAMES=['Mostly sitting','Lightly active','Moderately active','Very active','Athlete level'];
-function targetCard(p,ctx){const r=energy(p),LS=leanState(p);const allowed=LS.eligible;const opted=LS.on;const showG=opted&&(ctx!=='calc'||r.adult);
+function explainerOnly(p,ctx){const r=energy(p),LS=leanState(p);const showG=LS.on&&(ctx!=='calc'||r.adult);return explainer(p,r,showG,ctx);}
+function targetCard(p,ctx,noExplain){const r=energy(p),LS=leanState(p);const allowed=LS.eligible;const opted=LS.on;const showG=opted&&(ctx!=='calc'||r.adult);
   let h='<div class="tcard"><div class="eyebrow">'+ic('target',14)+' Your healthy daily energy target</div><div class="tcrow"><div class="tcmain"><b class="num">'+fE(r.maint,1)+'</b><small class="num">'+nf(KJ(r.maint))+' kJ · '+(r.adult?'maintenance':'estimated needs incl. growth')+(showG&&LS.mode==='lean'?'':' · your target')+'</small></div>';
   if(showG)h+='<div class="tcg'+(LS.mode!=='lean'?' off':'')+'"><span class="eyebrow" style="color:var(--lime)">'+({lean:'Lean Mode · active target',recharge:'Lean Mode · on hold for Recharge',paused:'Lean Mode · paused'})[LS.mode]+'</span><b class="num">'+fE(LS.leanTarget,1)+'</b><small>'+(r.floorApplied?'floor applied ('+nf(r.leanFloor)+' kcal min)':r.adult?'up to 500 kcal under maintenance':'12% under maintenance')+(LS.raise?' · +'+LS.raise+' kcal speed-limit raise':'')+'</small></div>';
   h+='</div>';
   if(!r.adult)h+='<p class="small" style="margin:8px 0 0">'+ic('leaf',14)+' Includes energy for growing, school and sport.'+(r.age<16?' Grow Strong mode: no deficit option.':ctx==='calc'?' Optional Lean Mode lives in My Plan.':'')+'</p>';
   else if(allowed&&!opted)h+='<p class="small muted" style="margin:8px 0 0">Optional Lean Mode is off. You can set it up in My Plan.</p>';
-  return h+explainer(p,r,showG,ctx)+'</div>';}
+  return h+(noExplain?'':explainer(p,r,showG,ctx))+'</div>';}
 function explainer(p,r,showG,ctx){const LS=leanState(p);const act=+p.act||3;const wt=+p.wt,ht=+p.ht,age=ageYears(p)||0;let steps=[];
   if(r.adult){const a=10*wt,b=6.25*ht,c=5*age,k=r.m?5:-161;
     steps.push(['Resting energy (BMR)','The energy your body burns at total rest: heart, brain, breathing. We use the <b>Mifflin-St Jeor equation</b>:','<div class="eq"><div>BMR = 10 × weight + 6.25 × height − 5 × age '+(r.m?'+ 5':'− 161')+'</div><div class="eqn num">= 10 × '+r1(wt)+' + 6.25 × '+r1(ht)+' − 5 × '+age+' '+(r.m?'+ 5':'− 161')+'</div><div class="eqn num">= '+nf1(a)+' + '+nf1(b)+' − '+nf1(c)+' '+(r.m?'+ 5':'− 161')+' = <b>'+nf1(r.bmr)+' kcal</b></div></div><p class="small muted">Weight in kg, height in cm, age in years. The '+(r.m?'+5':'−161')+' is the '+(r.m?'male':'female')+' adjustment.</p>']);
@@ -2379,18 +2497,23 @@ function explainer(p,r,showG,ctx){const LS=leanState(p);const act=+p.act||3;cons
   steps.push(['Lean Mode and the floor',g+'<br><span class="small muted">Why a floor? Below about 1,500 kcal (males) or 1,200 kcal (females) it gets very hard to fit in enough protein, iron, calcium and other nutrients, and very low intakes can mean tiredness, lost muscle, poor sleep and a stalled metabolism. Slow and steady wins.</span>','']);
   steps.push(['Why teens need extra energy','Teens are building bone and muscle and growing taller, often fast. On top of that, school sport and training burn a lot. That is why a sporty teen can need as much as, or more than, an adult. Under-fuelling can hurt growth, mood, focus and performance.','']);
   steps.push(['It is an estimate, so tune it','Real needs can differ by 10% or more from any formula. Use it as a starting point and adjust from real life: energy levels, hunger, sport performance and sleep. '+(r.adult?'Adults can also watch the 2 to 4 week trend and adjust by 100 to 200 kcal at a time.':'For teens, never cut back on your own; talk to a GP or dietitian if you have questions.'),'']);
-  return '<details class="explain"><summary>'+ic('info',16)+' How is this worked out?</summary><ol class="steps">'+steps.map((s,i)=>'<li><span class="sn">'+(i+1)+'</span><div><b>'+s[0]+'</b><p>'+s[1]+'</p>'+s[2]+'</div></li>').join('')+'</ol></details>';}
+  const quick=r.adult?'We work out the energy your body uses at rest from your age, sex, height and weight, then scale it for how active you are. It is an estimate, so tune it from how you feel.':'Your number starts from your age, sex, height and weight, plus a little extra for growing, then adjusts for your activity. It is an estimate, so tune it from how you feel. Never cut back on your own; talk to a GP or dietitian if you have questions.';
+  return '<details class="explain"><summary>'+ic('info',16)+' How is this worked out?</summary><div class="exq"><b>In short</b><p>'+quick+'</p></div><details class="fullver"><summary>Read the full version</summary><ol class="steps">'+steps.map((s,i)=>'<li><span class="sn">'+(i+1)+'</span><div><b>'+s[0]+'</b><p>'+s[1]+'</p>'+s[2]+'</div></li>').join('')+'</ol></details></details>';}
 function nf1(v){return (Math.round(v*10)/10).toLocaleString('en',{maximumFractionDigits:1});}
 function barPair(a,b,la,lb){const m=Math.max(a,b);return '<div class="bp"><div><span>'+(la||'BMR (rest)')+'</span><div class="bar"><span style="width:'+(a/m*100)+'%;background:linear-gradient(90deg,#6d28d9,#a78bfa)"></span></div><b class="num">'+fE(a,1)+'</b></div><div><span>'+(lb||'With activity')+'</span><div class="bar"><span style="width:100%;background:linear-gradient(90deg,#0f766e,#2dd4bf)"></span></div><b class="num">'+fE(b,1)+'</b></div></div>';}
 
 /* ---------- Today ---------- */
+function streakNote(g,cs){const b=Math.max((g.streaks.checkin&&g.streaks.checkin.best)||0,(g.streaks.habit&&g.streaks.habit.best)||0);
+  if(!cs&&b>0)return '<p class="small muted streaknote">Fresh start whenever you are ready. Your best run was '+b+' day'+(b===1?'':'s')+' and it stays on your record.</p>';
+  if(cs&&b>cs)return '<p class="small muted streaknote">Best so far: '+b+' days. Rest days are part of training.</p>';
+  return '';}
 function moodOf(d,E){const h=[proteinOf(d)>=E.protein,d.water>=E.water,d.move>=E.move].filter(Boolean).length;return h>=3?'happy':h>=1||d.checkin?'ok':'sleepy';}
 function buddyLine(g,d,E){if(!d.checkin)return 'Log anything on Today to start today\'s run.';const need=[];if(proteinOf(d)<E.protein)need.push('protein');if(d.water<E.water)need.push('water');if(d.move<E.move)need.push('movement');
-  if(!need.length)return 'Locked in. Fuelled, hydrated, moving. Unstoppable.';return 'Power at '+Math.round((3-need.length)/3*100)+'%. Need: '+need.join(' + ')+'.';}
+  if(!need.length)return 'Locked in. Fuelled, hydrated, moving. Unstoppable.';return 'Power at '+Math.round((3-need.length)/3*100)+'%. Up next, whenever you like: '+need.join(' + ')+'.';}
 function renderToday(){const el=$('#today');const p0=curProfile();const showWel=!(S.hideWelcome)&&!(p0&&G()&&G().buddy);$('#welcomeCard').style.display=showWel?'':'none';
   const skip=$('#welSkip');if(skip&&!skip._bound){skip._bound=1;skip.onclick=()=>{S.hideWelcome=true;saveSettings();$('#welcomeCard').style.display='none';};}
   const p=needProfile(el);if(!p)return;const g=G();
-  if(!g.buddy){el.innerHTML='<div class="card" style="text-align:center"><div class="eyebrow">Choose your starter</div><h2>Pick your buddy, '+esc(p.name)+'</h2><p class="lead">Your buddy reacts to your habits and evolves twice as you level up and hold streaks.</p><div class="grid3">'+Object.entries(STARTERS).map(([id,st])=>'<button class="card starter" data-buddy="'+id+'">'+creatureSVG({starter:true,stage:1,col:st.col[0],col2:st.col[1],shape:st.shape,decor:{sprig:'leaf',dewby:'wave',embit:'fire'}[id],mood:'happy',size:150,label:st.names[0]})+'<h3>'+st.names[0]+'</h3><p class="small muted">'+{sprig:'Nature type. Powered by fruit and veg.',dewby:'Water type. Powered by hydration.',embit:'Fire type. Powered by movement.'}[id]+'<br>Evolves into '+st.names[1]+', then '+st.names[2]+'.</p></button>').join('')+'</div></div>';
+  if(!g.buddy){el.innerHTML='<div class="card" style="text-align:center"><div class="eyebrow">Choose your starter</div><h2>Pick your buddy, '+esc(p.name)+'</h2><p class="lead">Your buddy reacts to your habits and evolves twice as you level up and hold streaks.</p><div class="grid3">'+Object.entries(STARTERS).map(([id,st])=>'<button class="card starter" data-buddy="'+id+'">'+creatureSVG({starter:true,stage:1,col:st.col[0],col2:st.col[1],shape:st.shape,decor:{sprig:'leaf',dewby:'wave',embit:'fire'}[id],mood:'happy',size:150,label:st.names[0],face:starterFace(id,1)})+'<h3>'+st.names[0]+'</h3><p class="small muted">'+{sprig:'Nature type. Powered by fruit and veg.',dewby:'Water type. Powered by hydration.',embit:'Fire type. Powered by movement.'}[id]+'<br>Evolves into '+st.names[1]+', then '+st.names[2]+'.</p></button>').join('')+'</div></div>';
     el.querySelectorAll('[data-buddy]').forEach(b=>b.onclick=()=>{g.buddy=b.dataset.buddy;g.stage=1;saveG();sound('level');toast(STARTERS[g.buddy].names[0]+' joined your squad',true);paintChrome();if(!Object.keys(g.days).some(k=>(g.days[k].foods||[]).length)){showTab('log');openAddSheet(mealNow());}else renderToday();});return;}
   const E=energy(p),d=today(g),lv=levelOf(g.xp),st=STARTERS[g.buddy];const mood=moodOf(d,E);const cs=streakNow('checkin',g),hs=streakNow('habit',g);
   const pct=lv.to?(g.xp-lv.from)/(lv.to-lv.from)*100:100;const nextEvo=(g.stage||1)===1?'Evolves at Lv 7 + 5-day streak':(g.stage===2?'Evolves at Lv 14 + 14-day streak':'Final form');
@@ -2398,7 +2521,7 @@ function renderToday(){const el=$('#today');const p0=curProfile();const showWel=
   el.innerHTML='<div class="card hero-card"><div class="buddygrid"><div class="buddyart mood-'+mood+' el-'+g.buddy+'"'+skinStyle(g)+'>'+buddyArt(g,210,mood)+'</div><div>'+
    '<div class="eyebrow">Buddy · stage '+(g.stage||1)+'/3</div><h2 style="margin:2px 0">'+esc(st.names[(g.stage||1)-1])+'</h2>'+(g.equip&&g.equip.title?'<div class="titlechip">'+esc(g.equip.title)+'</div>':'')+'<div class="small muted">'+nextEvo+'</div><div class="bubble">'+esc(buddyLine(g,d,E))+'</div>'+
    '<div class="lvrow">'+tierIcon(lv,42)+'<div style="flex:1"><div class="spread"><b>'+esc(lv.name)+' <span class="muted small">Lv '+lv.n+'</span></b><span class="small muted num">'+nf(g.xp)+(lv.to?' / '+nf(lv.to):'')+' XP</span></div><div class="xpbar"><span style="width:'+pct+'%"></span></div></div></div>'+(g.boostDay===dkey()?'<div class="small" style="font-weight:800;color:var(--orange);margin-top:4px">'+ic('zap',14)+' XP Boost active (2×)</div>':'')+
-   '<div class="statrow"><div class="sbox'+(cs?' hot':'')+'">'+ic('flame',20)+'<b>'+cs+'</b><small>Streak</small></div><div class="sbox'+(hs?' hot2':'')+'">'+ic('repeat',20)+'<b>'+hs+'</b><small>Habit streak</small></div><div class="sbox">'+ic('shield',20)+'<b>'+(g.items.shield||0)+'</b><small>Shields</small></div></div>'+
+   '<div class="statrow"><div class="sbox'+(cs?' hot':'')+'">'+ic('flame',20)+'<b>'+cs+'</b><small>Streak</small></div><div class="sbox'+(hs?' hot2':'')+'">'+ic('repeat',20)+'<b>'+hs+'</b><small>Habit streak</small></div><div class="sbox">'+ic('shield',20)+'<b>'+(g.items.shield||0)+'</b><small>Rest shields</small></div></div>'+streakNote(g,cs)+
    '<div style="margin-top:12px">'+(d.checkin?'<div class="msgbox ok">'+ic('check',16)+' Checked in'+(d.checkinAt?' at '+d.checkinAt:'')+'</div>':'<div class="msgbox info" id="checkinHint">'+ic('zap',16)+' Log anything on Today to check in.</div>')+'</div></div></div></div>'+
    waitingHTML(g)+(PARKED?'<div class="card"><div class="spread"><b>'+ic('chart',16)+' This week</b><span><b class="num">'+weekDaysLogged(g)+'</b> of 7 days logged</span></div></div>':consistencyCard(p,g))+leanBanner(p)+(PARKED?recapMsgHTML(p,g):recapBanner(p,g))+
    '<div class="grid2"><div class="card"><h3>Daily Quests</h3>'+specialQuestsHTML(p,g,d)+tasks.map(i=>{const t=TASKS[i];const done=d.tasks.includes(i);return '<button class="mission'+(done?' done':'')+'" data-task="'+i+'"><span class="box">'+(done?ic('check',16):'')+'</span><span class="mt">'+esc(t[1])+'</span><span class="rw2">'+({xp:'+15 XP',boost:PARKED?'+15 XP':'Boost',encounter:'Encounter'})[t[2]]+'</span></button>';}).join('')+more('Quest tips','<p class="small muted" style="margin:0">3 new every day. Tap when done (honour system). Clear all 3 for a bonus 2 km egg.</p>')+'</div>'+
@@ -2550,14 +2673,14 @@ function weekScore(p,g,wk,ref){ref=ref||dkey();const E=energy(p);const end=addDa
   const perfect=n===7&&use.filter(k=>k!=='bonus').every(k=>parts[k]>=1);
   return {wk,score,tier:tierOf(score),parts,use,n,counts:c,wSched,wDone,perfect,paused:s.wbPaused,lean:s.on,weights:Object.fromEntries(use.map(k=>[k,Math.round(CW[k]/tot*100)]))};}
 const LOOT={Bronze:{xp:50,cp:20,items:{}},Silver:{xp:100,cp:40,items:{boost:1}},Gold:{xp:175,cp:60,items:{shield:1},enc:3},Platinum:{xp:250,cp:80,items:{shield:1,charm:1},enc:4,cshield:1}};
-function comboOf(g){return g.combo=Object.assign({n:0,best:0,total:0,shields:1},g.combo||{});}
+function comboOf(g){g.combo=Object.assign({n:0,best:0,total:0,shields:1,weakRun:0},g.combo||{});if(g.combo.shields>2)g.combo.shields=2;return g.combo;}
 function comboMult(n){return Math.round((1+0.1*Math.min(Math.max(n-1,0),5))*10)/10;}
 function pickRarity(R){let pool=CREATURES.filter(c=>c.r===R).map(c=>c.id);if(!pool.length)pool=CREATURES.filter(c=>c.r>=R-1).map(c=>c.id);return pool[Math.floor(Math.random()*pool.length)];}
 function claimWeek(p,wk,ref){const g=G();g.chests=g.chests||{};if(g.chests[wk])return g.chests[wk];const W=weekScore(p,g,wk,ref);const T=W.tier;const c=comboOf(g);let shieldUsed=false;
-  if(W.score>=75){c.n++;c.total++;if(c.n%4===0)c.shields=Math.min(3,c.shields+1);}else if(c.n>0&&c.shields>0){c.shields--;shieldUsed=true;}else c.n=0;c.best=Math.max(c.best,c.n);
+  if(W.score>=75){c.n++;c.total++;c.weakRun=0;if(c.n%4===0)c.shields=Math.min(2,c.shields+1);}else if(c.n>0&&c.shields>0&&(c.weakRun||0)<2){c.shields--;c.weakRun=(c.weakRun||0)+1;shieldUsed=true;}else{c.n=0;c.weakRun=0;}c.best=Math.max(c.best,c.n);
   const L=T?LOOT[T[1]]:null;const mult=comboMult(c.n);const out={wk,score:W.score,tier:T?T[1]:null,xp:0,items:{},enc:null,cp:0,mult,combo:c.n,shieldUsed,perfect:W.perfect,month:addDays(wk,6).slice(0,7),parts:W.parts,use:W.use};
-  if(L){out.xp=Math.round(L.xp*mult);out.cp=L.cp;addXP(out.xp,T[1]+' chest'+(mult>1?' ×'+mult:''),true);Object.entries(L.items).forEach(([k,v])=>{g.items[k]=Math.min(k==='shield'?3:9,(g.items[k]||0)+v);out.items[k]=v;});
-    if(L.cshield){c.shields=Math.min(3,c.shields+1);out.items.cshield=1;}if(L.enc){out.enc=pickRarity(L.enc);}}
+  if(L){out.xp=Math.round(L.xp*mult);out.cp=L.cp;addXP(out.xp,T[1]+' chest'+(mult>1?' ×'+mult:''),true);Object.entries(L.items).forEach(([k,v])=>{g.items[k]=Math.min(k==='shield'?2:9,(g.items[k]||0)+v);out.items[k]=v;});
+    if(L.cshield){c.shields=Math.min(2,c.shields+1);out.items.cshield=1;}if(L.enc){out.enc=pickRarity(L.enc);}}
   if(W.perfect)g.flags.perfect=true;g.chests[wk]=out;saveG();if(out.enc)setTimeout(()=>queue({type:'encounter',id:out.enc,wild:true}),50);checkProgress();return out;}
 /* season pass */
 const SEASON_NAMES=['Frostbyte','Overdrive','Ignition','Bloom','Voltage','Solstice','Nightfall','Afterburn','Neon Tide','Eclipse','Ember','Aurora'];
@@ -2587,7 +2710,7 @@ function scoreRing(score,size,id){const T=tierOf(score);const col=T?T[2]:'#64748
 function breakdownHTML(W){return '<div class="brk">'+W.use.map(k=>{const v=W.parts[k];const lab=k==='weigh'?W.wDone+'/'+W.wSched:k==='bonus'?Math.round(W.counts.extra)+' / 240 min':Math.round(v*W.n)+'/'+W.n;return '<div class="brow"><span>'+CW_LABEL[k]+'</span><div class="bar"><span style="width:'+Math.round(v*100)+'%"></span></div><b class="num">'+lab+'</b><i>'+W.weights[k]+'%</i></div>';}).join('')+'</div>';}
 function consistencyCard(p,g){const wk=weekKey();const W=weekScore(p,g,wk);const T=W.tier;const nx=TIERS.slice().reverse().find(t=>t[0]>W.score);const c=comboOf(g);const se=seasonOf(p,g);
   return '<div class="card conscard"><div class="spread"><div><div class="eyebrow">'+ic('chart',14)+' Consistency</div><h3 style="margin:2px 0">'+(T?'<span class="tierchip" style="--tc:'+T[2]+'">'+T[1]+'</span>':'<span class="tierchip" style="--tc:#64748b">Unranked</span>')+' · <span class="num">'+W.score+'</span> <span class="small muted">day '+W.n+'/7</span></h3></div><button class="btn sm alt" id="recapBtn">'+ic('award',14)+' Recap</button></div>'+
-   '<div class="consgrid compact">'+scoreRing(W.score,120)+'<div class="statrow" style="margin:0"><div class="sbox'+(c.n?' hot':'')+'">'+ic('flame',16)+'<b>×'+comboMult(c.n)+'</b><small>Combo</small></div><div class="sbox">'+ic('shield',16)+'<b>'+c.shields+'</b><small>Shields</small></div><div class="sbox" data-go="progress" style="cursor:pointer">'+ic('spark',16)+'<b>'+se.tier+'</b><small>Season</small></div></div></div>'+
+   '<div class="consgrid compact">'+scoreRing(W.score,120)+'<div class="statrow" style="margin:0"><div class="sbox'+(c.n?' hot':'')+'">'+ic('flame',16)+'<b>×'+comboMult(c.n)+'</b><small>Combo</small></div><div class="sbox">'+ic('shield',16)+'<b>'+c.shields+'</b><small>Combo shields</small></div><div class="sbox" data-go="progress" style="cursor:pointer">'+ic('spark',16)+'<b>'+se.tier+'</b><small>Season</small></div></div></div>'+
    more('Score breakdown',breakdownHTML(W)+'<p class="small muted" style="margin:6px 0 0">'+(nx?nx[0]-W.score+' pts to '+nx[1]+'. ':'Top tier. ')+(W.paused?'Wellbeing pause: only habits, sleep and activity count.':'Zone days only count in the band. Extra activity capped at 60 min/day.')+'</p>')+'</div>';}
 /* ---------- special quests on Today ---------- */
 function specialQuestsHTML(p,g,d){const s=leanState(p);let h='';const fu=fuelUpDue(p,g);
@@ -3230,7 +3353,7 @@ function needProfile(el){const arr=profiles();
    Today dashboard
    ========================================================= */
 function eggsHTML(g){const u=S.len==='ftin';return '<h3>🥚 Eggs</h3><p class="small muted">Walk or move to hatch. 1,000 steps ≈ '+fDist(0.75)+'; 10 min of movement ≈ '+fDist(0.8)+'. Up to 3 eggs incubate at once.</p>'+(g.eggs.length?g.eggs.map((e,i)=>{const km=EGGS[e.tier].km;const pr=clamp((e.prog||0)/km,0,1);return '<div class="eggrow"><span class="egg">'+eggSVG(EGGS[e.tier].col,34)+'</span><div style="flex:1"><div class="barlabel"><span>'+fDist(km)+' egg '+(i<3?'<span class="pill tag-e">incubating</span>':'<span class="pill soft">waiting</span>')+'</span><span class="num">'+fDist(Math.min(e.prog||0,km))+' / '+fDist(km)+'</span></div><div class="bar"><span style="width:'+(pr*100)+'%;background:'+EGGS[e.tier].col+'"></span></div></div></div>';}).join(''):'<p class="empty">No eggs right now. Clear Daily Quests, missions or streaks to earn more.</p>');}
-function bagHTML(g){return '<h3>🛡️ Streak Shields</h3>'+Object.entries(ITEMS).filter(([k])=>!PARKED||k==='shield').map(([k,v])=>{const n=g.items[k]||0;let btn='';if(k==='boost'&&n>0&&g.boostDay!==dkey())btn='<button class="btn sm" data-item="boost">Use</button>';if(k==='incense'&&n>0)btn='<button class="btn sm" data-item="incense">Ring</button>';
+function bagHTML(g){return '<h3>🛡️ Rest-day Shields</h3>'+Object.entries(ITEMS).filter(([k])=>!PARKED||k==='shield').map(([k,v])=>{const n=g.items[k]||0;let btn='';if(k==='boost'&&n>0&&g.boostDay!==dkey())btn='<button class="btn sm" data-item="boost">Use</button>';if(k==='incense'&&n>0)btn='<button class="btn sm" data-item="incense">Ring</button>';
   return '<div class="logitem"><span><span class="itemic">'+ic({shield:'shield',boost:'zap',charm:'spark',incense:'target'}[k],18)+'</span> <b>'+v[1]+'</b> ×'+n+'<br><span class="small muted">'+v[2]+'</span></span>'+btn+'</div>';}).join('');}
 function bindBag(el,re){el.querySelectorAll('[data-item]').forEach(b=>b.onclick=()=>{const g=G();const k=b.dataset.item;if((g.items[k]||0)<1)return;g.items[k]--;
   if(k==='boost'){g.boostDay=dkey();toast('⚡ XP Boost on for today',true);sound('badge');}
@@ -3411,7 +3534,7 @@ function init(){
   if(G()){checkProgress();}
   setTimeout(()=>{if(!modalOpen)maybeDobPrompt();},1200);
   if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
-  window.FQ={powerQuick,swipeTab,swipeBlocked,wholeCheck,setLogMeal,fsearch,openAddSheet,openEditItem,openTrackers,openWaiting,renderMe,setHide,autoCloseDays,recentFoods,PARKED,ageFromDob,parseDob,needsDob,dobPromptDue,maybeDobPrompt,ageOK,isAdultProfile,ageYears,usualsOf,saveUsual,logUsual,renameUsual,deleteUsual,sameAsYesterday,usualSuggestion,dismissSuggestion,renderLog,teenWeight,whoLMS,whoZ,FOODDATA:()=>FOODDATA,refreshFoodData,foodRequests,requestText,requestPayload,sendFoodRequest,openRequestIn,pendingRequests,closestFoods,libOK,logFoodNow,addPlate,RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
+  window.FQ={bagHTML,itemText:()=>ITEMS.shield[2],wrapUp,toast,faceKinds:()=>({FACE_EYES:Object.keys(FACE_EYES),CREATURE_FACES,STARTER_FACES,creatureSVG,crArt,buddyArt,CREATURES,STARTERS}),bumpStreak,streakNow,diffDays,shieldUsesIn7,powerQuick,swipeTab,swipeBlocked,wholeCheck,setLogMeal,fsearch,openAddSheet,openEditItem,openTrackers,openWaiting,renderMe,setHide,autoCloseDays,recentFoods,PARKED,ageFromDob,parseDob,needsDob,dobPromptDue,maybeDobPrompt,ageOK,isAdultProfile,ageYears,usualsOf,saveUsual,logUsual,renameUsual,deleteUsual,sameAsYesterday,usualSuggestion,dismissSuggestion,renderLog,teenWeight,whoLMS,whoZ,FOODDATA:()=>FOODDATA,refreshFoodData,foodRequests,requestText,requestPayload,sendFoodRequest,openRequestIn,pendingRequests,closestFoods,libOK,logFoodNow,addPlate,RECIPES:()=>RECIPES,recipeMacros,foodQty,loadRecipeToPlate,logRecipeServe,plateItems,plateMacro,more,saveG,planOf,savePlan,today,kcalOf,addDays,zoneAt,dayFacts,renderToday,renderProgress,renderPlan,showTab,leanState,leanTick,startLean,stopLean,logWeigh,wbSubmit,wbDue,resumeLean,fuelUpDue,trendOf,weekScore,claimWeek,seasonOf,seasonClaim,comboOf,logPB,forgeWeek,openRecap,openWellbeing,HELP,Pedometer,setSteps,zoneInfo,energy,targetOf,levelOf,store,G,evaluate,checkIn,creditDistance,dkey,weekKey,makeCode,importCode,F:()=>F,CR:()=>CR};
 }
 function refreshFoodData(){return fetchFoodData().then(d=>{const changed=!FOODDATA||JSON.stringify(d)!==JSON.stringify(FOODDATA);if(!changed)return false;applyFoodData(d);buildFoods(S.pack);s2list=defaultS2();refreshGameViews();return true;}).catch(()=>false);}
 function boot(){const c=cachedFoodData();
