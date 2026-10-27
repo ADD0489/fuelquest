@@ -1023,6 +1023,26 @@ select,input[type=number],input[type=text],input[type=date]{min-height:44px}
 [data-theme=light] .ptchip{background:rgba(0,0,0,.06)}
 .ptchip.on{background:rgba(255,93,143,.18);color:#ffb3c9}
 [data-theme=light] .ptchip.on{color:#b0235a}
+
+/* v31: Learn sub-screen Back button, Healthy habits accordion */
+.resback{display:inline-flex;align-items:center;gap:6px;min-height:44px;touch-action:manipulation}
+.resback:focus-visible,.habbtn:focus-visible{outline:3px solid #ffd23c;outline-offset:2px}
+#habits h2:focus,#plate h2:focus,.panel h2[tabindex="-1"]:focus{outline:none}
+.habits.habacc{display:flex;flex-direction:column;gap:10px}
+.habitacc{padding:0}
+.habitacc:hover{transform:none}
+.habitacc .habh{margin:0;font-size:1rem}
+.habbtn{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:12px 16px;cursor:pointer;color:inherit;font:inherit;font-weight:800;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.habbtn:focus-visible{outline:3px solid #ffd23c;outline-offset:-3px;border-radius:18px}
+.habitacc .em{font-size:1.7rem;line-height:1;flex:0 0 auto}
+.habitacc .habt{flex:1;min-width:0;font-size:1.02rem;color:#fff}
+.habchev{flex:0 0 auto;font-size:1.6rem;line-height:1;opacity:.9;transition:transform .2s ease}
+.habitacc.open .habchev{transform:rotate(90deg)}
+.habbody{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .22s ease,visibility 0s linear .22s}
+.habitacc.open .habbody{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows .22s ease,visibility 0s}
+.habin{overflow:hidden;min-height:0}
+.habin p{margin:0;padding:0 16px 14px 16px;opacity:.95;font-size:.95rem;line-height:1.45}
+@media (prefers-reduced-motion:reduce){.habchev,.habbody,.habitacc.open .habbody{transition:none}}
 </style>
 </head>
 <body>
@@ -1087,7 +1107,7 @@ select,input[type=number],input[type=text],input[type=date]{min-height:44px}
 
 <!-- 1. WHAT'S A CALORIE -->
 <section class="panel" id="calorie" role="tabpanel">
-  <button type="button" class="btn sm alt resback" onclick="showTab('resources')">← Learn</button>
+  <button type="button" class="btn sm alt resback" data-back="resources" aria-label="Back to Learn"><span aria-hidden="true">←</span> Learn</button>
   <h2>⚡ What's a calorie?</h2>
   <p class="lead soft">kcal and kJ measure food energy, like litres measure petrol.</p>
   <div class="card keyidea"><h3>💡 In 30 seconds</h3>
@@ -1183,7 +1203,7 @@ select,input[type=number],input[type=text],input[type=date]{min-height:44px}
 
 <!-- 2. KIWI KITCHEN -->
 <section class="panel" id="kitchen" role="tabpanel">
-  <button type="button" class="btn sm alt resback" onclick="showTab('resources')">← Learn</button>
+  <button type="button" class="btn sm alt resback" data-back="resources" aria-label="Back to Learn"><span aria-hidden="true">←</span> Learn</button>
   <h2>🧺 Food Lab</h2>
   <p class="lead soft"><span id="foodCount">0</span> foods · pack <b id="packName">NZ/AU</b>. Tap a food to explore, add it to your plate or log it.</p>
   <p class="small muted pwrkey"><span class="pwr" aria-hidden="true">⚡</span> Power food: whole food (fresh, plain or minimally processed). Logging one earns bonus XP, up to 3 a day.</p>
@@ -1296,6 +1316,7 @@ select,input[type=number],input[type=text],input[type=date]{min-height:44px}
 
 <!-- 5. PLATE -->
 <section class="panel" id="plate" role="tabpanel">
+  <button type="button" class="btn sm alt resback" data-back="resources" aria-label="Back to Learn"><span aria-hidden="true">←</span> Learn</button>
   <h2>🍽️ Build-a-Plate</h2>
   <p class="lead soft">Build a meal, cook from scratch, or grab a suggested recipe.</p>
   <div class="card">
@@ -1353,7 +1374,7 @@ select,input[type=number],input[type=text],input[type=date]{min-height:44px}
 
 <!-- 6. WHEN -->
 <section class="panel" id="when" role="tabpanel">
-  <button type="button" class="btn sm alt resback" onclick="showTab('resources')">← Learn</button>
+  <button type="button" class="btn sm alt resback" data-back="resources" aria-label="Back to Learn"><span aria-hidden="true">←</span> Learn</button>
   <h2>⏰ When to eat what</h2>
   <p class="lead soft">A typical day. Tap a stop for tips.</p>
   <div class="card keyidea"><h3>💡 In 30 seconds</h3>
@@ -1439,7 +1460,7 @@ select,input[type=number],input[type=text],input[type=date]{min-height:44px}
 
 <!-- 7. QUIZ -->
 <section class="panel" id="quiz" role="tabpanel">
-  <button type="button" class="btn sm alt resback" onclick="showTab('resources')">← Learn</button>
+  <button type="button" class="btn sm alt resback" data-back="resources" aria-label="Back to Learn"><span aria-hidden="true">←</span> Learn</button>
   <h2>🧠 Fuel Quiz</h2>
   <p class="lead">10 questions. Stars and XP on the line.</p>
   <div class="card qwrap" id="quizBox"></div>
@@ -1447,6 +1468,7 @@ select,input[type=number],input[type=text],input[type=date]{min-height:44px}
 
 <!-- 8. HABITS -->
 <section class="panel" id="habits" role="tabpanel">
+  <button type="button" class="btn sm alt resback" data-back="resources" aria-label="Back to Learn"><span aria-hidden="true">←</span> Learn</button>
   <h2>💚 Healthy habits</h2>
   <p class="lead">Small things done most days beat perfect plans. Pick one to try together this week.</p>
   <div class="habits" id="habitGrid"></div>
@@ -2004,9 +2026,12 @@ const RENDER={};
 const RESOURCE_TABS=new Set(['calorie','kitchen','calc','weight','when','quiz']);
 function showTab(id){if(!id||!document.getElementById(id)||!document.getElementById(id).classList.contains('panel'))id='log';
   if(id!=='log'&&typeof hideUndo==='function')hideUndo();
+  if(typeof adoptPanel==='function')adoptPanel(id);
+  const eFresh=typeof entryFresh==='function'?entryFresh(id):false;
   if(typeof paintNav==='function')paintNav(id);
   const wasHere=document.getElementById(id).classList.contains('shown')&&typeof TRACK!=='undefined'&&TRACK;$$('section.panel').forEach(s=>{s.classList.toggle('active',s.id===id);s.classList.toggle('enter',s.id===id&&!(TRACK&&NAV_PARENT[id]===id&&wasHere));});if(typeof trackShow==='function')trackShow(id);
   if(RENDER[id])RENDER[id]();if(history.replaceState)history.replaceState(null,'','#'+id);
+  if(eFresh&&typeof resetEntryScroll==='function')resetEntryScroll(id);
 }
 function refreshGameViews(){const a=$('section.panel.active');if(a&&RENDER[a.id])RENDER[a.id]();if(typeof renderNeighbours==='function')renderNeighbours();}
 
@@ -2294,7 +2319,9 @@ function renderQ(){const box=$('#quizBox');
    8. Habits
    ========================================================= */
 const HABITS=[['🍽️','Eat together','Shared meals, phones away, as often as you can. It is the best part of the day.','#7b5cff'],['🥦','Half the plate fruit and veg','Where possible. Frozen and canned count too!','#4cc43a'],['💧','Water as the main drink','Keep a bottle handy. Fizzy and energy drinks are sometimes drinks.','#2fa8ff'],['😴','Sleep well','8 to 10 hours for teens, 7 to 9 for adults. Screens off before bed helps heaps.','#5b4bc4'],['🏃','Move every day','Walk, bike, play, train, dance. About 60 min a day for under-18s, 30+ for adults.','#00b3a4'],['🙅','No food as reward or punishment','Food is fuel and enjoyment, not a prize or a penalty.','#ff9f1c'],['🍰','All foods fit','Everyday, sometimes and treat foods all have a place. No guilt.','#ff5fa2'],['💪','Focus on how you feel and perform','Energy, strength, mood and sleep matter more than any number.','#ff6b6b'],['🍳','Cook together','Everyone can help: choosing, chopping, stirring, serving.','#c98b5a'],['🗓️','Plan ahead','A quick weekly meal plan and a stocked kitchen make healthy choices easy.','#1d2340']];
-function initHabits(){$('#habitGrid').innerHTML=HABITS.map(h=>'<div class="habit" style="background:'+h[3]+'"><div class="em">'+h[0]+'</div><h3>'+h[1]+'</h3><p>'+h[2]+'</p></div>').join('');}
+function initHabits(){const g=$('#habitGrid');if(!g)return;g.classList.add('habacc');
+  g.innerHTML=HABITS.map((h,i)=>'<div class="habit habitacc'+(i===0?' open':'')+'" style="background:'+h[3]+'"><h3 class="habh"><button type="button" class="habbtn" id="habB'+i+'" aria-expanded="'+(i===0)+'" aria-controls="habP'+i+'"><span class="em" aria-hidden="true">'+h[0]+'</span><span class="habt">'+h[1]+'</span><span class="habchev" aria-hidden="true">›</span></button></h3><div class="habbody" id="habP'+i+'" role="region" aria-labelledby="habB'+i+'"><div class="habin"><p>'+h[2]+'</p></div></div></div>').join('');
+  g.onclick=e=>{const b=e.target.closest('.habbtn');if(!b||!g.contains(b))return;const card=b.closest('.habitacc'),on=b.getAttribute('aria-expanded')!=='true';b.setAttribute('aria-expanded',on?'true':'false');card.classList.toggle('open',on);};}
 
 /* Request for the library: no accounts, no numbers. Sends only what the user knows; the reviewer researches values. */
 function foodRequests(){return store.get('foodRequests',{});}
@@ -3008,7 +3035,7 @@ function bindUsuals(el,g,d,re){
    Parked game systems keep their data but are hidden.
    ========================================================= */
 const PARKED=true; /* seasons, cosmetics, chests/loot, combo, boost/charm/incense, Forge ranks, weekly tiers */
-const NAV_PARENT={log:'log',home:'home',dex:'home',badges:'home',habits:'home',resources:'resources',calorie:'resources',kitchen:'resources',when:'resources',quiz:'resources',plate:'resources',me:'me',progress:'me',plan:'me',settings:'me',calc:'me',weight:'me'};
+const NAV_PARENT={log:'log',home:'home',dex:'home',badges:'home',habits:'resources',resources:'resources',calorie:'resources',kitchen:'resources',when:'resources',quiz:'resources',plate:'resources',me:'me',progress:'me',plan:'me',settings:'me',calc:'me',weight:'me'};
 const EYE_SVG=on=>'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'+(on?'<path d="M3 3l18 18"/>':'')+'</svg>';
 function mealNow(){const h=new Date().getHours();return h<10?'b':h<14?'l':h<17?'s':'d';}
 let viewKey=null; /* null = today */
@@ -3325,13 +3352,43 @@ function initSwipe(){if(TRACK)return;const main=document.querySelector('main');i
   setTimeout(renderNeighbours,400);}
 /* keep the other slots fresh while idle so a swipe never re-renders mid-gesture */
 let nbT=null;function renderNeighbours(){clearTimeout(nbT);nbT=setTimeout(()=>{if(!TRACK)return;TRACK.querySelectorAll('section.panel.shown:not(.active)').forEach(p=>{if(!RENDER[p.id])return;const sl=p.closest('.tabslot'),y=sl?sl.scrollTop:0;try{RENDER[p.id]();}catch(e){}if(sl&&sl.scrollTop!==y)sl.scrollTop=y;});},250);}
+/* ---------- v31: Learn sub-screens ----------
+   Entering a sub-screen (or leaving a slot that is showing one) starts it at the top. Root tabs keep their own scroll (v24).
+   The hub remembers where it was so Back returns to the same spot. Healthy habits sits under the tab that opened it. */
+const SAVEPOS={};let SUBPUSH=false;
+const MOVABLE={habits:['resources','home','me']};
+function adoptPanel(id){const opts=MOVABLE[id];if(!opts)return;const p=document.getElementById(id);if(!p)return;
+  let k=TRACK?NAV_ORDER[trackIdx]:tabOf($('section.panel.active'));if(!opts.includes(k))k=opts[0];
+  NAV_PARENT[id]=k;
+  if(TRACK){const inn=TRACK.querySelector('.tabslot[data-slot="'+k+'"] .tabslotin');
+    if(inn&&p.parentElement!==inn){const old=p.closest('.tabslot');p.classList.remove('shown');inn.insertBefore(p,inn.querySelector(':scope>footer'));
+      if(old&&!old.querySelector('section.panel.shown')){const r=old.querySelector('section.panel#'+old.dataset.slot);if(r)r.classList.add('shown');}}}
+  const b=p.querySelector('.resback');if(b){const nm={resources:'Learn',home:'Quest',me:'Me'}[k];b.dataset.back=k;b.setAttribute('aria-label','Back to '+nm);b.innerHTML='<span aria-hidden="true">←</span> '+nm;}}
+function entryFresh(id){const k=NAV_PARENT[id]||'log';
+  if(!TRACK)return !document.getElementById(id).classList.contains('active');
+  const sl=slotOf(id),cur=sl&&sl.querySelector('section.panel.shown');const fresh=!(cur&&cur.id===id);
+  if(fresh&&sl&&cur&&cur.id===k&&id!==k)SAVEPOS[k]=sl.scrollTop;
+  return fresh;}
+function resetEntryScroll(id){const k=NAV_PARENT[id]||'log';let y=0;if(id===k){y=SAVEPOS[k]||0;delete SAVEPOS[k];}
+  const go=()=>{const sl=TRACK?slotOf(id):null;if(sl){if(sl.scrollTop!==y)sl.scrollTop=y;}else window.scrollTo(0,y);};go();requestAnimationFrame(go);}
+function leaveSlot(){const sl=activeSlot();if(!sl)return;const sh=sl.querySelector('section.panel.shown');if(sh&&sh.id!==sl.dataset.slot)sl.scrollTop=0;}
+let LASTSUB='';
+function focusCard(k,from){const c=k==='resources'&&from&&document.querySelector('#resCards [data-go="'+from+'"]');const t=c||document.querySelector('#'+k+' h2');
+  if(t){if(!c)t.setAttribute('tabindex','-1');try{t.focus({preventScroll:true});}catch(e){}}}
+/* Back button: if the hub pushed a history entry, pop it so the phone back stack stays tidy; the hashchange handler then shows the hub. */
+function goBack(k,from){if(SUBPUSH&&k==='resources'){SUBPUSH=false;LASTSUB=from;try{history.back();}catch(e){}
+    setTimeout(()=>{const a=$('section.panel.active');if(!a||a.id!==k){showTab(k);focusCard(k,from);}},350);return;}
+  showTab(k);focusCard(k,from);}
+function openLearnSub(id){LASTSUB=id;if(!SUBPUSH&&history.pushState){try{history.pushState(null,'','#resources');SUBPUSH=true;}catch(e){}}
+  showTab(id);const h=document.querySelector('#'+id+' h2');if(h){h.setAttribute('tabindex','-1');try{h.focus({preventScroll:true});}catch(e){}}}
 /* move the track to a slot (tab taps, programmatic). Instant, so it never slides through other tabs. */
 function trackShow(id){if(!TRACK)return;const k=NAV_PARENT[id]||'log';const i=NAV_ORDER.indexOf(k);const sl=slotOf(id);
+  if(i>=0&&i!==trackIdx)leaveSlot();
   if(sl)sl.querySelectorAll('section.panel').forEach(p=>p.classList.toggle('shown',p.id===id));
   if(i>=0&&i!==trackIdx){trackIdx=i;trackProg++;TRACK.style.scrollSnapType='none';TRACK.scrollLeft=i*TRACK.clientWidth;requestAnimationFrame(()=>{TRACK.style.scrollSnapType='';TRACK.scrollLeft=i*TRACK.clientWidth;requestAnimationFrame(()=>trackProg--);});}
   renderNeighbours();}
 /* swipe landed: just move the active marker. No re-render, no enter animation, no scroll change. */
-function commitTab(id,fromSwipe){const i=NAV_ORDER.indexOf(id);if(i<0)return;if(id!=='log'&&typeof hideUndo==='function')hideUndo();trackIdx=i;
+function commitTab(id,fromSwipe){const i=NAV_ORDER.indexOf(id);if(i<0)return;if(id!=='log'&&typeof hideUndo==='function')hideUndo();if(i!==trackIdx)leaveSlot();trackIdx=i;
   const sl=slotOf(id);const p=(sl&&sl.querySelector('section.panel.shown'))||document.getElementById(id);
   $$('section.panel.active').forEach(s=>{if(s!==p)s.classList.remove('active','enter');});if(p){p.classList.add('active');p.classList.remove('enter');}
   paintNav(p?p.id:id);if(history.replaceState)history.replaceState(null,'','#'+(p?p.id:id));if(!fromSwipe&&TRACK){TRACK.scrollLeft=i*TRACK.clientWidth;}}
@@ -3577,13 +3634,14 @@ function init(){
   $('#homeCards').onclick=e=>{const b=e.target.closest('[data-go]');if(b)showTab(b.dataset.go);};
   const resCards=[['calorie','zap','Energy 101','What\'s a calorie? Energy in vs out, kJ vs kcal, labels','#8b5cff'],['kitchen','kitchen','Food Lab','Explore foods, compare two, see 200 kcal side by side','#0fb5a0'],['plate','plate','Recipes and Build a meal','Recipe ideas, or build a meal from library foods','#ff7a1a'],['habits','leaf','Healthy habits','Small things done most days, plus Squad','#4cc43a'],['when','clock','Fuel Timing','When to eat: school, sport and snacks','#ff7a1a'],['quiz','quiz','Quiz','10 questions. Stars and XP on the line','#d946ef']];
   $('#resCards').innerHTML=resCards.map(c=>'<button class="habit navcard" data-go="'+c[0]+'" style="--hc:'+c[4]+'"><div class="em">'+ic(c[1],26)+'</div><h3>'+c[2]+'</h3><p>'+c[3]+'</p></button>').join('');
-  $('#resCards').onclick=e=>{const b=e.target.closest('[data-go]');if(b)showTab(b.dataset.go);};
+  $('#resCards').onclick=e=>{const b=e.target.closest('[data-go]');if(b)openLearnSub(b.dataset.go);};
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-back]');if(b)goBack(b.dataset.back,b.closest('section.panel')?b.closest('section.panel').id:'');});
   Object.assign(RENDER,{progress:renderProgress,home:renderToday,log:renderLog,dex:renderDex,plan:renderPlan,badges:renderBadges,resources:renderLearn,me:renderMe,kitchen:()=>{renderExplorer();renderSame200();},calc:renderProfiles,weight:fillWeightPeople,plate:()=>{renderPalette();renderPlate();},when:renderSugar,quiz:()=>{if(!QZ.length)startQuiz();},habits:()=>{renderFamily();renderShare();},settings:renderSettings,calorie:initCalorie});
   window.showTab=showTab;/* inline onclick handlers (first-run Create my profile, Resources back buttons) call showTab globally */
   $('#tabs').onclick=e=>{const b=e.target.closest('.tab');if(b)showTab(b.dataset.tab);};
   $('#modal').onclick=e=>{if(e.target.id==='modal')closeModal();};
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modalOpen)closeModal();});
-  window.addEventListener('hashchange',()=>showTab(location.hash.slice(1)));
+  window.addEventListener('hashchange',()=>{SUBPUSH=false;const t=location.hash.slice(1);showTab(t);if(t==='resources'&&LASTSUB){focusCard('resources',LASTSUB);LASTSUB='';}});
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;});
   const tb=$('#themeBtn');if(tb)tb.onclick=()=>{S.theme=S.theme==='light'?'dark':'light';saveSettings();applyTheme();};
   decorateHeadings();if(window.MutationObserver)new MutationObserver(()=>decorateHeadings()).observe(document.body,{childList:true,subtree:true});
